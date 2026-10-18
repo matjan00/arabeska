@@ -912,5 +912,30 @@ initCloud();
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
+<script>
+/* Przycisk instalacji: pasek na górze strony, gdy Chrome pozwala zainstalować aplikację. */
+(function(){
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(standalone)return;
+  var bar=null,evt=null;
+  function hide(){if(bar){bar.remove();bar=null}}
+  function show(){
+    if(bar)return;
+    bar=document.createElement('div');
+    bar.setAttribute('role','region');bar.setAttribute('aria-label','Instalacja aplikacji');
+    bar.style.cssText='display:flex;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px));background:#A3305A;color:#fff;font:15px/1.4 system-ui,sans-serif';
+    var txt=document.createElement('span');txt.style.flex='1';txt.textContent='Zainstaluj Arabeskę: ikona na ekranie i działanie offline.';
+    var b=document.createElement('button');b.type='button';b.textContent='Zainstaluj';
+    b.style.cssText='font:inherit;font-weight:600;border:0;border-radius:8px;padding:7px 14px;background:#fff;color:#A3305A;cursor:pointer';
+    var x=document.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Zamknij');
+    x.style.cssText='font:20px/1 system-ui;border:0;background:none;color:#fff;cursor:pointer;padding:4px 6px';
+    b.onclick=function(){if(!evt)return;var e=evt;evt=null;e.prompt();e.userChoice.finally(hide)};
+    x.onclick=hide;
+    bar.append(txt,b,x);document.body.prepend(bar);
+  }
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();evt=e;show()});
+  window.addEventListener('appinstalled',hide);
+})();
+</script>
 </body>
 </html>
