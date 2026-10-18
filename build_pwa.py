@@ -40,7 +40,8 @@ manifest = {
     "short_name": "Arabeska",
     "description": "Twój dziennik baletowy: klasy, treningi z timerem i postępy.",
     "lang": "pl",
-    "start_url": "./",
+    "id": "/arabeska/app",
+    "start_url": "./?source=pwa",
     "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
@@ -111,7 +112,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
 index = head + SRC + tail
 (OUT / "index.html").write_text(index, encoding="utf-8")
 
-version = hashlib.sha1(index.encode("utf-8")).hexdigest()[:10]
+version = hashlib.sha1((index + json.dumps(manifest)).encode("utf-8")).hexdigest()[:10]
 sw = """const CACHE='arabeska-%s';
 const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
