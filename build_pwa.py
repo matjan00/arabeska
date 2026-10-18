@@ -54,6 +54,36 @@ manifest = {
 }
 (OUT / "manifest.webmanifest").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
+# Konfiguracja Firebase (publiczne identyfikatory projektu, nie hasło) — firebase-config.json obok tego pliku.
+cfg_path = ROOT / "firebase-config.json"
+firebase_cfg = json.dumps(json.loads(cfg_path.read_text(encoding="utf-8"))) if cfg_path.exists() else "null"
+
+# Logowanie Google + Firestore; aplikacja korzysta z tego przez window.ARABESKA_AUTH.
+auth_js = """
+(function(){
+  var cfg=window.FIREBASE_CONFIG;if(!cfg)return;
+  var ls=[],st={user:null,ready:false,failed:false,ref:null};
+  var A=window.ARABESKA_AUTH={
+    get user(){return st.user},get ready(){return st.ready},get failed(){return st.failed},
+    onChange:function(cb){ls.push(cb);if(st.ready)cb(st.ref)},
+    signIn:function(){return Promise.reject({code:'not-ready'})},
+    signOut:function(){return Promise.resolve()}
+  };
+  function emit(){ls.forEach(function(cb){cb(st.ref)})}
+  function load(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+  var B='https://www.gstatic.com/firebasejs/10.12.2/';
+  load(B+'firebase-app-compat.js').then(function(){return Promise.all([load(B+'firebase-auth-compat.js'),load(B+'firebase-firestore-compat.js')])}).then(function(){
+    firebase.initializeApp(cfg);
+    var auth=firebase.auth(),db=firebase.firestore();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
+    A.signIn=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
+      return auth.signInWithPopup(p).catch(function(e){if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'))return auth.signInWithRedirect(p);throw e})};
+    A.signOut=function(){return auth.signOut()};
+    auth.onAuthStateChanged(function(u){st.user=u?{email:u.email,name:u.displayName}:null;st.ready=true;st.ref=u?db.collection('users').doc(u.uid):null;emit()});
+  }).catch(function(){st.ready=true;st.failed=true;emit()});
+})();
+"""
+
 head = f"""<!doctype html>
 <html lang="pl">
 <head>
@@ -66,6 +96,8 @@ head = f"""<!doctype html>
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>:root{{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
+<script>window.FIREBASE_CONFIG={firebase_cfg};</script>
+<script>{auth_js}</script>
 </head>
 <body>
 """
@@ -90,7 +122,7 @@ self.addEventListener('fetch',e=>{
   if(r.mode==='navigate'){
     e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put('index.html',cp));return res}).catch(()=>caches.match('index.html')));return;
   }
-  if(u.origin===location.origin||u.hostname.endsWith('fonts.googleapis.com')||u.hostname.endsWith('fonts.gstatic.com')){
+  if(u.origin===location.origin||u.hostname.endsWith('fonts.googleapis.com')||u.hostname.endsWith('fonts.gstatic.com')||(u.hostname==='www.gstatic.com'&&u.pathname.startsWith('/firebasejs/'))){
     e.respondWith(caches.match(r).then(hit=>{const net=fetch(r).then(res=>{if(res&&(res.ok||res.type==='opaque')){const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp))}return res}).catch(()=>hit);return hit||net}));
   }
 });

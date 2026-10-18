@@ -10,6 +10,31 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>window.FIREBASE_CONFIG=null;</script>
+<script>
+(function(){
+  var cfg=window.FIREBASE_CONFIG;if(!cfg)return;
+  var ls=[],st={user:null,ready:false,failed:false,ref:null};
+  var A=window.ARABESKA_AUTH={
+    get user(){return st.user},get ready(){return st.ready},get failed(){return st.failed},
+    onChange:function(cb){ls.push(cb);if(st.ready)cb(st.ref)},
+    signIn:function(){return Promise.reject({code:'not-ready'})},
+    signOut:function(){return Promise.resolve()}
+  };
+  function emit(){ls.forEach(function(cb){cb(st.ref)})}
+  function load(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+  var B='https://www.gstatic.com/firebasejs/10.12.2/';
+  load(B+'firebase-app-compat.js').then(function(){return Promise.all([load(B+'firebase-auth-compat.js'),load(B+'firebase-firestore-compat.js')])}).then(function(){
+    firebase.initializeApp(cfg);
+    var auth=firebase.auth(),db=firebase.firestore();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
+    A.signIn=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
+      return auth.signInWithPopup(p).catch(function(e){if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'))return auth.signInWithRedirect(p);throw e})};
+    A.signOut=function(){return auth.signOut()};
+    auth.onAuthStateChanged(function(u){st.user=u?{email:u.email,name:u.displayName}:null;st.ready=true;st.ref=u?db.collection('users').doc(u.uid):null;emit()});
+  }).catch(function(){st.ready=true;st.failed=true;emit()});
+})();
+</script>
 </head>
 <body>
 <title>Arabeska</title>
@@ -402,26 +427,35 @@ async function pushCloud(){
   try{await cloud.ref.set({updatedAt:S.updatedAt,data:JSON.parse(JSON.stringify(S))});cloud.status='cloud'}catch(e){cloud.status='error'}
   writing=false;renderSync();if(again){again=false;pushCloud()}
 }
+/* Synchronizacja: w claude.ai przez capability db, w aplikacji na telefon przez Firebase (window.ARABESKA_AUTH z build_pwa.py). */
 async function initCloud(){
+  const A=window.ARABESKA_AUTH;
+  if(A){A.onChange(ref=>{if(cloud.unsub){cloud.unsub();cloud.unsub=null}cloud.ref=null;cloud.status='local';if(ref)attachCloud(ref);else{renderSync();if(!P)render()}});return}
   if(!window.claude||!window.claude.use)return;
   try{
     const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
     if(!db||!user)return;
     const id=await user.id(); if(!id)return;
-    cloud.ref=db.doc('data/users/'+id+'/state');
+    attachCloud(db.doc('data/users/'+id+'/state'));
+  }catch(e){cloud.status='error';renderSync()}
+}
+async function attachCloud(ref){
+  cloud.ref=ref;
+  try{
     const snap=await cloud.ref.get();
     if(snap.exists){
       const d=snap.data();
       if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal();if(!P)render()}
       else if((S.updatedAt||0)>(d.updatedAt||0))pushCloud();
     } else if(S.updatedAt) pushCloud();
-    cloud.status='cloud';renderSync();
-    cloud.ref.onSnapshot(sn=>{
+    if(cloud.ref!==ref)return;
+    cloud.status='cloud';renderSync();if(!P)render();
+    cloud.unsub=ref.onSnapshot(sn=>{
       if(!sn.exists||sn.metadata.hasPendingWrites)return;
       const d=sn.data();
       if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal();if(!P)render()}
     },()=>{});
-  }catch(e){cloud.status='error';renderSync()}
+  }catch(e){if(cloud.ref===ref){cloud.status='error';renderSync()}}
 }
 
 /* ============ LOGIKA PLANU ============ */
@@ -520,6 +554,13 @@ function renderSync(){
   el.className='sync'+(cloud.status==='cloud'?' cloud':'');
   el.innerHTML='<i></i>'+(cloud.status==='cloud'?'Zapisywane na koncie':cloud.status==='error'?'Błąd synchronizacji, zapis lokalny':'Zapis na tym urządzeniu');
 }
+function accountCard(){
+  const A=window.ARABESKA_AUTH;if(!A)return '';
+  if(!A.ready)return '<section class="card flat stack"><h3>Konto</h3><p class="small muted">Łączenie z kontem…</p></section>';
+  if(A.failed)return '<section class="card flat stack"><h3>Konto</h3><p class="small muted">Nie udało się połączyć z kontem. Sprawdź internet i uruchom aplikację ponownie. Do tego czasu dane zapisują się w telefonie.</p></section>';
+  if(A.user)return `<section class="card flat stack"><h3>Konto</h3><p class="small"><span class="pill ${cloud.status==='cloud'?'good':cloud.status==='error'?'warn':''}">${cloud.status==='cloud'?'Synchronizacja włączona':cloud.status==='error'?'Błąd synchronizacji':'Łączenie…'}</span></p><p class="small muted">Zalogowana jako <b>${esc(A.user.email||A.user.name||'')}</b>. Treningi i pomiary zapisują się na koncie i są takie same na telefonie i komputerze.</p><div><button class="btn sm" data-act="signOut">Wyloguj</button></div></section>`;
+  return `<section class="card flat stack"><h3>Konto</h3><p class="small muted">Zaloguj się kontem Google, żeby treningi i pomiary zapisywały się na koncie i były takie same na telefonie i komputerze.</p><div><button class="btn primary sm" data-act="signIn">Zaloguj przez Google</button></div></section>`;
+}
 function render(){renderNav();const v=document.getElementById('view');v.innerHTML=({dzis:vToday,plan:vPlan,klasa:vLevel,postepy:vProgress,cwiczenia:vLibrary}[tab])()}
 
 function levelStrip(){
@@ -552,6 +593,7 @@ function vToday(){
      <h3>Na podstawie ankiety zaczynasz w Klasie III</h3>
      <p class="small">Tańczysz 1–3 lata, zaczynasz pointy, do szpagatu brakuje ci kilkunastu centymetrów, pojedyncza pirouette wychodzi nie zawsze. Wyniki testów są na razie szacunkowe. Zrób test poziomujący, żeby pasek postępu pokazywał prawdę.</p>
      <div class="row"><button class="btn primary sm" data-go="postepy">Zrób test</button><button class="btn sm" data-act="dismissWelcome">Rozumiem</button></div></div>`:''}
+  ${window.ARABESKA_AUTH&&ARABESKA_AUTH.ready&&!ARABESKA_AUTH.failed&&!ARABESKA_AUTH.user&&!S.flags.noLogin?`<div class="card flat row between"><p class="small" style="flex:1;min-width:200px">Zaloguj się kontem Google, żeby postępy zapisywały się na koncie.</p><div class="row"><button class="btn primary sm" data-act="signIn">Zaloguj</button><button class="btn ghost sm" data-act="noLogin">Nie teraz</button></div></div>`:''}
   ${levelStrip()}
   <section class="card hero stack">
     <div class="row between"><span class="eyebrow">${plan.kind==='session'?'Trening na dziś':'Dzień bez treningu'}</span><span class="pill num">ok. ${planMin(plan)} min</span></div>
@@ -630,8 +672,9 @@ function vLevel(){
     <label class="field">Zmień klasę ręcznie<select id="set-level">${LEVELS.map((l,i)=>`<option value="${i+1}" ${i+1===S.level?'selected':''}>Klasa ${RN[i+1]} · ${esc(l.n)}</option>`).join('')}</select></label></div>
     <div class="row"><button class="btn sm" data-act="saveSettings">Zapisz</button><button class="btn ghost sm" data-act="reset" style="color:var(--muted)">Wyczyść wszystkie dane</button></div>
   </section>
+  ${accountCard()}
   <section class="card flat stack"><h3>Kopia zapasowa</h3>
-    <p class="small muted">${window.claude?'Dane zapisują się na Twoim koncie Claude.':'Dane są zapisane w tym telefonie.'} Kopią przeniesiesz je na inne urządzenie albo do drugiej wersji aplikacji.</p>
+    <p class="small muted">${window.claude?'Dane zapisują się na Twoim koncie Claude.':cloud.status==='cloud'?'Dane zapisują się na Twoim koncie Google.':'Dane są zapisane w tym telefonie.'} Kopią przeniesiesz je na inne urządzenie albo do drugiej wersji aplikacji.</p>
     <div class="row"><button class="btn sm" data-act="export">Eksportuj dane</button><button class="btn sm" data-act="import">Importuj dane</button></div>
   </section>`;
 }
@@ -832,6 +875,9 @@ document.addEventListener('click',e=>{
     case 'doImport':{const f=document.getElementById('imp-file').files[0];
       const apply=txt=>{try{const o=JSON.parse(txt);if(!o||typeof o!=='object'||!o.tests||!Array.isArray(o.log))throw 0;S=migrate(o);save();closeModal();render();toast('Dane wczytane')}catch(_){toast('To nie wygląda na kopię z Arabeski')}};
       if(f){f.text().then(apply)}else apply(document.getElementById('imp-txt').value.trim());break}
+    case 'signIn':ARABESKA_AUTH.signIn().catch(err=>{if(err&&err.code!=='auth/popup-closed-by-user'&&err.code!=='auth/cancelled-popup-request')toast('Nie udało się zalogować: '+((err&&err.code)||'błąd'))});break;
+    case 'signOut':ARABESKA_AUTH.signOut().then(()=>toast('Wylogowano. Dane zostają w tym telefonie.'));break;
+    case 'noLogin':S.flags.noLogin=1;saveLocal();render();break;
     case 'cat':libCat=v;render();break;
     case 'saveVid':{const val=document.getElementById('vid-'+v).value.trim();if(val&&!/^https?:\/\//i.test(val)){toast('Link musi zaczynać się od https://');break}
       if(val)S.videos[v]=val;else delete S.videos[v];save();render();const d=document.querySelector(`details[data-ex="${v}"]`);if(d)d.open=true;toast(val?'Wideo zapisane':'Link usunięty');break}
