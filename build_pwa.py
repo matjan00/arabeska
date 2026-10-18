@@ -1,0 +1,100 @@
+"""Buduje wersję PWA (aplikacja na telefon) z arabeska.html do folderu docs/.
+
+Uruchom po każdej zmianie w arabeska.html:  python build_pwa.py
+"""
+import hashlib
+import json
+import pathlib
+
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = pathlib.Path(__file__).parent
+OUT = ROOT / "docs"
+SRC = (ROOT / "arabeska.html").read_text(encoding="utf-8")
+ACCENT = "#A3305A"
+BG = "#F3F2F7"
+
+OUT.mkdir(exist_ok=True)
+(OUT / "icons").mkdir(exist_ok=True)
+
+
+def icon(size, maskable=False):
+    img = Image.new("RGB", (size, size), ACCENT)
+    d = ImageDraw.Draw(img)
+    font_path = "C:/Windows/Fonts/georgiai.ttf"
+    scale = 0.52 if maskable else 0.68
+    font = ImageFont.truetype(font_path, int(size * scale))
+    box = d.textbbox((0, 0), "A", font=font)
+    w, h = box[2] - box[0], box[3] - box[1]
+    d.text(((size - w) / 2 - box[0], (size - h) / 2 - box[1]), "A", font=font, fill="#FFFFFF")
+    return img
+
+
+icon(192).save(OUT / "icons/icon-192.png")
+icon(512).save(OUT / "icons/icon-512.png")
+icon(512, maskable=True).save(OUT / "icons/maskable-512.png")
+icon(180).save(OUT / "icons/apple-touch-icon.png")
+
+manifest = {
+    "name": "Arabeska",
+    "short_name": "Arabeska",
+    "description": "Twój dziennik baletowy: klasy, treningi z timerem i postępy.",
+    "lang": "pl",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": BG,
+    "theme_color": ACCENT,
+    "icons": [
+        {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+        {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+        {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    ],
+}
+(OUT / "manifest.webmanifest").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+head = f"""<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="{ACCENT}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
+</head>
+<body>
+"""
+tail = """
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
+"""
+index = head + SRC + tail
+(OUT / "index.html").write_text(index, encoding="utf-8")
+
+version = hashlib.sha1(index.encode("utf-8")).hexdigest()[:10]
+sw = """const CACHE='arabeska-%s';
+const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{
+  const r=e.request;if(r.method!=='GET')return;
+  const u=new URL(r.url);
+  if(r.mode==='navigate'){
+    e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put('index.html',cp));return res}).catch(()=>caches.match('index.html')));return;
+  }
+  if(u.origin===location.origin||u.hostname.endsWith('fonts.googleapis.com')||u.hostname.endsWith('fonts.gstatic.com')){
+    e.respondWith(caches.match(r).then(hit=>{const net=fetch(r).then(res=>{if(res&&(res.ok||res.type==='opaque')){const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp))}return res}).catch(()=>hit);return hit||net}));
+  }
+});
+""" % version
+(OUT / "sw.js").write_text(sw, encoding="utf-8")
+(OUT / ".nojekyll").write_text("", encoding="utf-8")
+print("Zbudowano docs/ (wersja", version + ")")
