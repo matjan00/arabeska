@@ -137,8 +137,27 @@ textarea{resize:vertical}
 .levelstrip .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 .hero{background:linear-gradient(160deg,var(--accent-soft),var(--surface) 70%);}
 .blocks{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
-.blocks>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.blocks>details{border-bottom:1px solid var(--line)}
+.blocks summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:12px;padding:10px 0}
+.blocks summary::-webkit-details-marker{display:none}
 .blocks b{font-weight:700}
+.exprev{margin:0 0 10px;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.exprev li{padding-left:2px}
+.exprev li>span:first-child{margin-right:8px}
+.exprev li>span:last-child{float:right}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.vid{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.vid:last-child{border-bottom:0}
+.vid img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--surface-2);display:block}
+.vid .meta{min-width:0;display:flex;flex-direction:column;gap:4px}
+.vid .meta b{font-size:14px;line-height:1.3}
+.status{display:flex;gap:4px;flex-wrap:wrap}
+.status button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--muted)}
+.status button[aria-pressed="true"].s1{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.status button[aria-pressed="true"].s2{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.status button[aria-pressed="true"].s0{background:var(--surface-2);color:var(--ink)}
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .week .d{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0;border-radius:10px;font-size:12px;color:var(--muted);font-weight:700;background:none;border:0}
 .week .d.today{background:var(--surface-2);color:var(--ink)}
@@ -279,6 +298,9 @@ const EX={
  s_clam:{n:'Muszelka z gumą',c:'str',sd:1,eq:'guma',d:'Leżąc na boku, kolana zgięte, guma nad kolanami. Otwieraj górne kolano, stopy razem. Wzmacnia głębokie rotatory, czyli mięśnie turnoutu.',cues:['Miednica nie odchyla się w tył','Powoli, z przytrzymaniem na górze'],yt:'clamshell band turnout dancers'},
  s_turnout:{n:'Rotacja z passé w leżeniu na boku',c:'str',sd:1,d:'Leżąc na boku, górna noga w passé. Otwieraj kolano do sufitu i zamykaj, kontrolując ruch z biodra.',cues:['Palce stopy cały czas przy kolanie','Biodra jedno nad drugim'],yt:'turnout strengthening exercises ballet'},
  s_seconde:{n:'Développé à la seconde z przytrzymaniem',fr:'développé à la seconde',c:'str',sd:1,d:'Przy drążku: przez passé wyprostuj nogę w bok, przytrzymaj 3–5 s na najwyższej wysokości, którą kontrolujesz, opuść przez tendu.',cues:['Biodro nogi pracującej zostaje nisko','Kolano patrzy w sufit'],err:'Podciąganie biodra i przechylanie tułowia, żeby noga była wyżej.',yt:'developpe a la seconde tutorial'},
+ s_devfront:{n:'Développé devant z przytrzymaniem',fr:'développé devant',c:'str',sd:1,d:'Przy drążku: przez passé rozwiń nogę do przodu, przytrzymaj 3–5 s na najwyższej wysokości, którą kontrolujesz, opuść przez tendu.',cues:['Nie odchylaj tułowia w tył','Biodra równo, kolano proste'],err:'Przechylanie miednicy w tył, żeby noga poszła wyżej.',yt:'developpe devant tutorial higher'},
+ s_devback:{n:'Développé derrière z przytrzymaniem',fr:'développé derrière',c:'str',sd:1,d:'Twarzą do drążka: przez passé rozwiń nogę w tył do arabeski, przytrzymaj 3–5 s, opuść przez tendu.',cues:['Tułów może lekko pochylić się w przód, ale plecy długie','Kolano nogi pracującej patrzy w bok, nie w podłogę'],yt:'developpe derriere arabesque tutorial'},
+ s_kneelift:{n:'Unoszenie nogi bez rąk (à la seconde)',c:'str',sd:1,d:'Przy drążku złap nogę ręką w bok na wysokości, której nie utrzymasz sama, puść rękę i spróbuj utrzymać 2–3 s. Uczy mięśnie pracować w wysokim zakresie.',cues:['Biodro w dół','Lepiej niżej i stabilnie niż wysoko z przechylonym tułowiem'],yt:'leg hold release exercise extension'},
  s_arab:{n:'Arabeska w klęku podpartym',fr:'arabesque',c:'str',sd:1,d:'Na czworakach unieś prostą nogę w tył do wysokości biodra lub trochę wyżej, przytrzymaj 2 s i opuść.',cues:['Nie skręcaj miednicy','Wydłużaj nogę w tył, zamiast tylko ją podnosić'],yt:'arabesque strengthening exercises'},
  s_sumo:{n:'Plié w 2. pozycji + relevé',fr:'grand plié, relevé',c:'str',d:'W szerokiej 2. pozycji zejdź do plié, wyprostuj nogi i wejdź na relevé. Z relevé schodź powoli.',cues:['Kolana nad palcami','Na relevé ciężar nad dużym i drugim palcem'],yt:'plie releve strength ballet'},
 
@@ -334,6 +356,12 @@ const PROG={
  hips:{n:'Biodra i szpagat poprzeczny',goal:'Otwarte biodra, lepszy turnout, rozkrok bliżej podłogi',c:'flex',weeks:8,ph:[
   [{e:'f_butterfly',t:60},{e:'f_frog',t:60},{e:'f_straddle',t:75},{e:'s_clam',r:15},{e:'f_wall',t:120}],
   [{e:'f_frog',t:75},{e:'f_straddle',t:90},{e:'s_turnout',r:15},{e:'f_butterfly',t:60},{e:'s_sumo',r:12},{e:'f_wall',t:150}]]},
+ ext:{n:'Wyższe développé',goal:'Wyższe i stabilne nogi w przód, w bok i w tył',c:'str',weeks:8,ph:[
+  [{e:'f_band',t:45},{e:'f_active',r:10},{e:'s_devfront',r:4,rt:8},{e:'s_seconde',r:4,rt:8},{e:'s_devback',r:4,rt:8},{e:'s_arab',r:10},{e:'s_turnout',r:12}],
+  [{e:'f_pnf',t:60},{e:'f_active',r:12},{e:'s_devfront',r:5,rt:8,s:2},{e:'s_seconde',r:5,rt:8,s:2},{e:'s_devback',r:5,rt:8},{e:'s_kneelift',r:4,rt:8}]]},
+ barre:{n:'Technika przy drążku',goal:'Czysta technika podstawowych ćwiczeń przy drążku',c:'turn',weeks:8,ph:[
+  [{e:'w_plie',t:60},{e:'t_tendu',t:60},{e:'ft_rel1',r:10},{e:'t_bal',t:30,s:2},{e:'s_seconde',r:4,rt:8},{e:'w_swing',t:30}],
+  [{e:'w_plie',t:60},{e:'t_tendu',t:60},{e:'s_devfront',r:4,rt:8},{e:'s_seconde',r:4,rt:8},{e:'s_devback',r:4,rt:8},{e:'t_bal',t:40,s:2}]]},
  jumps:{n:'Skoki i ballon',goal:'Wyższe, lżejsze skoki z cichym lądowaniem',c:'jump',weeks:8,ph:[
   [{e:'j_plyo',r:8,s:2},{e:'j_saute',r:16,s:2},{e:'j_change',r:16,s:2},{e:'ft_rel1',r:12},{e:'s_sumo',r:12}],
   [{e:'j_plyo',r:10,s:3},{e:'j_saute',r:16,s:2},{e:'j_change',r:16,s:2},{e:'j_echappe',r:8,s:2},{e:'ft_rel1',r:15}]]},
@@ -357,6 +385,9 @@ const TESTS=[
  {id:'calf',n:'Relevé na jednej nodze',u:'powt.',floor:0,how:'Słabsza noga, przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
  {id:'plank',n:'Plank na przedramionach',u:'s',floor:0,how:'Ciało w jednej linii. Kończysz, gdy biodra opadają.'},
  {id:'second',n:'Noga à la seconde na 90°',u:'s',floor:0,how:'Développé w bok bez trzymania ręką, słabsza strona. Ile sekund utrzymasz nogę na wysokości bioder.'},
+ {id:'dev_front',n:'Développé w przód',u:'cm',floor:0,dev:1,how:'Bez trzymania ręką, słabsza noga, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
+ {id:'dev_side',n:'Développé w bok (à la seconde)',u:'cm',floor:0,dev:1,how:'Jak wyżej, noga w bok. Biodro nie może się podnieść.'},
+ {id:'dev_back',n:'Développé w tył (arabeska)',u:'cm',floor:0,dev:1,how:'Jak wyżej, noga w tył, kolano proste. Mierz od podłogi do pięty.'},
  {id:'pointe',n:'Relevés na pointach',u:'powt.',floor:0,how:'Przy drążku, obie nogi, czyste przejście przez półpalce. Tylko jeśli nauczyciel dopuścił cię do pointów.'}
 ];
 const T_BY=Object.fromEntries(TESTS.map(t=>[t.id,t]));
@@ -388,6 +419,82 @@ const TIPS=[
  'Ostry ból albo ból w stawie to sygnał, żeby przerwać. Rozciąganie może być intensywne, ale nie może kłuć.'
 ];
 
+/* Kroki baletowe do nauki; lv = klasa, w której krok zwykle się opanowuje */
+const SCATS={barre:'Drążek',adagio:'Adagio',turn:'Obroty',petit:'Małe skoki',grand:'Duże skoki',link:'Kroki łączące',pointe:'Pointy'};
+const STEPS=[
+ {id:'positions',n:'Pozycje stóp i rąk',pl:'positions des pieds et des bras',lv:1,c:'barre',d:'Pięć pozycji stóp i podstawowe pozycje rąk: bras bas, 1., 2. i 5. pozycja (en haut).',how:['Turnout tylko tyle, ile dają biodra','W 5. pozycji pięta jednej stopy dotyka palców drugiej'],yt:'ballet positions feet arms tutorial'},
+ {id:'plie',n:'Plié',pl:'zgięcie kolan',lv:1,c:'barre',d:'Demi-plié (pięty na podłodze) i grand plié (pełne zejście) we wszystkich pozycjach.',how:['Kolana nad palcami','Równy ruch w dół i w górę, bez zatrzymania na dole'],yt:'plie ballet tutorial'},
+ {id:'tendu',n:'Battement tendu',pl:'wyciągnięcie nogi',lv:1,c:'barre',d:'Stopa wysuwa się po podłodze do pointu i wraca do pozycji zamkniętej.',how:['Przez półpalce w obie strony','Ciężar zostaje na nodze podporowej'],yt:'battement tendu tutorial'},
+ {id:'releve',n:'Relevé',pl:'uniesienie',lv:1,c:'barre',d:'Wejście na wysokie półpalce (albo pointe) z nogami prostymi lub z plié.',how:['Kostki w linii, bez sierpowania','Wyrastaj w górę przez czubek głowy'],yt:'releve ballet tutorial'},
+ {id:'portdebras',n:'Port de bras',pl:'prowadzenie rąk',lv:1,c:'adagio',d:'Płynne przejścia rąk między pozycjami, często z wychyleniem tułowia.',how:['Ręce zaczynają ruch z pleców','Łokcie lekko zaokrąglone, dłonie miękkie'],yt:'port de bras tutorial ballet'},
+ {id:'saute',n:'Sauté',pl:'skok',lv:1,c:'petit',d:'Skok z plié na obie nogi i lądowanie w tej samej pozycji.',how:['Pełny point w powietrzu','Lądowanie przez stopę do plié'],yt:'saute ballet tutorial'},
+ {id:'jete_b',n:'Battement jeté (dégagé)',pl:'wyrzut nogi',lv:2,c:'barre',d:'Jak tendu, ale noga odrywa się od podłogi na ok. 25°, szybko i ostro.',how:['Akcent na wyrzucie, nie na zamknięciu','Biodra stabilne'],yt:'battement jete degage tutorial'},
+ {id:'rond_terre',n:'Rond de jambe par terre',pl:'koło nogą po podłodze',lv:2,c:'barre',d:'Stopa rysuje półkole po podłodze en dehors (od przodu do tyłu) albo en dedans.',how:['Przejście przez 1. pozycję z prostymi kolanami','Turnout utrzymany cały czas'],yt:'rond de jambe a terre tutorial'},
+ {id:'passe',n:'Retiré / passé',pl:'noga zgięta przy kolanie',lv:2,c:'barre',d:'Palce stopy przy kolanie nogi podporowej, kolano otwarte w bok. Podstawa pirouette.',how:['Biodra równo','Stopa w point przy kolanie, nie za kolanem'],yt:'retire passe ballet tutorial'},
+ {id:'changement',n:'Changement de pieds',pl:'zmiana nóg w skoku',lv:2,c:'petit',d:'Skok z 5. pozycji, zmiana nogi w powietrzu, lądowanie w 5.',how:['Nogi razem w powietrzu','Czysta 5. pozycja przy lądowaniu'],yt:'changement ballet tutorial'},
+ {id:'echappe',n:'Échappé sauté',pl:'rozskok',lv:2,c:'petit',d:'Z 5. pozycji skok do 2. (lub 4.) i z powrotem do 5.',how:['Równa szerokość pozycji','Plié przy każdym lądowaniu'],yt:'echappe saute tutorial'},
+ {id:'glissade',n:'Glissade',pl:'ślizg',lv:2,c:'link',d:'Krok łączący po podłodze: wysunięcie nogi, przeniesienie ciężaru, zamknięcie do 5.',how:['Nogi mijają się nisko nad podłogą','Krok płynny, bez podskakiwania'],yt:'glissade ballet tutorial'},
+ {id:'pdb',n:'Pas de bourrée',pl:'drobne kroki',lv:2,c:'link',d:'Trzy szybkie kroki na półpalcach z przeniesieniem ciężaru, np. dessous lub dessus.',how:['Krótkie kroki pod sobą','Ostatni krok w plié'],yt:'pas de bourree tutorial'},
+ {id:'chasse',n:'Chassé',pl:'gonienie',lv:2,c:'link',d:'Ślizgowy krok, w którym jedna noga „goni” drugą, często jako przygotowanie do skoku.',how:['Nogi spotykają się w powietrzu','Plié na początku i na końcu'],yt:'chasse ballet tutorial'},
+ {id:'balance',n:'Balancé',pl:'kołysanie',lv:2,c:'link',d:'Walcowy krok na 3 (dół-góra-dół) w bok, z ruchem tułowia i rąk.',how:['Pierwszy krok duży i w plié','Tułów kołysze się w stronę kroku'],yt:'balance ballet step tutorial'},
+ {id:'fondu',n:'Battement fondu',pl:'„topnienie”',lv:3,c:'barre',d:'Obie nogi zginają się jednocześnie i jednocześnie prostują, noga pracująca wyciąga się w powietrze.',how:['Obie nogi pracują równo','Ruch miękki, ciągły'],yt:'battement fondu tutorial'},
+ {id:'frappe',n:'Battement frappé',pl:'uderzenie',lv:3,c:'barre',d:'Stopa z cou-de-pied energicznie wyrzucana do pointu, z akcentem na zewnątrz.',how:['Ruch tylko poniżej kolana','Udo nieruchome'],yt:'battement frappe tutorial'},
+ {id:'petitbatt',n:'Petit battement sur le cou-de-pied',pl:'małe uderzenia przy kostce',lv:3,c:'barre',d:'Szybkie przekładanie stopy przód–tył przy kostce nogi podporowej.',how:['Kolano otwarte i nieruchome','Zacznij wolno, przyspieszaj'],yt:'petit battement sur le cou de pied tutorial'},
+ {id:'developpe',n:'Développé',pl:'rozwinięcie',lv:3,c:'adagio',d:'Noga przechodzi przez passé i rozwija się do przodu, w bok lub w tył na wysokość 90° lub wyżej.',how:['Biodro nogi pracującej nisko','Kolano unosi się przed rozwinięciem'],yt:'developpe ballet tutorial'},
+ {id:'grandbatt',n:'Grand battement',pl:'duży wyrzut nogi',lv:3,c:'barre',d:'Prosta noga wyrzucona wysoko przez tendu i opuszczona z kontrolą.',how:['W górę szybko, w dół wolniej','Tułów nie odchyla się'],yt:'grand battement tutorial'},
+ {id:'arabesque',n:'Arabesque',pl:'arabeska (1.–4.)',lv:3,c:'adagio',d:'Pozycja na jednej nodze z drugą prostą w tył. Cztery warianty różnią się ułożeniem rąk i tułowia.',how:['Długa linia od palców ręki do palców stopy','Biodro nogi w tył lekko się otwiera, barki zostają'],yt:'arabesque positions ballet tutorial'},
+ {id:'attitude',n:'Attitude',pl:'noga zgięta w powietrzu',lv:3,c:'adagio',d:'Noga uniesiona w przód lub w tył, zgięta w kolanie pod kątem ok. 90°.',how:['Kolano wyżej niż stopa (w tył)','Turnout trzymany od biodra'],yt:'attitude ballet tutorial'},
+ {id:'pir_dehors',n:'Pirouette en dehors',pl:'obrót na zewnątrz',lv:3,c:'turn',d:'Obrót na jednej nodze w passé, w stronę nogi pracującej.',how:['Przygotowanie z 4. pozycji','Spotting i stabilne zakończenie'],yt:'pirouette en dehors tutorial'},
+ {id:'pir_dedans',n:'Pirouette en dedans',pl:'obrót do środka',lv:3,c:'turn',d:'Obrót w stronę nogi podporowej, zwykle z przygotowania w 4. pozycji z nogą wyprostowaną w tył.',how:['Noga pracująca przechodzi przez 2. pozycję do passé','Nie obracaj się zbyt wcześnie ramionami'],yt:'pirouette en dedans tutorial'},
+ {id:'soutenu',n:'Soutenu en tournant',pl:'obrót z dociągnięciem',lv:3,c:'turn',d:'Obrót na obu nogach w ciasnej 5. pozycji na półpalcach.',how:['Nogi mocno ściśnięte','Głowa prowadzi'],yt:'soutenu turn tutorial'},
+ {id:'chaines',n:'Chaînés (déboulés)',pl:'łańcuszek obrotów',lv:3,c:'turn',d:'Seria szybkich półobrotów na półpalcach po linii prostej lub po kole.',how:['Stopy blisko siebie w 1. pozycji','Szybki spotting w kierunku ruchu'],yt:'chaine turns tutorial'},
+ {id:'pique_turn',n:'Piqué en dedans',pl:'piqué turn',lv:3,c:'turn',d:'Krok prosto na wyprostowaną nogę na półpalcach/pointe i obrót w passé.',how:['Wejście na prostą nogę „wbijając” ją w podłogę','Druga noga szybko w passé'],yt:'pique turn tutorial'},
+ {id:'assemble',n:'Assemblé',pl:'złożenie',lv:3,c:'petit',d:'Noga wyrzucona w bok, obie nogi łączą się w powietrzu i lądują razem w 5.',how:['Nogi spotykają się w powietrzu, nie na podłodze','Wyrzut po podłodze jak jeté'],yt:'assemble ballet tutorial'},
+ {id:'sissonne',n:'Sissonne fermée',pl:'skok z obu nóg na jedną i zamknięcie',lv:3,c:'petit',d:'Skok z obu nóg, nogi rozchodzą się w powietrzu i zamykają się szybko do 5.',how:['Druga noga dociąga szybko','Tułów lekko w kierunku ruchu'],yt:'sissonne ferme tutorial'},
+ {id:'petitjete',n:'Petit jeté',pl:'mały rzut',lv:3,c:'petit',d:'Skok z jednej nogi na drugą, lądowanie na jedną nogę z drugą w cou-de-pied.',how:['Noga wyrzucona po podłodze','Lądowanie w plié z kontrolą'],yt:'petit jete ballet tutorial'},
+ {id:'pasdechat',n:'Pas de chat',pl:'krok kota',lv:3,c:'petit',d:'Skok w bok, w którym obie nogi po kolei podciągają się do passé.',how:['Kolana otwarte, stopy wyciągnięte','Lądowanie w 5. przez plié'],yt:'pas de chat tutorial'},
+ {id:'tempsleve',n:'Temps levé',pl:'podskok na jednej nodze',lv:3,c:'petit',d:'Skok z jednej nogi na tę samą, druga noga utrzymuje pozycję (np. arabeska, cou-de-pied).',how:['Pozycja nogi w powietrzu się nie zmienia','Pełny point stopy skaczącej'],yt:'temps leve ballet tutorial'},
+ {id:'tombe_pdb',n:'Tombé pas de bourrée',pl:'opadnięcie i drobne kroki',lv:3,c:'link',d:'Opadnięcie na nogę w plié i pas de bourrée, częste przygotowanie do pirouette lub skoku.',how:['Tombé idzie w przestrzeń, nie w miejscu','Pas de bourrée małe i szybkie'],yt:'tombe pas de bourree tutorial'},
+ {id:'pasdebasque',n:'Pas de basque',pl:'krok baskijski',lv:3,c:'link',d:'Płynny krok z półkolem nogi, przeniesieniem ciężaru i przejściem przez 1. pozycję.',how:['Noga rysuje półkole po podłodze','Ciężar przechodzi płynnie'],yt:'pas de basque ballet tutorial'},
+ {id:'pointe_rel',n:'Relevé na pointach',pl:'relevé sur les pointes',lv:3,c:'pointe',d:'Przy drążku wejście na pełne pointe przez półpalce i kontrolowane zejście.',how:['Kolana proste na pointach','Przejście przez półpalce w obie strony'],yt:'pointe releve beginner tutorial'},
+ {id:'pir_double',n:'Podwójna pirouette',pl:'double pirouette en dehors',lv:4,c:'turn',d:'Dwa obroty w passé z czystym zakończeniem.',how:['Wyższe relevé','Szybsza głowa w drugim obrocie'],yt:'double pirouette tutorial'},
+ {id:'pique_dehors',n:'Piqué en dehors',pl:'obrót piqué na zewnątrz („lame duck”)',lv:4,c:'turn',d:'Krok na nogę i obrót w stronę nogi pracującej, z przejściem przez coupé.',how:['Wyraźne przejście przez coupé','Spotting w kierunku ruchu'],yt:'pique en dehors lame duck tutorial'},
+ {id:'rond_air',n:'Rond de jambe en l\'air',pl:'koło w powietrzu',lv:4,c:'barre',d:'Noga uniesiona w bok, podudzie rysuje owal, udo nieruchome.',how:['Udo nie opada','Owal do kolana nogi podporowej'],yt:'rond de jambe en l air tutorial'},
+ {id:'sissonne_ouv',n:'Sissonne ouverte',pl:'sissonne otwarta',lv:4,c:'grand',d:'Skok z obu nóg z lądowaniem na jedną nogę i drugą w otwartej pozycji, np. w arabesce.',how:['Pozycja w powietrzu wyraźna','Lądowanie przez stopę'],yt:'sissonne ouverte tutorial'},
+ {id:'entrechat4',n:'Entrechat quatre',pl:'podwójna przekładka',lv:4,c:'petit',d:'Skok z 5. pozycji z przełożeniem nóg w powietrzu i lądowaniem w tej samej 5.',how:['Nogi otwierają się tylko lekko','Wysoki skok, proste kolana'],yt:'entrechat quatre tutorial'},
+ {id:'royale',n:'Royale',pl:'changement battu',lv:4,c:'petit',d:'Changement z jednym uderzeniem łydek przed zmianą nóg.',how:['Uderzenie łydkami, nie stopami','Proste kolana'],yt:'royale ballet tutorial'},
+ {id:'grandjete',n:'Grand jeté',pl:'duży rzut',lv:4,c:'grand',d:'Duży skok z jednej nogi na drugą z nogami w szpagacie w powietrzu.',how:['Przednia noga wyrzucona z grand battement','Rozbieg przez glissade lub tombé'],yt:'grand jete tutorial'},
+ {id:'sautdechat',n:'Saut de chat',pl:'skok kota',lv:4,c:'grand',d:'Duży skok, w którym przednia noga przechodzi przez développé.',how:['Przednie kolano w górę, potem rozwinięcie','Tylna noga wysoko'],yt:'saut de chat tutorial'},
+ {id:'echappe_pointe',n:'Échappé na pointach',pl:'échappé sur les pointes',lv:4,c:'pointe',d:'Z 5. pozycji w plié na pointe w 2. pozycji i z powrotem, na środku sali.',how:['Równa szerokość','Kolana proste na pointach'],yt:'echappe on pointe tutorial'},
+ {id:'bourree',n:'Pas de bourrée suivi',pl:'bourrée',lv:4,c:'pointe',d:'Drobne, szybkie kroki na pointach w ciasnej 5. pozycji, które dają efekt płynięcia.',how:['Kolana lekko zmiękczone','Stopy ciasno, kroki maleńkie'],yt:'bourree pointe tutorial'},
+ {id:'fouette_prep',n:'Fouetté (przygotowanie)',pl:'fouetté rond de jambe en tournant',lv:5,c:'turn',d:'Pojedyncze fouetté: z plié noga otwiera się w przód i w bok, wraca do passé, obrót na relevé.',how:['Najpierw opanuj ruch bez obrotu przy drążku','Plié na każdy obrót'],yt:'fouette turn tutorial beginner'},
+ {id:'pir_att',n:'Pirouette w attitude / arabesce',pl:'grande pirouette',lv:5,c:'turn',d:'Obrót z nogą w attitude lub arabesce zamiast w passé.',how:['Pozycja ustawiona, zanim zaczniesz obrót','Wolniejszy, ale stabilny obrót'],yt:'pirouette attitude tutorial'},
+ {id:'cabriole',n:'Cabriole',pl:'uderzenie nóg w powietrzu',lv:5,c:'grand',d:'Noga wyrzucona wysoko, druga noga dobija do niej w powietrzu.',how:['Dolna noga uderza o górną, nie odwrotnie','Proste kolana'],yt:'cabriole ballet tutorial'},
+ {id:'brise',n:'Brisé',pl:'łamane',lv:5,c:'petit',d:'Mały skok w przód lub w tył z uderzeniem nóg, lądowanie w 5.',how:['Nisko i szybko','Nogi uderzają w powietrzu'],yt:'brise ballet tutorial'},
+ {id:'renverse',n:'Renversé',pl:'przewrócenie',lv:5,c:'adagio',d:'Obrót z głębokim wygięciem tułowia (cambré) w trakcie obrotu.',how:['Tułów prowadzi ruch','Najpierw pewny piqué i attitude'],yt:'renverse ballet tutorial'},
+ {id:'pique_pointe',n:'Piqué turns na pointach',pl:'piqué en dedans sur les pointes',lv:5,c:'pointe',d:'Seria piqué turns na pointach po linii.',how:['Prosta noga podporowa','Wyrastaj z pointu, nie wpadaj'],yt:'pique turns on pointe tutorial'},
+ {id:'tourjete',n:'Grand jeté en tournant',pl:'tour jeté',lv:6,c:'grand',d:'Duży skok z obrotem w powietrzu i lądowaniem w arabesce.',how:['Wyrzut przedniej nogi wysoko','Obrót bioder w najwyższym punkcie'],yt:'tour jete tutorial'},
+ {id:'fouettes',n:'Fouettés w serii',pl:'fouetté en tournant',lv:6,c:'turn',d:'Seria fouettés na jednej nodze, w tempie muzyki.',how:['Równe plié na każdy obrót','Spotting bez zmiany punktu'],yt:'fouettes tutorial series'},
+ {id:'italian',n:'Italian fouetté',pl:'fouetté italien',lv:6,c:'adagio',d:'Noga przechodzi z przodu do arabeski z ćwierćobrotem na relevé.',how:['Noga wysoko w obu pozycjach','Tułów prowadzi zmianę kierunku'],yt:'italian fouette tutorial'},
+ {id:'manege',n:'Manège',pl:'obroty po kole',lv:7,c:'turn',d:'Seria obrotów (piqué, chaînés) po dużym kole wokół sceny.',how:['Wzrok prowadzi po kole','Tempo równe przez całe koło'],yt:'manege turns ballet'},
+ {id:'entrechat6',n:'Entrechat six',pl:'potrójna przekładka',lv:7,c:'petit',d:'Wysoki skok z trzema przełożeniami nóg w powietrzu.',how:['Bardzo wysoki skok','Małe, szybkie przełożenia'],yt:'entrechat six tutorial'}
+];
+const STEP_BY=Object.fromEntries(STEPS.map(s=>[s.id,s]));
+
+/* Treningi z YouTube (sprawdzone filmy). m = minuty, pl = film po polsku */
+const VIDEOS={
+ split:[{id:'m_XEo-iecCs',t:'20 Minute Front Splits Routine',ch:'Tom Merrick',m:22},{id:'S8MP_CPl-i8',t:'Jak zrobić szpagat? 10 minutowe rozciąganie',ch:'Patrycja Kołowska',m:11,pl:1},{id:'SdltgVDEPmM',t:'15 Min Stretch for Splits',ch:'MadFit',m:17},{id:'Uhk363mRXok',t:'Zrób szpagat | wyzwanie 14 dni',ch:'Trening Fitness',m:21,pl:1},{id:'GFuhJQloXu8',t:'15 Minute Deep Stretch for Splits',ch:'blogilates',m:22},{id:'GVZZi-Gth_M',t:'8 Min Stretch for Splits',ch:'Pamela Reif',m:10},{id:'cOiO6_E6CDI',t:'30 Min Unlock Your Splits: Hip Flexor & Hamstring',ch:'FLEXFORM by Shan',m:38}],
+ feet:[{id:'U-nhYGYWO2Q',t:'Follow-Along for Strong Feet & High Demi Pointe',ch:'Tatiana Rooney',m:13},{id:'X5zMJRHOCJI',t:'10 Minutes Feet Strengthening with Maria Khoreva',ch:'Maria Khoreva',m:15},{id:'W4fNXylv0aw',t:'Feet Strengthening Exercises for Pointe',ch:'Suffolk Dance',m:22},{id:'8_xYxupTGW4',t:'10 min Foot Strengthening Routine',ch:'Stephanie Camille Ballet',m:15},{id:'ymb8oP5xPzw',t:'Follow-Along for Strong and Flexible Feet',ch:'HannahMartinRG',m:26}],
+ core:[{id:'QwgphBR9eOU',t:'My Everyday Ballet Core Workout',ch:'Jasmine McDonald',m:9},{id:'GzLVucKK4xo',t:'Core Strength for Beginner Adult Dancers',ch:'Kathryn Morgan & Align Fitness',m:29},{id:'KPywtcaQnL0',t:'8 Minute Ballet Core Workout with Music',ch:'Jasmine McDonald',m:9},{id:'IZ7IONL-dmE',t:'Strength & Conditioning for Dancers',ch:'HannahMartinRG',m:15},{id:'f7Msw169kr4',t:'15 Min Strong Core (Dancer Abs)',ch:'MadFit',m:16}],
+ turns:[{id:'X_I8wuN_qko',t:'Pirouette Tips and Ballet Exercises',ch:'Kathryn Morgan & Align Fitness',m:11},{id:'aFNkd_enNSE',t:'Pirouette Tutorial: Ballet Beginner Secrets',ch:'Ballet With Isabella',m:11},{id:'lN3-IKFnutQ',t:'Simple Drills to Nail Your Pirouettes',ch:'Face the Barre',m:25},{id:'bxHXHFTpBSI',t:'Exercises to Prepare for Multiple Turns',ch:'Runqiao Du Ballet Coaching',m:5},{id:'MAnIsPQWWpw',t:'Technique Class for Turns',ch:'Kayleen Babel',m:27},{id:'clRLDLbulfI',t:'How to Master Multiple Turns',ch:'HannahMartinRG',m:7}],
+ hips:[{id:'k5cxMmuc04Y',t:'10 min Middle Split Routine',ch:'StretchAndTrain',m:14},{id:'pz8jeqbQ4CI',t:'10-min Turnout Workout with Maria Khoreva',ch:'Maria Khoreva',m:14},{id:'UoplBZlQLcY',t:'Middle Splits Stretching Follow Along',ch:'Train Like a Ballerina',m:17},{id:'Do21E21wbUU',t:'Improve Your Turnout in 20 Minutes',ch:'HannahMartinRG',m:18},{id:'pq3X3Gl4nzE',t:'20 Minute Middle Split Routine',ch:'Tom Merrick',m:20},{id:'vg0TNnj3ylc',t:'How to Improve Your Turnout',ch:'Kathryn Morgan',m:21}],
+ ext:[{id:'wYsbJ83d854',t:'Improve Your Extensions: Follow-Along',ch:'HannahMartinRG',m:19},{id:'JZ7QVHNmAG4',t:'Get Better Extensions for Ballet',ch:'Jasmine McDonald',m:13},{id:'Nw3dqxi9fBc',t:'Side Développé Workout',ch:'Ballet With Isabella',m:4},{id:'ZRIffXhrlHI',t:'22 Min Workout for Higher Extensions',ch:'Train Like a Ballerina',m:23},{id:'SausCUZXeLE',t:'20 Min Workout for Higher Extensions (Iana Salenko)',ch:'Train Like a Ballerina',m:19}],
+ jumps:[{id:'LQhQqeNK-rg',t:'Dance Jump Technique Exercises',ch:'Kayleen Babel',m:15},{id:'4Aozp2ckGac',t:'Ballet Jumps & Cardio with Laura Quinn',ch:'Dance Tutorials TV',m:10},{id:'3fdH6euLSPY',t:'Ballet Interval Jump Workout',ch:'Desiree',m:6}],
+ jazz:[{id:'pMhw5NXfAdM',t:'Jazz Dance Basics for Absolute Beginners',ch:'Maria Escamilla',m:15},{id:'KmVMInvINt4',t:'Beginner Jazz Class: Warm Up & Technique',ch:'BodyKinect by Kendall',m:27},{id:'Q-vTdYT5UCY',t:'Beginner/Intermediate Jazz Follow Along',ch:'BodyKinect by Kendall',m:11},{id:'NnWVlVfrBeY',t:'Jazz Technique: Turns, Kicks and Leaps',ch:'Kayleen Babel',m:28},{id:'Xux38KwhHTU',t:'Beginner Jazz: Learn a Full Dance',ch:'BodyKinect by Kendall',m:7}],
+ barre:[{id:'_t15Kq35nuA',t:'Intermediate Barre Follow Along',ch:'Claudia Dean World',m:24},{id:'OKByYClo8OA',t:'Intermediate Ballet Barre at Home',ch:'Ballet and Balance',m:26},{id:'ZSIfgTOowYk',t:'Intermediate/Advanced Ballet Barre (35 Min)',ch:'Kathryn Morgan',m:35},{id:'VXeIN5TQcZA',t:'Ballet Barre for Strength, Balance & Turnout',ch:'Kathryn Morgan',m:47}]
+};
+const ytWatch=id=>'https://www.youtube.com/watch?v='+id;
+
 /* ============ STAN ============ */
 const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -411,9 +518,10 @@ function defaults(){
   const start=t;
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
-    pointe:true,tests,log:[],videos:{},flags:{}};
+    pointe:true,tests,log:[],videos:{},flags:{},
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,ytPick:{}};
 }
-function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart'])o[k]=Object.assign({},o[k]);o.log=Array.isArray(o.log)?o.log.slice():[];return o}
+function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick'])o[k]=Object.assign({},o[k]);o.log=Array.isArray(o.log)?o.log.slice():[];return o}
 const LS='arabeska.v1';
 function loadLocal(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -477,13 +585,25 @@ function planFor(date){
   const i=trainingIndex(date);
   const a=act[(i*2)%act.length],b=act[(i*2+1)%act.length];
   const progs=a===b?[a]:[a,b];
-  return {date,kind:'session',title:progs.map(p=>PROG[p].n).join(' + '),progs,
-    blocks:[{n:'Rozgrzewka',items:WARM},...progs.map(p=>progBlock(p,date)),{n:'Wyciszenie',items:COOL}]};
+  const st=focusStep();
+  const learn=st?[{n:'Nauka kroku: '+st.n,step:st.id,items:[{e:'step:'+st.id,t:180}]}]:[];
+  const vids=progs.map((p,k)=>{const L=VIDEOS[p];if(!L)return null;const key=date+':'+p;const n=S.ytPick[key]!=null?S.ytPick[key]:Math.floor((i*2+k)/act.length);return {p,v:L[n%L.length],key}}).filter(Boolean);
+  return {date,kind:'session',title:progs.map(p=>PROG[p].n).join(' + '),progs,vids,i,
+    blocks:[{n:'Rozgrzewka',items:WARM},...learn,...progs.map(p=>progBlock(p,date)),{n:'Wyciszenie',items:COOL}]};
+}
+/* krok do nauki: najpierw ten oznaczony „uczę się”, potem pierwszy nieznany z bieżącej klasy */
+function focusStep(){
+  const learning=STEPS.find(s=>S.steps[s.id]===1);if(learning)return learning;
+  return STEPS.find(s=>s.lv===S.level&&!S.steps[s.id])||STEPS.find(s=>s.lv>S.level&&!S.steps[s.id])||null;
+}
+function exGet(id){
+  if(id.startsWith('step:')){const s=STEP_BY[id.slice(5)];return {n:s.n,fr:s.pl,c:'turn',d:s.d+' Ćwicz powoli, najpierw przy drążku, potem na środku.',cues:s.how,yt:s.yt+' ballet'}}
+  return EX[id];
 }
 function stepsOf(plan){
   const out=[];
   for(const b of plan.blocks)for(const it of b.items){
-    const ex=EX[it.e];const sides=ex.sd?['Prawa strona','Lewa strona']:[null];const sets=it.s||1;
+    const ex=exGet(it.e);const sides=ex.sd?['Prawa strona','Lewa strona']:[null];const sets=it.s||1;
     for(let s=1;s<=sets;s++)for(const side of sides)out.push({block:b.n,e:it.e,t:it.t,r:it.r,rt:it.rt||4,side,set:s,sets});
   }
   return out;
@@ -510,6 +630,9 @@ function levelStatus(){
   });
   const done=S.log.filter(l=>TRAIN_KINDS.includes(l.kind)&&l.d>=S.levelSince).length;
   items.push({tid:'_s',name:'Treningi w tej klasie',cur:done,target:L.sessions,unit:'',f:clamp(done/L.sessions),gap:done>=L.sessions?'Zaliczone':'jeszcze '+(L.sessions-done)});
+  const ls=STEPS.filter(s=>s.lv===S.level);
+  if(ls.length){const m=ls.filter(s=>S.steps[s.id]===2).length;
+    items.push({tid:'_k',name:'Opanowane kroki Klasy '+RN[S.level],cur:m,target:ls.length,unit:'',f:clamp(m/ls.length),gap:m>=ls.length?'Zaliczone':'jeszcze '+(ls.length-m)})}
   const pct=items.reduce((a,b)=>a+b.f,0)/items.length;
   return {items,pct,ready:items.every(i=>i.f>=1)};
 }
@@ -537,10 +660,10 @@ const ICON={
  sound:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>',
  mute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l4 6M21 9l-4 6"/></svg>'
 };
-const TABS=[['dzis','Dziś'],['plan','Plan'],['klasa','Klasa'],['postepy','Postępy'],['cwiczenia','Ćwiczenia']];
+const TABS=[['dzis','Dziś'],['plan','Plan'],['klasa','Klasa'],['postepy','Postępy'],['cwiczenia','Nauka']];
 let tab=(location.hash||'').slice(1);if(!TABS.some(t=>t[0]===tab)){try{tab=localStorage.getItem('arabeska.tab')||'dzis'}catch(e){tab='dzis'}}
 if(!TABS.some(t=>t[0]===tab))tab='dzis';
-let calMonth=today().slice(0,7),calSel=today(),libCat='all',libQ='',openTest=null;
+let calMonth=today().slice(0,7),calSel=today(),libCat='all',libQ='',openTest=null,learnSeg='kroki',stepLv=null;
 
 function go(t){tab=t;try{localStorage.setItem('arabeska.tab',t)}catch(e){}try{history.replaceState(null,'','#'+t)}catch(e){}render();window.scrollTo(0,0)}
 function renderNav(){
@@ -570,8 +693,10 @@ function levelStrip(){
     <span class="row between"><span><b>Klasa ${RN[S.level]}</b> · ${esc(LEVELS[S.level-1].n)}</span><span class="num small muted">${Math.round(st.pct*100)}% do Klasy ${RN[S.level+1]}</span></span>
     <span class="bar"><span style="width:${Math.round(st.pct*100)}%"></span></span></span></button>`;
 }
-function blocksList(plan){
-  return '<div class="blocks">'+plan.blocks.map(b=>`<div><span><b>${esc(b.n)}</b>${b.prog?` <span class="muted small">· tydz. ${b.wk}/${PROG[b.prog].weeks}, faza ${b.ph+1}</span>`:''}</span><span class="muted num small">${blockMin(b)} min</span></div>`).join('')+'</div>';
+function dose(it){const ex=exGet(it.e);return (it.t?(it.t>=60&&it.t%60===0?it.t/60+' min':it.t+' s'):it.r+' powt.')+(it.s?' × '+it.s:'')+(ex.sd?' / na stronę':'')}
+function blocksList(plan,open){
+  return '<div class="blocks">'+plan.blocks.map(b=>`<details ${open?'open':''}><summary><span><b>${esc(b.n)}</b>${b.prog?` <span class="muted small">· tydz. ${Math.min(b.wk,PROG[b.prog].weeks)}/${PROG[b.prog].weeks}, faza ${b.ph+1}</span>`:''}</span><span class="muted num small">${blockMin(b)} min ▾</span></summary>
+    <ol class="exprev">${b.items.map(it=>{const ex=exGet(it.e);return `<li><span>${esc(ex.n)}${ex.fr?` <span class="fr small">${esc(ex.fr)}</span>`:''}</span><span class="muted num small">${dose(it)}</span></li>`}).join('')}</ol></details>`).join('')+'</div>';
 }
 function weekStrip(){
   const m=mondayOf(today());let h='';
@@ -595,17 +720,49 @@ function vToday(){
      <div class="row"><button class="btn primary sm" data-go="postepy">Zrób test</button><button class="btn sm" data-act="dismissWelcome">Rozumiem</button></div></div>`:''}
   ${window.ARABESKA_AUTH&&ARABESKA_AUTH.ready&&!ARABESKA_AUTH.failed&&!ARABESKA_AUTH.user&&!S.flags.noLogin?`<div class="card flat row between"><p class="small" style="flex:1;min-width:200px">Zaloguj się kontem Google, żeby postępy zapisywały się na koncie.</p><div class="row"><button class="btn primary sm" data-act="signIn">Zaloguj</button><button class="btn ghost sm" data-act="noLogin">Nie teraz</button></div></div>`:''}
   ${levelStrip()}
-  <section class="card hero stack">
-    <div class="row between"><span class="eyebrow">${plan.kind==='session'?'Trening na dziś':'Dzień bez treningu'}</span><span class="pill num">ok. ${planMin(plan)} min</span></div>
-    <h2>${plan.kind==='session'?esc(plan.title):'Regeneracja (opcjonalnie)'}</h2>
-    ${plan.kind==='recovery'?`<p class="muted small">Lekkie rolowanie i rozciąganie, żeby ciało odpoczęło. ${next?'Następny trening: '+fmt(next,{weekday:'long'})+'.':''}</p>`:''}
-    ${blocksList(plan)}
-    <div class="row">${done?`<span class="pill good">Zrobione dzisiaj</span><button class="btn sm" data-act="start" data-date="${t}">Powtórz</button>`:`<button class="btn primary big" data-act="start" data-date="${t}">${ICON.play} Zacznij</button>`}
-    <button class="btn ghost" data-act="logClass">Byłam na zajęciach</button></div>
-  </section>
+  <section class="card hero stack">${sessionCard(plan,done,next)}</section>
+  ${stepCard()}
   <section class="card stack"><div class="row between"><h3>Ten tydzień</h3><span class="small muted">${weekStreak()?'Seria: '+weekStreak()+' '+plTyg(weekStreak())+' z planem':'Cel: '+S.days.length+' treningi w tygodniu'}</span></div>${weekStrip()}</section>
   ${needTest?`<section class="card flat row between"><div class="stack" style="gap:4px;flex:1;min-width:200px"><h3>Pora na pomiar</h3><p class="small muted">${lastReal?'Ostatni pomiar: '+fmt(lastReal,{day:'numeric',month:'long'})+'. Mierz się co 2 tygodnie.':'Nie masz jeszcze żadnego prawdziwego pomiaru.'}</p></div><button class="btn" data-go="postepy">Dodaj wyniki</button></section>`:''}
   <section class="card flat"><p class="eyebrow" style="margin-bottom:8px">Wskazówka dnia</p><p class="tip">${esc(tip)}</p></section>`;
+}
+const ytMode=plan=>plan.kind==='session'&&S.mode==='yt'&&plan.vids&&plan.vids.length;
+function vidRow(x){
+  const v=x.v;
+  return `<div class="vid">${window.claude?'':`<a href="${ytWatch(v.id)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" loading="lazy"></a>`}
+    <div class="meta" ${window.claude?'style="grid-column:1/-1"':''}><span class="eyebrow">${esc(PROG[x.p].n)}</span><b>${esc(v.t)}</b>
+      <span class="small muted">${esc(v.ch)} · <span class="num">${v.m}</span> min · ${v.pl?'po polsku':'po angielsku'}</span>
+      <div class="row" style="gap:6px"><a class="btn primary sm" href="${ytWatch(v.id)}" target="_blank" rel="noopener">${ICON.play} Oglądaj</a><button class="btn ghost sm" data-act="ytSwap" data-key="${x.key}" data-p="${x.p}" data-id="${v.id}">Inny film</button></div></div></div>`;
+}
+function sessionCard(plan,done,next){
+  const date=plan.date;
+  if(plan.kind!=='session')return `
+    <div class="row between"><span class="eyebrow">Dzień bez treningu</span><span class="pill num">ok. ${planMin(plan)} min</span></div>
+    <h2>Regeneracja (opcjonalnie)</h2>
+    <p class="muted small">Lekkie rolowanie i rozciąganie, żeby ciało odpoczęło. ${next?'Następny trening: '+fmt(next,{weekday:'long'})+'.':''}</p>
+    ${blocksList(plan)}
+    <div class="row">${done?'<span class="pill good">Zrobione</span>':`<button class="btn primary" data-act="start" data-date="${date}">${ICON.play} Zacznij</button>`}<button class="btn ghost" data-act="logClass">Byłam na zajęciach</button></div>`;
+  const yt=ytMode(plan);const learn=plan.blocks.find(b=>b.step);
+  const min=yt?plan.vids.reduce((a,x)=>a+x.v.m,0):planMin(plan);
+  const canDo=date<=today();
+  return `
+    <div class="row between"><span class="eyebrow">${date===today()?'Trening na dziś':'Trening'}</span>
+      <div class="seg" role="group" aria-label="Rodzaj treningu"><button data-act="mode" data-v="app" aria-pressed="${!yt}">Z timerem</button><button data-act="mode" data-v="yt" aria-pressed="${!!yt}">Z YouTube</button></div></div>
+    <div class="row between"><h2 style="flex:1;min-width:200px">${esc(plan.title)}</h2><span class="pill num">ok. ${min} min</span></div>
+    ${yt?`<p class="small muted">Zrób najpierw krótką rozgrzewkę (5 min marszu i pliés), potem oba filmy.${learn?' Na koniec 3 minuty nauki kroku: <b>'+esc(STEP_BY[learn.step].n)+'</b>.':''}</p><div>${plan.vids.map(vidRow).join('')}</div>`:blocksList(plan)}
+    <div class="row">${done?`<span class="pill good">Zrobione</span>`:''}
+      ${canDo?(yt?`<button class="btn ${done?'':'primary big'}" data-act="ytDone" data-date="${date}">${done?'Zapisz jeszcze raz':'Zrobione, zapisz trening'}</button>`
+        :`<button class="btn ${done?'sm':'primary big'}" data-act="start" data-date="${date}">${ICON.play} ${done?'Powtórz':date===today()?'Zacznij':'Zrób ten trening teraz'}</button>`):'<span class="small muted">Trening będzie do zrobienia w tym dniu.</span>'}
+      ${date===today()?'<button class="btn ghost" data-act="logClass">Byłam na zajęciach</button>':''}</div>`;
+}
+function stepStatus(id){const v=S.steps[id]||0;return `<div class="status" role="group" aria-label="Status kroku">${[['0','Nie znam'],['1','Uczę się'],['2','Opanowane']].map(([k,l])=>`<button class="s${k}" data-act="stepSet" data-v="${id}" data-s="${k}" aria-pressed="${String(v)===k}">${l}</button>`).join('')}</div>`}
+function stepCard(){
+  const s=focusStep();if(!s)return '';
+  return `<section class="card stack"><div class="row between"><span class="eyebrow">Krok do nauki</span><span class="pill">Klasa ${RN[s.lv]} · ${SCATS[s.c]}</span></div>
+    <div><h3>${esc(s.n)}</h3><span class="fr">${esc(s.pl)}</span></div><p class="small">${esc(s.d)}</p>
+    <ul class="cues small">${s.how.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
+    ${stepStatus(s.id)}
+    <div class="row"><a class="btn sm" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">${ICON.play} Wideo z tym krokiem</a><button class="btn ghost sm" data-act="goSteps">Wszystkie kroki</button></div></section>`;
 }
 function plTyg(n){return n===1?'tydzień':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'tygodnie':'tygodni'}
 
@@ -630,10 +787,8 @@ function vPlan(){
   </section>
   <section class="card stack">
     <p class="eyebrow">${fmt(calSel,{weekday:'long',day:'numeric',month:'long'})}</p>
-    <h3>${plan.kind==='session'?esc(plan.title):'Regeneracja (opcjonalnie)'}</h3>
-    ${blocksList(plan)}
-    ${L.length?'<div class="stack" style="gap:6px">'+L.map(l=>`<div class="row between small"><span>${logLabel(l)}</span><span class="muted num">${l.min} min${l.rpe?' · RPE '+l.rpe:''}</span></div>`).join('')+'</div>':''}
-    ${calSel<=today()?`<div class="row"><button class="btn primary" data-act="start" data-date="${calSel}">${ICON.play} ${calSel===today()?'Zacznij':'Zrób ten trening teraz'}</button></div>`:'<p class="small muted">Trening pojawi się do zrobienia w tym dniu.</p>'}
+    ${sessionCard(plan,plan.kind==='session'?doneSession(calSel):L.some(l=>l.kind==='recovery'),'')}
+    ${L.length?'<div class="stack" style="gap:6px"><b class="small">Zapisane tego dnia</b>'+L.map(l=>`<div class="row between small"><span>${logLabel(l)}</span><span class="muted num">${l.min} min${l.rpe?' · RPE '+l.rpe:''}</span></div>`).join('')+'</div>':''}
   </section></div>
   <section class="card stack">
     <h3>Dni treningowe</h3><p class="small muted">Wybierz dni, w które trenujesz z aplikacją. Pozostałe dni to regeneracja.</p>
@@ -645,7 +800,8 @@ function vPlan(){
     ${Object.entries(PROG).map(([id,p])=>{const on=S.active.includes(id);const b=progBlock(id,today());
       return `<div class="prog"><div class="row between" style="flex-wrap:nowrap"><div style="min-width:0"><b>${esc(p.n)}</b> <span class="pill">${CATS[p.c]}</span><p class="small muted">${esc(p.goal)}</p></div><button class="switch" role="switch" aria-checked="${on}" data-act="prog" data-v="${id}" aria-label="${esc(p.n)}"></button></div>
       ${on?`<div class="row small muted" style="gap:10px"><span>Tydzień ${Math.min(b.wk,p.weeks)}/${p.weeks}${b.wk>p.weeks?' (utrzymanie)':''}</span><span>Faza ${b.ph+1}</span><span>ok. ${blockMin(b)} min</span><button class="btn ghost sm" data-act="restart" data-v="${id}">Zacznij od nowa</button></div><div class="bar"><span style="width:${Math.min(100,Math.round((b.wk-1)/p.weeks*100))}%"></span></div>`:''}
-      <details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Ćwiczenia w fazie ${b.ph+1}</summary><ul class="exlist" style="margin-top:8px">${b.items.map(it=>`<li><span>${esc(EX[it.e].n)}</span><span class="muted num">${it.t?it.t+' s':it.r+' powt.'}${it.s?' × '+it.s:''}${EX[it.e].sd?' / str.':''}</span></li>`).join('')}</ul></details></div>`}).join('')}
+      <details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Ćwiczenia w fazie ${b.ph+1}</summary><ul class="exlist" style="margin-top:8px">${b.items.map(it=>`<li><span>${esc(EX[it.e].n)}</span><span class="muted num">${dose(it)}</span></li>`).join('')}</ul></details>
+      ${VIDEOS[id]?`<details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Filmy z YouTube w tym programie (${VIDEOS[id].length})</summary><ul class="exlist" style="margin-top:8px">${VIDEOS[id].map(v=>`<li><a href="${ytWatch(v.id)}" target="_blank" rel="noopener">${esc(v.t)}</a><span class="muted num">${v.m} min${v.pl?' · PL':''}</span></li>`).join('')}</ul></details>`:''}</div>`}).join('')}
   </section>`;
 }
 function logLabel(l){return l.kind==='class'?'Zajęcia: '+esc(l.title||'balet'):l.kind==='recovery'?'Regeneracja':esc(l.title||'Trening')}
@@ -701,11 +857,13 @@ function vProgress(){
     <div class="stat"><b class="num">${weekStreak()}</b><span class="small muted">${plTyg(weekStreak())} z planem z rzędu</span></div>
   </div>
   <section class="stack"><div class="row between"><h2>Testy</h2><span class="small muted">Mierz się co 2 tygodnie, zawsze po rozgrzewce.</span></div>
+  <div class="card flat row between" style="padding:14px 18px"><p class="small" style="flex:1;min-width:220px"><b>Wysokość biodra</b> (od podłogi do kości biodrowej, w cm). Dzięki niej przeliczę wysokość développé na stopnie. Wysokość biodra to mniej więcej 90°.</p>
+    <div class="row" style="flex-wrap:nowrap"><input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:90px" value="${S.hipCm||''}" placeholder="cm"><button class="btn sm" data-act="saveHip">Zapisz</button></div></div>
   <div class="grid2">${order.map(T=>{const h=hist(T.id);const m=h[h.length-1];const first=h[0];const inReq=req[T.id]!=null;
     let diff='';if(m&&first&&h.length>1){const dv=m.v-first.v;const good=T.lower?dv<0:dv>0;diff=`<span class="pill ${dv===0?'':good?'good':'warn'} num">${dv>0?'+':''}${nf(dv)} od ${fmt(first.d,{day:'numeric',month:'short'})}</span>`}
     return `<div class="card test stack" style="gap:8px">
       <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(T.n)}</b>${inReq?`<span class="pill accent">cel ${nf(req[T.id])}</span>`:''}</div>
-      <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
+      <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
       ${spark(h,T.lower)}
       ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform"><label class="field">Wynik (${T.u})<input id="tv-${T.id}" type="number" inputmode="decimal" min="0" ${T.max?'max="'+T.max+'"':''} step="0.5"></label><label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
         :`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
@@ -716,11 +874,34 @@ function vProgress(){
   </section>`;
 }
 
+function learnHead(title){return `<header class="stack" style="gap:10px"><p class="eyebrow">Nauka</p><div class="row between"><h1>${title}</h1>
+  <div class="seg" role="group" aria-label="Sekcja"><button data-act="seg" data-v="kroki" aria-pressed="${learnSeg==='kroki'}">Kroki baletowe</button><button data-act="seg" data-v="cw" aria-pressed="${learnSeg!=='kroki'}">Ćwiczenia</button></div></div></header>`}
+function vSteps(){
+  const lv=stepLv||S.level;
+  const list=STEPS.filter(s=>s.lv===lv);
+  const cnt=k=>list.filter(s=>(S.steps[s.id]||0)===k).length;
+  const levels=[...new Set(STEPS.map(s=>s.lv))];
+  return `${learnHead('Kroki baletowe')}
+  <p class="muted small">Oznaczaj, które kroki znasz. Krok „uczę się” trafia do każdego treningu jako 3 minuty nauki, a opanowane kroki z twojej klasy liczą się do awansu.</p>
+  <div class="chips">${levels.map(l=>{const L=STEPS.filter(s=>s.lv===l);const m=L.filter(s=>S.steps[s.id]===2).length;return `<button class="chip" data-act="stepLv" data-v="${l}" aria-pressed="${l===lv}">Klasa ${RN[l]} <span class="num" style="opacity:.7">${m}/${L.length}</span></button>`}).join('')}</div>
+  <section class="card stack" style="gap:8px"><div class="row between"><h3>Klasa ${RN[lv]} · ${esc(LEVELS[lv-1].n)}</h3>${lv===S.level?'<span class="pill accent">twoja klasa</span>':''}</div>
+    <div class="row small" style="gap:12px"><span class="pill good num">${cnt(2)} opanowane</span><span class="pill warn num">${cnt(1)} uczę się</span><span class="pill num">${cnt(0)} do nauki</span></div>
+    <div class="bar good"><span style="width:${Math.round(cnt(2)/list.length*100)}%"></span></div></section>
+  <div class="stack" style="gap:8px">
+  ${Object.keys(SCATS).map(c=>{const L=list.filter(s=>s.c===c);if(!L.length)return '';return `<p class="eyebrow" style="margin-top:6px">${SCATS[c]}</p>`+L.map(s=>{const v=S.steps[s.id]||0;
+    return `<details class="ex" data-step="${s.id}"><summary><span style="min-width:0"><b>${esc(s.n)}</b> <span class="fr">${esc(s.pl)}</span></span><span class="pill ${v===2?'good':v===1?'warn':''}">${['do nauki','uczę się','opanowane'][v]}</span></summary>
+    <div class="body"><p>${esc(s.d)}</p><div><b class="small">Jak ćwiczyć</b><ul class="cues">${s.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>
+    ${s.c==='pointe'?'<p class="warnbox">Pointy tylko za zgodą nauczyciela.</p>':''}
+    ${stepStatus(s.id)}
+    <div class="row"><a class="btn sm" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">${ICON.play} Szukaj wideo na YouTube</a></div></div></details>`}).join('')}).join('')}
+  </div>`;
+}
 function vLibrary(){
+  if(learnSeg==='kroki')return vSteps();
   const q=libQ.trim().toLowerCase();
   const list=Object.entries(EX).filter(([id,e])=>(libCat==='all'||e.c===libCat)&&(!q||(e.n+' '+(e.fr||'')+' '+e.d).toLowerCase().includes(q)));
   return `
-  <header class="stack" style="gap:6px"><p class="eyebrow">Biblioteka</p><h1>Ćwiczenia</h1></header>
+  ${learnHead('Ćwiczenia')}
   <input class="input" id="lib-q" type="search" placeholder="Szukaj, np. pirouette, szpagat, taśma" value="${esc(libQ)}">
   <div class="chips">${[['all','Wszystkie'],...Object.entries(CATS)].map(([k,l])=>`<button class="chip" data-act="cat" data-v="${k}" aria-pressed="${libCat===k}">${l}</button>`).join('')}</div>
   <div class="stack" style="gap:8px" id="lib-list">
@@ -785,7 +966,7 @@ function updateTimer(){
   const ring=document.getElementById('pring');if(ring){const C=2*Math.PI*90;ring.setAttribute('stroke-dashoffset',String(C*(1-r/total)))}
 }
 function drawPlayer(){
-  const l=document.getElementById('layer');const st=P.steps[P.i];const ex=EX[st.e];const nx=P.steps[P.i+1];
+  const l=document.getElementById('layer');const st=P.steps[P.i];const ex=exGet(st.e);const nx=P.steps[P.i+1];
   const C=2*Math.PI*90;const own=S.videos[st.e];
   const prog=Math.round(P.i/P.steps.length*100);
   let center;
@@ -810,7 +991,7 @@ function drawPlayer(){
       <button class="iconbtn" data-act="pNext" aria-label="Następne">${ICON.next}</button></div>
     <div class="card flat stack" style="gap:8px"><p class="small">${esc(ex.d)}</p><ul class="cues small">${ex.cues.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
       <div class="row"><a class="btn sm" href="${own?esc(own):yt(ex.yt)}" target="_blank" rel="noopener">${ICON.play} ${own?'Moje wideo':'Wideo na YouTube'}</a></div></div>
-    <p class="pl-next">${nx?'Następnie: <b>'+esc(EX[nx.e].n)+'</b>'+(nx.side?' · '+nx.side.toLowerCase():''):'To ostatnie ćwiczenie'}</p>
+    <p class="pl-next">${nx?'Następnie: <b>'+esc(exGet(nx.e).n)+'</b>'+(nx.side?' · '+nx.side.toLowerCase():''):'To ostatnie ćwiczenie'}</p>
   </div></div>`;
 }
 function finishSession(){
@@ -878,6 +1059,17 @@ document.addEventListener('click',e=>{
     case 'signIn':ARABESKA_AUTH.signIn().catch(err=>{if(err&&err.code!=='auth/popup-closed-by-user'&&err.code!=='auth/cancelled-popup-request')toast('Nie udało się zalogować: '+((err&&err.code)||'błąd'))});break;
     case 'signOut':ARABESKA_AUTH.signOut().then(()=>toast('Wylogowano. Dane zostają w tym telefonie.'));break;
     case 'noLogin':S.flags.noLogin=1;saveLocal();render();break;
+    case 'mode':S.mode=v;save();render();break;
+    case 'ytSwap':{const L=VIDEOS[a.dataset.p];const cur=L.findIndex(x=>x.id===a.dataset.id);S.ytPick[a.dataset.key]=(cur+1)%L.length;
+      const keep=Object.keys(S.ytPick).sort().slice(-60);S.ytPick=Object.fromEntries(keep.map(k=>[k,S.ytPick[k]]));save();render();break}
+    case 'ytDone':{const p=planFor(a.dataset.date);const min=p.vids.reduce((s,x)=>s+x.v.m,0)+5;
+      S.log.push({id:uid(),d:a.dataset.date,kind:'session',title:p.title+' (YouTube)',progs:p.progs,min,rpe:null,note:p.vids.map(x=>x.v.t).join(' + ').slice(0,200)});save();render();toast('Trening zapisany');break}
+    case 'stepSet':{const s=Number(a.dataset.s);if(s)S.steps[v]=s;else delete S.steps[v];save();render();
+      const d=document.querySelector(`details[data-step="${v}"]`);if(d)d.open=true;if(s===2)toast('Brawo! '+STEP_BY[v].n+' opanowane');break}
+    case 'goSteps':learnSeg='kroki';stepLv=null;go('cwiczenia');break;
+    case 'seg':learnSeg=v;render();break;
+    case 'stepLv':stepLv=Number(v);render();break;
+    case 'saveHip':{const h=parseFloat(document.getElementById('hip-cm').value.replace(',','.'));if(isNaN(h)||h<40||h>130){toast('Wpisz wysokość biodra w cm, np. 92')}else{S.hipCm=h;save();render();toast('Zapisano')}break}
     case 'cat':libCat=v;render();break;
     case 'saveVid':{const val=document.getElementById('vid-'+v).value.trim();if(val&&!/^https?:\/\//i.test(val)){toast('Link musi zaczynać się od https://');break}
       if(val)S.videos[v]=val;else delete S.videos[v];save();render();const d=document.querySelector(`details[data-ex="${v}"]`);if(d)d.open=true;toast(val?'Wideo zapisane':'Link usunięty');break}
