@@ -373,28 +373,51 @@ const WARM=[{e:'w_march',t:60},{e:'w_ankle',t:45},{e:'w_spine',t:60},{e:'w_plie'
 const COOL=[{e:'c_child',t:60},{e:'c_breath',t:60}];
 const RECOVERY=[{e:'c_calf',t:45},{e:'ft_roll',t:45},{e:'f_band',t:45},{e:'f_butterfly',t:60},{e:'c_legsup',t:120},{e:'c_breath',t:60}];
 
+/* g = grupa na ekranie Postępy; of = pomiar liczony jako słabsza z dwóch stron */
+const TGROUPS={flex:'Elastyczność',dev:'Développé',str:'Siła i stabilność',tech:'Obroty i skoki'};
 const TESTS=[
- {id:'split_r',n:'Szpagat: prawa noga z przodu',u:'cm',lower:1,floor:45,how:'Po rozgrzewce zsuń się do szpagatu z blokami. Zmierz odległość od podłogi do kości kulszowej. 0 cm oznacza, że siedzisz na podłodze.'},
- {id:'split_l',n:'Szpagat: lewa noga z przodu',u:'cm',lower:1,floor:45,how:'Jak wyżej, na drugą stronę.'},
- {id:'split_side',n:'Szpagat poprzeczny',u:'cm',lower:1,floor:60,how:'W maksymalnym rozkroku (tułów pionowo albo oparta na dłoniach) zmierz odległość od podłogi do kości łonowej.'},
- {id:'balance',n:'Balans w passé na relevé',u:'s',floor:0,how:'Bez drążka, słabsza noga. Wpisz najlepszy wynik z 3 prób.'},
- {id:'pir1',n:'Czyste pojedyncze pirouette',u:'/10',max:10,floor:0,how:'10 prób en dehors z 4. pozycji na słabszą stronę. Licz tylko czyste: stabilne zakończenie, bez podskoku.'},
- {id:'pir2',n:'Czyste podwójne pirouette',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste podwójne.'},
- {id:'pir3',n:'Czyste potrójne pirouette',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste potrójne.'},
- {id:'fouette',n:'Fouettés w serii',u:'obr.',floor:0,how:'Ile fouettés zrobisz w jednej serii bez przerwania i z kontrolą.'},
- {id:'calf',n:'Relevé na jednej nodze',u:'powt.',floor:0,how:'Słabsza noga, przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
- {id:'plank',n:'Plank na przedramionach',u:'s',floor:0,how:'Ciało w jednej linii. Kończysz, gdy biodra opadają.'},
- {id:'second',n:'Noga à la seconde na 90°',u:'s',floor:0,how:'Développé w bok bez trzymania ręką, słabsza strona. Ile sekund utrzymasz nogę na wysokości bioder.'},
- {id:'dev_front_r',n:'Développé w przód: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
- {id:'dev_front_l',n:'Développé w przód: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Mierz od podłogi do pięty.'},
- {id:'dev_side_r',n:'Développé w bok: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
- {id:'dev_side_l',n:'Développé w bok: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
- {id:'dev_back_r',n:'Développé w tył: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
- {id:'dev_back_l',n:'Développé w tył: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
- {id:'dev_front',n:'Développé w przód (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
- {id:'dev_side',n:'Développé w bok (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
- {id:'dev_back',n:'Développé w tył (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
- {id:'pointe',n:'Relevés na pointach',u:'powt.',floor:0,how:'Przy drążku, obie nogi, czyste przejście przez półpalce. Tylko jeśli nauczyciel dopuścił cię do pointów.'}
+ {id:'split_r',g:'flex',n:'Szpagat: prawa noga z przodu',u:'cm',lower:1,floor:45,how:'Po rozgrzewce zsuń się do szpagatu z blokami. Zmierz odległość od podłogi do kości kulszowej. 0 cm oznacza, że siedzisz na podłodze.'},
+ {id:'split_l',g:'flex',n:'Szpagat: lewa noga z przodu',u:'cm',lower:1,floor:45,how:'Jak wyżej, na drugą stronę.'},
+ {id:'split_side',g:'flex',n:'Szpagat poprzeczny',u:'cm',lower:1,floor:60,how:'W maksymalnym rozkroku (tułów pionowo albo oparta na dłoniach) zmierz odległość od podłogi do kości łonowej.'},
+ {id:'turnout',g:'flex',n:'Turnout w 1. pozycji',u:'°',max:180,floor:0,how:'Stań w 1. pozycji z takim otwarciem, jakie utrzymasz z biodra, bez forsowania i z kolanami nad palcami. Zmierz kąt między stopami (taśma na podłodze albo kątomierz w telefonie). 180° to pełne otwarcie.'},
+ {id:'pancake',g:'flex',n:'Pancake (skłon w rozkroku)',u:'cm',lower:1,floor:60,how:'Siad w szerokim rozkroku, kolana w sufit. Pochyl się z prostymi plecami i zmierz odległość od mostka do podłogi.'},
+ {id:'bridge',g:'flex',n:'Mostek: dłonie od pięt',u:'cm',lower:1,floor:80,how:'W mostku zmierz odległość od nadgarstków do pięt. Im bliżej, tym bardziej elastyczne plecy. Rób tylko po dobrej rozgrzewce.'},
+ {id:'gap_r',g:'flex',n:'Rezerwa à la seconde: prawa noga',u:'cm',lower:1,floor:40,how:'Podnieś prawą nogę w bok ręką najwyżej, jak się da, i zmierz wysokość pięty. Potem puść rękę i zmierz, na jakiej wysokości noga zostaje przez 2 s. Wpisz różnicę. Im mniejsza, tym silniej trzymasz nogę w pełnym zakresie.'},
+ {id:'gap_l',g:'flex',n:'Rezerwa à la seconde: lewa noga',u:'cm',lower:1,floor:40,how:'Jak wyżej, lewa noga. Wpisz różnicę w cm między nogą trzymaną ręką a utrzymaną samodzielnie.'},
+ {id:'dev_front_r',g:'dev',n:'Développé w przód: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
+ {id:'dev_front_l',g:'dev',n:'Développé w przód: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_side_r',g:'dev',n:'Développé w bok: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
+ {id:'dev_side_l',g:'dev',n:'Développé w bok: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
+ {id:'dev_back_r',g:'dev',n:'Développé w tył: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_back_l',g:'dev',n:'Développé w tył: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_front',g:'dev',n:'Développé w przód (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
+ {id:'dev_side',g:'dev',n:'Développé w bok (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
+ {id:'dev_back',g:'dev',n:'Développé w tył (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
+ {id:'second',g:'dev',n:'Noga à la seconde na 90°',u:'s',floor:0,how:'Développé w bok bez trzymania ręką, słabsza strona. Ile sekund utrzymasz nogę na wysokości bioder.'},
+ {id:'balance',g:'str',n:'Balans w passé na relevé',u:'s',floor:0,how:'Bez drążka, słabsza noga. Wpisz najlepszy wynik z 3 prób.'},
+ {id:'bal_arab',g:'str',n:'Balans w arabesce na relevé',u:'s',floor:0,how:'Bez drążka, słabsza noga, noga w tył co najmniej na 45°. Najlepszy wynik z 3 prób.'},
+ {id:'bal_eyes',g:'str',n:'Balans z zamkniętymi oczami',u:'s',floor:0,how:'Na płaskiej stopie, na słabszej nodze, druga w cou-de-pied. Zamknij oczy i licz, aż stracisz równowagę.'},
+ {id:'calf',g:'str',n:'Relevé na jednej nodze (słabsza)',u:'powt.',floor:0,of:['calf_r','calf_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
+ {id:'calf_r',g:'str',n:'Relevé na jednej nodze: prawa',u:'powt.',floor:0,how:'Przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
+ {id:'calf_l',g:'str',n:'Relevé na jednej nodze: lewa',u:'powt.',floor:0,how:'Jak wyżej, na lewej nodze.'},
+ {id:'plank',g:'str',n:'Plank na przedramionach',u:'s',floor:0,how:'Ciało w jednej linii. Kończysz, gdy biodra opadają.'},
+ {id:'side_r',g:'str',n:'Plank bokiem: prawa strona',u:'s',floor:0,how:'Na prawym przedramieniu, nogi proste, biodra wysoko. Kończysz, gdy biodra opadają.'},
+ {id:'side_l',g:'str',n:'Plank bokiem: lewa strona',u:'s',floor:0,how:'Na lewym przedramieniu, nogi proste, biodra wysoko.'},
+ {id:'pointe',g:'str',n:'Relevés na pointach',u:'powt.',floor:0,how:'Przy drążku, obie nogi, czyste przejście przez półpalce. Tylko jeśli nauczyciel dopuścił cię do pointów.'},
+ {id:'pir1',g:'tech',n:'Pojedyncze pirouette en dehors (słabsza strona)',u:'/10',max:10,floor:0,of:['pir1_r','pir1_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
+ {id:'pir1_r',g:'tech',n:'Pojedyncze en dehors: na prawą',u:'/10',max:10,floor:0,how:'10 prób en dehors z 4. pozycji, obrót na lewej nodze w prawo (prawa w passé). Licz tylko czyste: stabilne zakończenie, bez podskoku.'},
+ {id:'pir1_l',g:'tech',n:'Pojedyncze en dehors: na lewą',u:'/10',max:10,floor:0,how:'10 prób, obrót na prawej nodze w lewo (lewa w passé). Licz tylko czyste.'},
+ {id:'pir2',g:'tech',n:'Podwójne pirouette (słabsza strona)',u:'/10',max:10,floor:0,of:['pir2_r','pir2_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
+ {id:'pir2_r',g:'tech',n:'Podwójne en dehors: na prawą',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste podwójne w prawo.'},
+ {id:'pir2_l',g:'tech',n:'Podwójne en dehors: na lewą',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste podwójne w lewo.'},
+ {id:'pir3',g:'tech',n:'Potrójne pirouette (słabsza strona)',u:'/10',max:10,floor:0,of:['pir3_r','pir3_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
+ {id:'pir3_r',g:'tech',n:'Potrójne en dehors: na prawą',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste potrójne w prawo.'},
+ {id:'pir3_l',g:'tech',n:'Potrójne en dehors: na lewą',u:'/10',max:10,floor:0,how:'10 prób, liczysz czyste potrójne w lewo.'},
+ {id:'pir_dd',g:'tech',n:'Pirouette en dedans (słabsza strona)',u:'/10',max:10,floor:0,of:['pir_dd_r','pir_dd_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
+ {id:'pir_dd_r',g:'tech',n:'Pojedyncze en dedans: na prawą',u:'/10',max:10,floor:0,how:'10 prób en dedans, obrót na prawej nodze w prawo. Licz tylko czyste.'},
+ {id:'pir_dd_l',g:'tech',n:'Pojedyncze en dedans: na lewą',u:'/10',max:10,floor:0,how:'10 prób en dedans, obrót na lewej nodze w lewo. Licz tylko czyste.'},
+ {id:'fouette',g:'tech',n:'Fouettés w serii',u:'obr.',floor:0,how:'Ile fouettés zrobisz w jednej serii bez przerwania i z kontrolą.'},
+ {id:'jump30',g:'tech',n:'Changements w 30 sekund',u:'skoki',floor:0,how:'Licz czyste changements w 30 s: pełny point w powietrzu, lądowanie w 5. pozycji przez plié.'}
 ];
 const T_BY=Object.fromEntries(TESTS.map(t=>[t.id,t]));
 
@@ -402,10 +425,10 @@ const LEVELS=[
  {n:'Pierwsze kroki',d:'Pozycje stóp i rąk, podstawy pracy przy drążku: plié, tendu, relevé. Budowanie nawyku trenowania.',req:{plank:30,calf:8,balance:2},sessions:12},
  {n:'Fundamenty',d:'Pełny drążek, pierwsze kombinacje na środku, przygotowanie do pirouette, małe skoki.',req:{split_r:30,split_l:30,plank:40,calf:15,balance:3,pir1:3},sessions:16},
  {n:'Rozwój',d:'Pojedyncze pirouette, coraz wyższe nogi, praca nad szpagatami. Silne stopy przed pointami i w pierwszych miesiącach na nich.',req:{split_r:5,split_l:5,split_side:25,balance:8,pir1:8,calf:25,plank:60,second:5},sessions:24},
- {n:'Pewna technika',d:'Pełne szpagaty, pewne pojedyncze i pierwsze podwójne pirouette, pointy przy drążku i pierwsze ćwiczenia na środku.',req:{split_r:0,split_l:0,split_side:12,balance:12,pir1:10,pir2:4,calf:30,plank:75,second:8,pointe:20},sessions:30},
- {n:'Średniozaawansowana',d:'Podwójne pirouette, développé powyżej 90°, pointy na środku, grand allegro.',req:{split_side:4,balance:15,pir2:8,pir3:2,second:12,pointe:30,plank:90,calf:35},sessions:36},
- {n:'Zaawansowana I',d:'Potrójne pirouette, pierwsze serie fouettés, wariacje na pointach.',req:{split_side:0,balance:20,pir2:10,pir3:5,fouette:8,second:15,pointe:40},sessions:40},
- {n:'Zaawansowana II',d:'Długie serie fouettés, stabilne potrójne, pełne wariacje repertuarowe.',req:{balance:25,pir3:8,fouette:16,second:20,pointe:50,plank:120},sessions:48},
+ {n:'Pewna technika',d:'Pełne szpagaty, pewne pojedyncze i pierwsze podwójne pirouette, pointy przy drążku i pierwsze ćwiczenia na środku.',req:{split_r:0,split_l:0,split_side:12,balance:12,bal_arab:3,pir1:10,pir2:4,pir_dd:5,calf:30,plank:75,second:8,pointe:20},sessions:30},
+ {n:'Średniozaawansowana',d:'Podwójne pirouette, développé powyżej 90°, pointy na środku, grand allegro.',req:{split_side:4,balance:15,bal_arab:5,pir2:8,pir3:2,pir_dd:8,second:12,pointe:30,plank:90,calf:35},sessions:36},
+ {n:'Zaawansowana I',d:'Potrójne pirouette, pierwsze serie fouettés, wariacje na pointach.',req:{split_side:0,balance:20,bal_arab:8,pir2:10,pir3:5,pir_dd:10,fouette:8,second:15,pointe:40},sessions:40},
+ {n:'Zaawansowana II',d:'Długie serie fouettés, stabilne potrójne, pełne wariacje repertuarowe.',req:{balance:25,bal_arab:12,pir3:8,fouette:16,second:20,pointe:50,plank:120},sessions:48},
  {n:'Przedzawodowa',d:'Poziom przedzawodowy. Utrzymuj formę i rozwijaj artyzm.',req:null}
 ];
 const RN=['','I','II','III','IV','V','VI','VII','VIII'];
@@ -486,6 +509,68 @@ const STEPS=[
  {id:'entrechat6',n:'Entrechat six',pl:'potrójna przekładka',lv:7,c:'petit',d:'Wysoki skok z trzema przełożeniami nóg w powietrzu.',how:['Bardzo wysoki skok','Małe, szybkie przełożenia'],yt:'entrechat six tutorial'}
 ];
 const STEP_BY=Object.fromEntries(STEPS.map(s=>[s.id,s]));
+
+/* Filmy instruktażowe do kroków (sprawdzone na YouTube): [id, tytuł, kanał, minuty, język] */
+const SBAN='Szkoła Baletowa Anny Niedźwiedź';
+const STEP_VIDS={
+ positions:[['u10AshDR9LE','Elementarz Baletowy: podstawowe pozycje stóp',SBAN,2,'pl'],['OWxXSyQVnUM','Elementarz Baletowy: pozycje rąk',SBAN,5,'pl'],['hr7Q9ewlkzE','Ballet Positions of the Arms and Feet','BodyKinect by Kendall',8]],
+ plie:[['IOoPKZMwhXI','Elementarz Baletowy: demi plié i grand plié',SBAN,5,'pl'],['k70uyYKlIU0','Ballet Basics: How to Plié','Everyday Ballet',11]],
+ tendu:[['F8Iav8oseEA','Elementarz Baletowy: battement tendu',SBAN,2,'pl'],['_bf_xPLkt1I','How To Do Battement Tendu','Ballet For All',5]],
+ releve:[['NSnG2jVD8Eo','Elementarz Baletowy: relevé na półpalce',SBAN,5,'pl'],['_eBsmXxRsjs','Relevé vs Elevé + alignment tips','Natalie Danza',6]],
+ portdebras:[['aIpdwKCylas','Port de bras: movement of the arms','Runqiao Du Ballet Coaching',4],['OWxXSyQVnUM','Elementarz Baletowy: pozycje rąk',SBAN,5,'pl']],
+ saute:[['maRzjwDJrQU','Ballet Basics: How to Sauté','Ballet For All',4]],
+ jete_b:[['Tg4BFb89Olg','Elementarz Baletowy: battement tendu jeté',SBAN,2,'pl'],['9H7CgCF0PDc','Dégagé (Battement Tendu Jeté)','Holistic Ballet',6]],
+ rond_terre:[['H-90lUilWkQ','Elementarz Baletowy: rond de jambe par terre',SBAN,4,'pl'],['sTAflxlKyCk','Rond de jambe à terre for adult beginners','Lazy Dancer Tips',10]],
+ passe:[['UbO0TRmTB6E','Tips for Passé (retiré)','Holistic Ballet',1],['YPIOSqu5f4U','How to Do a Passé and a Retiré','allisonfern',2]],
+ changement:[['ZcApQBj-3ic','How to Changement de pieds','Ballet For All',3]],
+ echappe:[['dWW2_W21wGQ','Sauté and Échappé Sauté Tutorial','Natalie Danza',8]],
+ glissade:[['DjDTwed_f7s','How to do a Glissade','Gulf Coast Dancenter',11],['B2pukux7em8','How to Do a Glissade','HowcastArtsRec',2]],
+ pdb:[['wjlbuUq_GYE','Pas de bourrée tutorial','Salty Sugar Plum',4],['V0A0exOXrWs','Pas de Bourrée Tutorial','Ballet For All',3]],
+ chasse:[['_jn1yXpTncA','How to Chassé','Ballet For All',3]],
+ balance:[['mBFVn4eA68A','Balancé Tutorial','Salty Sugar Plum',9],['4HxBsF5fv5s','Balancé Beginner Tutorial','Ballet For All',3]],
+ fondu:[['G3rd8JDIaKw','Elementarz Baletowy: battement fondu',SBAN,2,'pl'],['QbbHWGBZi9M','Beginner Ballet Series: Battement Fondu','The Whole Pointe',4]],
+ frappe:[['2R6PkCRIkWI','Elementarz Baletowy: battement frappé i najczęstsze błędy',SBAN,5,'pl'],['KHp2Regrdok','Frappé Tutorial for Beginners','Salty Sugar Plum',15]],
+ petitbatt:[['bl6l-caU_nw','Elementarz Baletowy: położenie stopy sur le cou-de-pied',SBAN,3,'pl'],['aRa3cA7vHzA','Petit battement sur le cou-de-pied','Fernanda Ruschel Ballet',2,'pt']],
+ developpe:[['mnDGYQYaRyM','Beginner Ballet Basics: Développé devant','Holistic Ballet',3],['_HXPAMxI4-M','Développé vs Enveloppé','Ballet For All',5],['58OsHg4VA3Y','Elementarz Baletowy: adagio',SBAN,6,'pl']],
+ grandbatt:[['QAkLwBmDa-A','Elementarz Baletowy: grand battement',SBAN,3,'pl'],['whJxvZSWIjQ','How to Do Ballet Kicks: Grand Battement','Everyday Ballet',9]],
+ arabesque:[['l-agmlAGtEM','Everything You Need to Know About Arabesque','Ballet For All',5]],
+ attitude:[['Zgkfxmq6mIY','Attitude and Attitude Balance','Kathryn Morgan',7]],
+ pir_dehors:[['xKOJPYHU-PE','Pirouettes for Beginners','Natalie Danza',10],['X_I8wuN_qko','Pirouette Tips and Ballet Exercises','Kathryn Morgan & Align Fitness',11]],
+ pir_dedans:[['XmZGPAtEFg0','Improving Pirouettes en Dedans','Kathryn Morgan',7],['vVLu5CfPs8c','Two Ways to Do Pirouette en Dedans','Runqiao Du Ballet Coaching',7]],
+ soutenu:[['ielCzUwXjWE','How to Do a Proper Soutenu Turn','RPM Dance',5]],
+ chaines:[['KI0A3pPQvaE','Chaînés: One Link at a Time','Runqiao Du Ballet Coaching',6],['UKeXDmVFz18','How to Do Chaînés Turns','HowcastArtsRec',3]],
+ pique_turn:[['NqpjgVGIZac','Master the Art of Piqué Turns','Runqiao Du Ballet Coaching',6],['e41ZTKritZc','How to Do a Piqué Turn: Step by Step','Gulf Coast Dancenter',14]],
+ assemble:[['Up6IWC4HiTE','How to Assemblé','Ballet For All',5]],
+ sissonne:[['qrYA1S8lack','How to Sissonne','Ballet For All',4],['F4aKUwQlSmA','Sissonne Simple and Barre Exercises','Runqiao Du Ballet Coaching',6]],
+ petitjete:[['bo6cuMxKWnA','Improve Your Petit Jeté','Tips On Ballet Technique',4]],
+ pasdechat:[['DwKbw3L1bp0','Pas de Chat Tutorial','Ballerinas By Night',7],['ssD02G3b8ds','How to do Pas de Chat','Ballet For All',2]],
+ tempsleve:[['MvmYOcK0DxU','Temps Levé for Adult Beginners','Lazy Dancer Tips',8]],
+ tombe_pdb:[['Xku2yldzRDI','How to Tombé Pas de Bourrée','Ballet For All',5],['bbLSOwTwfzk','Tombé Pas de Bourrée: Common Corrections','Ballet Misfit',14]],
+ pasdebasque:[['-H0isEKmzS0','How to Do Pas de Basque','Holistic Ballet',11]],
+ pointe_rel:[['KJONYyKU6BE','En Pointe: How to Relevé in 1st','YouDance',2],['TqAxGUXxesU','Proper Relevé for Beginners','Salty Sugar Plum',21]],
+ pir_double:[['fLk4-HHuj_w','How to Do a Double Pirouette','BodyKinect by Kendall',6],['bxHXHFTpBSI','Exercises to Prepare for Multiple Turns','Runqiao Du Ballet Coaching',5]],
+ pique_dehors:[['08leDsVf-K4','Master Your Lame Duck Step-Over Turns','Kathryn Morgan',5]],
+ rond_air:[['ot2ru6stwAo',"Elementarz Baletowy: rond de jambe en l'air",SBAN,6,'pl']],
+ sissonne_ouv:[['7XabRntfROc','Sissonne Ouverte: Essential Movements','Runqiao Du Ballet Coaching',4]],
+ entrechat4:[['fw4UTRA4vWc','Entrechat Quatre: Explanation and Tip','Align Ballet Method',4],['g4gpiffpdVM','How to Entrechat Quatre','Ballet For All',2]],
+ royale:[['KhepY0XhdoE','Changement Battu (Royale)','Ballet Beyond Boundaries',3]],
+ grandjete:[['f8ZN5pRdPtM','How to Improve Your Grand Jeté','Kathryn Morgan',4],['AKX7yrNnjP8','Grand Jeté Tips','Tips On Ballet Technique',5]],
+ sautdechat:[['PpTz3153NNU','Improve Your Saut de Chat','Kathryn Morgan',6],['Qi2H8zL2kjY','How to Do a Ballet Leap: Saut de Chat','BodyKinect by Kendall',8]],
+ echappe_pointe:[['eqpQ2449E5w','Échappés on Pointe','Tips On Ballet Technique',4]],
+ bourree:[['-OTo6L21Nc0','Help with Bourrées','Kathryn Morgan',5],['aFQKyOCiyZ0','Bourrée Tutorial','Salty Sugar Plum',6]],
+ fouette_prep:[['PYyWPSKggF0','Fouetté Turn: Step by Step Breakdown','BodyKinect by Kendall',8],['91-99THXOTI','Fouetté Turns: Learn It Step by Step','Kamila Abreu',11]],
+ pir_att:[['aLA1mUjgdeI','Help with Attitude Pirouettes','Kathryn Morgan',7],['Ge35LjHfLOY','Attitude Turn Tutorial','BodyKinect by Kendall',7]],
+ cabriole:[['qVkcaDBnkZs','Cabriole Tutorial','Ballet For All',5],['ePr7m3yskBc','How to Do Cabriole Side','Holistic Ballet',5]],
+ brise:[['wiTFIQhMPHc','How to Improve Your Brisé','Kathryn Morgan',5],['qNdknYga6fQ','How to Properly Execute Brisé','Runqiao Du Ballet Coaching',5]],
+ renverse:[['aDy2pa4DFiA','Ballet Technique: Renversé','Kathryn Morgan',3]],
+ pique_pointe:[['vGj7aSHjiTw','Consistent Double Piqué Turns on Pointe','Ballet With Isabella',9]],
+ tourjete:[['o-uSjYXl78c','Improve Your Tour Jeté','Kathryn Morgan',6]],
+ fouettes:[['kO39KslWPUI','Master Fouetté Turns','Ballet With Isabella',13],['HI_mS7H4kug','Improve Fouetté Turns on Pointe','Kathryn Morgan',8]],
+ italian:[['j0n3d1VMfSc','Italian Fouetté Tutorial','Ballet With Isabella',9],['8IyJy3RJGNg','The Two Parts of Italian Fouettés','Runqiao Du Ballet Coaching',6]],
+ manege:[['EdkQ0Rsd1Ck','Master Piqué Manège Turns','Ballet With Isabella',13]],
+ entrechat6:[['sYIrVQbmOXY','Help with Entrechat Six','Kathryn Morgan',4],['NdSlScWS-Gw','Entrechats: Beginner to Advanced','Holistic Ballet',6]]
+};
+const LANG={pl:'po polsku',en:'po angielsku',pt:'po portugalsku'};
 
 /* Treningi z YouTube (sprawdzone filmy). m = minuty, pl = film po polsku */
 const VIDEOS={
@@ -603,7 +688,7 @@ function focusStep(){
   return STEPS.find(s=>s.lv===S.level&&!S.steps[s.id])||STEPS.find(s=>s.lv>S.level&&!S.steps[s.id])||null;
 }
 function exGet(id){
-  if(id.startsWith('step:')){const s=STEP_BY[id.slice(5)];return {n:s.n,fr:s.pl,c:'turn',d:s.d+' Ćwicz powoli, najpierw przy drążku, potem na środku.',cues:s.how,yt:s.yt+' ballet'}}
+  if(id.startsWith('step:')){const s=STEP_BY[id.slice(5)];return {n:s.n,fr:s.pl,c:'turn',d:s.d+' Ćwicz powoli, najpierw przy drążku, potem na środku.',cues:s.how,yt:s.yt+' ballet',url:STEP_VIDS[s.id]?ytWatch(STEP_VIDS[s.id][0][0]):null}}
   return EX[id];
 }
 function stepsOf(plan){
@@ -621,7 +706,15 @@ const logsOn=d=>S.log.filter(l=>l.d===d);
 const doneSession=d=>S.log.some(l=>l.d===d&&l.kind==='session');
 
 /* ============ LOGIKA POZIOMU ============ */
-function hist(id){return (S.tests[id]||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
+function rawHist(id){return (S.tests[id]||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
+/* pomiar „słabsza strona”: od dnia, gdy są obie strony, liczony jako minimum z ostatnich wyników prawej i lewej */
+function hist(id){
+  const T=T_BY[id];const base=rawHist(id);if(!T||!T.of)return base;
+  const sides=T.of.map(rawHist);if(sides.some(h=>!h.length))return base;
+  const dates=[...new Set(sides.flat().map(m=>m.d))].sort();const pts=[];
+  for(const d of dates){const vals=sides.map(h=>{let v=null;for(const m of h)if(m.d<=d)v=m.v;return v});if(vals.every(v=>v!=null))pts.push({d,v:Math.min(...vals)})}
+  return base.filter(m=>m.d<pts[0].d).concat(pts);
+}
 function latest(id){const h=hist(id);return h.length?h[h.length-1]:null}
 function fromVal(level,tid){for(let l=level-1;l>=1;l--){const r=LEVELS[l-1].req;if(r&&r[tid]!=null)return r[tid]}return T_BY[tid].floor}
 function levelStatus(){
@@ -761,6 +854,13 @@ function sessionCard(plan,done,next){
         :`<button class="btn ${done?'sm':'primary big'}" data-act="start" data-date="${date}">${ICON.play} ${done?'Powtórz':date===today()?'Zacznij':'Zrób ten trening teraz'}</button>`):'<span class="small muted">Trening będzie do zrobienia w tym dniu.</span>'}
       ${date===today()?'<button class="btn ghost" data-act="logClass">Byłam na zajęciach</button>':''}</div>`;
 }
+function stepVids(s){
+  const L=STEP_VIDS[s.id]||[];
+  return `<div class="stack" style="gap:0"><b class="small">Filmy z wyjaśnieniem</b>${L.map(([id,t,ch,m,lang])=>`<div class="vid">${window.claude?'':`<a href="${ytWatch(id)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"></a>`}
+    <div class="meta" ${window.claude?'style="grid-column:1/-1"':''}><b>${esc(t)}</b><span class="small muted">${esc(ch)} · <span class="num">${m}</span> min · ${LANG[lang||'en']}</span>
+    <div><a class="btn primary sm" href="${ytWatch(id)}" target="_blank" rel="noopener">${ICON.play} Oglądaj</a></div></div></div>`).join('')}
+    <a class="small" style="margin-top:8px" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">Szukaj innych filmów na YouTube</a></div>`;
+}
 function stepStatus(id){const v=S.steps[id]||0;return `<div class="status" role="group" aria-label="Status kroku">${[['0','Nie znam'],['1','Uczę się'],['2','Opanowane']].map(([k,l])=>`<button class="s${k}" data-act="stepSet" data-v="${id}" data-s="${k}" aria-pressed="${String(v)===k}">${l}</button>`).join('')}</div>`}
 function stepCard(){
   const s=focusStep();if(!s)return '';
@@ -768,7 +868,7 @@ function stepCard(){
     <div><h3>${esc(s.n)}</h3><span class="fr">${esc(s.pl)}</span></div><p class="small">${esc(s.d)}</p>
     <ul class="cues small">${s.how.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
     ${stepStatus(s.id)}
-    <div class="row"><a class="btn sm" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">${ICON.play} Wideo z tym krokiem</a><button class="btn ghost sm" data-act="goSteps">Wszystkie kroki</button></div></section>`;
+    ${stepVids(s)}<div class="row"><button class="btn ghost sm" data-act="goSteps">Wszystkie kroki</button></div></section>`;
 }
 function plTyg(n){return n===1?'tydzień':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'tygodnie':'tygodni'}
 
@@ -852,7 +952,7 @@ function vProgress(){
   const t=today();const ym=t.slice(0,7);const train=S.log.filter(l=>TRAIN_KINDS.includes(l.kind));
   const month=train.filter(l=>l.d.startsWith(ym)).length;const mins=S.log.reduce((a,l)=>a+(l.min||0),0);
   const req=LEVELS[S.level-1].req||{};
-  const order=TESTS.filter(T=>!T.legacy||(S.tests[T.id]||[]).length).sort((a,b)=>(req[b.id]!=null)-(req[a.id]!=null));
+  const visible=TESTS.filter(T=>!T.legacy||(S.tests[T.id]||[]).length);
   const recent=S.log.slice().sort((a,b)=>a.d<b.d?1:-1).slice(0,12);
   return `
   <header class="stack" style="gap:6px"><p class="eyebrow">Pomiary i historia</p><h1>Postępy</h1></header>
@@ -865,15 +965,15 @@ function vProgress(){
   <section class="stack"><div class="row between"><h2>Testy</h2><span class="small muted">Mierz się co 2 tygodnie, zawsze po rozgrzewce.</span></div>
   <div class="card flat row between" style="padding:14px 18px"><p class="small" style="flex:1;min-width:220px"><b>Wysokość biodra</b> (od podłogi do kości biodrowej, w cm). Dzięki niej przeliczę wysokość développé na stopnie. Wysokość biodra to mniej więcej 90°.</p>
     <div class="row" style="flex-wrap:nowrap"><input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:90px" value="${S.hipCm||''}" placeholder="cm"><button class="btn sm" data-act="saveHip">Zapisz</button></div></div>
-  <div class="grid2">${order.map(T=>{const h=hist(T.id);const m=h[h.length-1];const first=h[0];const inReq=req[T.id]!=null;
+  ${Object.entries(TGROUPS).map(([g,gn])=>`<h3 style="margin-top:10px">${gn}</h3><div class="grid2">${visible.filter(T=>T.g===g).map(T=>{const h=hist(T.id);const m=h[h.length-1];const first=h[0];const inReq=req[T.id]!=null;
     let diff='';if(m&&first&&h.length>1){const dv=m.v-first.v;const good=T.lower?dv<0:dv>0;diff=`<span class="pill ${dv===0?'':good?'good':'warn'} num">${dv>0?'+':''}${nf(dv)} od ${fmt(first.d,{day:'numeric',month:'short'})}</span>`}
     return `<div class="card test stack" style="gap:8px">
       <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(T.n)}</b>${inReq?`<span class="pill accent">cel ${nf(req[T.id])}</span>`:''}</div>
       <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
       ${spark(h,T.lower)}
       ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform"><label class="field">Wynik (${T.u})<input id="tv-${T.id}" type="number" inputmode="decimal" min="0" ${T.max?'max="'+T.max+'"':''} step="0.5"></label><label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
-        :T.legacy?`<p class="small muted">${esc(T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
-    </div>`}).join('')}</div></section>
+        :T.legacy||T.of?`<p class="small muted">${esc(T.of?T.how+' Wpisuj wyniki w kartach obu stron.':T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
+    </div>`}).join('')}</div>`).join('')}</section>
   <section class="card"><div class="row between" style="margin-bottom:6px"><h3>Ostatnie wpisy</h3><button class="btn ghost sm" data-act="logClass">+ Zajęcia</button></div>
     ${recent.length?recent.map(l=>`<div class="logrow"><div style="min-width:0"><b>${logLabel(l)}</b><p class="small muted">${fmt(l.d,{weekday:'short',day:'numeric',month:'long'})} · ${l.min} min${l.rpe?' · RPE '+l.rpe:''}${l.note?' · '+esc(l.note):''}</p></div><button class="btn ghost sm" data-act="delLog" data-v="${l.id}" aria-label="Usuń wpis">Usuń</button></div>`).join('')
       :'<p class="muted small">Tu pojawią się zrobione treningi i zajęcia. Zacznij pierwszy trening na ekranie „Dziś”.</p>'}
@@ -899,7 +999,7 @@ function vSteps(){
     <div class="body"><p>${esc(s.d)}</p><div><b class="small">Jak ćwiczyć</b><ul class="cues">${s.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>
     ${s.c==='pointe'?'<p class="warnbox">Pointy tylko za zgodą nauczyciela.</p>':''}
     ${stepStatus(s.id)}
-    <div class="row"><a class="btn sm" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">${ICON.play} Szukaj wideo na YouTube</a></div></div></details>`}).join('')}).join('')}
+    ${stepVids(s)}</div></details>`}).join('')}).join('')}
   </div>`;
 }
 function vLibrary(){
@@ -996,7 +1096,7 @@ function drawPlayer(){
       ${P.phase==='reps'?'':`<button class="iconbtn main" data-act="pToggle" aria-label="${P.running?'Pauza':'Wznów'}">${P.running?ICON.pause:ICON.play}</button>`}
       <button class="iconbtn" data-act="pNext" aria-label="Następne">${ICON.next}</button></div>
     <div class="card flat stack" style="gap:8px"><p class="small">${esc(ex.d)}</p><ul class="cues small">${ex.cues.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
-      <div class="row"><a class="btn sm" href="${own?esc(own):yt(ex.yt)}" target="_blank" rel="noopener">${ICON.play} ${own?'Moje wideo':'Wideo na YouTube'}</a></div></div>
+      <div class="row"><a class="btn sm" href="${own?esc(own):ex.url||yt(ex.yt)}" target="_blank" rel="noopener">${ICON.play} ${own?'Moje wideo':ex.url?'Film z tym krokiem':'Wideo na YouTube'}</a></div></div>
     <p class="pl-next">${nx?'Następnie: <b>'+esc(exGet(nx.e).n)+'</b>'+(nx.side?' · '+nx.side.toLowerCase():''):'To ostatnie ćwiczenie'}</p>
   </div></div>`;
 }
