@@ -379,7 +379,8 @@ const TESTS=[
  {id:'split_r',g:'flex',n:'Szpagat: prawa noga z przodu',u:'cm',lower:1,floor:45,how:'Po rozgrzewce zsuń się do szpagatu z blokami. Zmierz odległość od podłogi do kości kulszowej. 0 cm oznacza, że siedzisz na podłodze.'},
  {id:'split_l',g:'flex',n:'Szpagat: lewa noga z przodu',u:'cm',lower:1,floor:45,how:'Jak wyżej, na drugą stronę.'},
  {id:'split_side',g:'flex',n:'Szpagat poprzeczny',u:'cm',lower:1,floor:60,how:'W maksymalnym rozkroku (tułów pionowo albo oparta na dłoniach) zmierz odległość od podłogi do kości łonowej.'},
- {id:'turnout',g:'flex',n:'Turnout w 1. pozycji',u:'°',max:180,floor:0,how:'Stań w 1. pozycji z takim otwarciem, jakie utrzymasz z biodra, bez forsowania i z kolanami nad palcami. Zmierz kąt między stopami (taśma na podłodze albo kątomierz w telefonie). 180° to pełne otwarcie.'},
+ {id:'turnout_cm',g:'flex',n:'Turnout w 1. pozycji',u:'cm',max:70,floor:0,foot:1,how:'Stań w 1. pozycji, pięty razem, z takim otwarciem, jakie utrzymasz z biodra, bez forsowania i z kolanami nad palcami. Zmierz odległość między czubkami dużych palców. Z długością stopy przeliczę to na kąt.'},
+ {id:'turnout',g:'flex',n:'Turnout (dawne, w stopniach)',u:'°',max:180,floor:0,legacy:1,how:'Pomiary sprzed zmiany na centymetry. Nowe wpisuj w karcie „Turnout w 1. pozycji”.'},
  {id:'pancake',g:'flex',n:'Pancake (skłon w rozkroku)',u:'cm',lower:1,floor:60,how:'Siad w szerokim rozkroku, kolana w sufit. Pochyl się z prostymi plecami i zmierz odległość od mostka do podłogi.'},
  {id:'bridge',g:'flex',n:'Mostek: dłonie od pięt',u:'cm',lower:1,floor:80,how:'W mostku zmierz odległość od nadgarstków do pięt. Im bliżej, tym bardziej elastyczne plecy. Rób tylko po dobrej rozgrzewce.'},
  {id:'gap_r',g:'flex',n:'Rezerwa à la seconde: prawa noga',u:'cm',lower:1,floor:40,how:'Podnieś prawą nogę w bok ręką najwyżej, jak się da, i zmierz wysokość pięty. Potem puść rękę i zmierz, na jakiej wysokości noga zostaje przez 2 s. Wpisz różnicę. Im mniejsza, tym silniej trzymasz nogę w pełnym zakresie.'},
@@ -610,7 +611,7 @@ function defaults(){
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
     pointe:true,tests,log:[],videos:{},flags:{},
-    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,ytPick:{}};
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{}};
 }
 function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick'])o[k]=Object.assign({},o[k]);o.log=Array.isArray(o.log)?o.log.slice():[];return o}
 const LS='arabeska.v1';
@@ -706,6 +707,8 @@ const logsOn=d=>S.log.filter(l=>l.d===d);
 const doneSession=d=>S.log.some(l=>l.d===d&&l.kind==='session');
 
 /* ============ LOGIKA POZIOMU ============ */
+/* pięty razem, każda stopa obrócona o połowę kąta: odległość czubków = 2·L·sin(kąt/2) */
+const turnoutDeg=d=>Math.round(2*Math.asin(clamp(d/(2*S.footCm),0,1))*180/Math.PI);
 function rawHist(id){return (S.tests[id]||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
 /* pomiar „słabsza strona”: od dnia, gdy są obie strony, liczony jako minimum z ostatnich wyników prawej i lewej */
 function hist(id){
@@ -963,13 +966,15 @@ function vProgress(){
     <div class="stat"><b class="num">${weekStreak()}</b><span class="small muted">${plTyg(weekStreak())} z planem z rzędu</span></div>
   </div>
   <section class="stack"><div class="row between"><h2>Testy</h2><span class="small muted">Mierz się co 2 tygodnie, zawsze po rozgrzewce.</span></div>
-  <div class="card flat row between" style="padding:14px 18px"><p class="small" style="flex:1;min-width:220px"><b>Wysokość biodra</b> (od podłogi do kości biodrowej, w cm). Dzięki niej przeliczę wysokość développé na stopnie. Wysokość biodra to mniej więcej 90°.</p>
-    <div class="row" style="flex-wrap:nowrap"><input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:90px" value="${S.hipCm||''}" placeholder="cm"><button class="btn sm" data-act="saveHip">Zapisz</button></div></div>
+  <div class="card flat stack" style="padding:14px 18px;gap:10px"><p class="small"><b>Twoje wymiary</b> do przeliczania wyników na stopnie. Wysokość biodra (od podłogi do kości biodrowej) służy do développé, długość stopy (od pięty do czubka dużego palca) do turnoutu.</p>
+    <div class="row" style="align-items:flex-end"><label class="field">Wysokość biodra (cm)<input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:120px" value="${S.hipCm||''}" placeholder="np. 92"></label>
+    <label class="field">Długość stopy (cm)<input class="input" id="foot-cm" type="number" inputmode="decimal" min="12" max="35" step="0.5" style="width:120px" value="${S.footCm||''}" placeholder="np. 24"></label>
+    <button class="btn sm" data-act="saveHip">Zapisz</button></div></div>
   ${Object.entries(TGROUPS).map(([g,gn])=>`<h3 style="margin-top:10px">${gn}</h3><div class="grid2">${visible.filter(T=>T.g===g).map(T=>{const h=hist(T.id);const m=h[h.length-1];const first=h[0];const inReq=req[T.id]!=null;
     let diff='';if(m&&first&&h.length>1){const dv=m.v-first.v;const good=T.lower?dv<0:dv>0;diff=`<span class="pill ${dv===0?'':good?'good':'warn'} num">${dv>0?'+':''}${nf(dv)} od ${fmt(first.d,{day:'numeric',month:'short'})}</span>`}
     return `<div class="card test stack" style="gap:8px">
       <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(T.n)}</b>${inReq?`<span class="pill accent">cel ${nf(req[T.id])}</span>`:''}</div>
-      <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
+      <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}${T.foot&&m?(S.footCm?' · ok. '+turnoutDeg(m.v)+'°':' · podaj długość stopy, żeby zobaczyć kąt'):''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
       ${spark(h,T.lower)}
       ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform"><label class="field">Wynik (${T.u})<input id="tv-${T.id}" type="number" inputmode="decimal" min="0" ${T.max?'max="'+T.max+'"':''} step="0.5"></label><label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
         :T.legacy||T.of?`<p class="small muted">${esc(T.of?T.how+' Wpisuj wyniki w kartach obu stron.':T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
@@ -1175,7 +1180,11 @@ document.addEventListener('click',e=>{
     case 'goSteps':learnSeg='kroki';stepLv=null;go('cwiczenia');break;
     case 'seg':learnSeg=v;render();break;
     case 'stepLv':stepLv=Number(v);render();break;
-    case 'saveHip':{const h=parseFloat(document.getElementById('hip-cm').value.replace(',','.'));if(isNaN(h)||h<40||h>130){toast('Wpisz wysokość biodra w cm, np. 92')}else{S.hipCm=h;save();render();toast('Zapisano')}break}
+    case 'saveHip':{const rd=id=>{const x=document.getElementById(id).value.trim().replace(',','.');return x===''?null:parseFloat(x)};
+      const h=rd('hip-cm'),f=rd('foot-cm');
+      if(h!=null&&(isNaN(h)||h<40||h>130)){toast('Wpisz wysokość biodra w cm, np. 92');break}
+      if(f!=null&&(isNaN(f)||f<12||f>35)){toast('Wpisz długość stopy w cm, np. 24');break}
+      S.hipCm=h;S.footCm=f;save();render();toast('Zapisano');break}
     case 'cat':libCat=v;render();break;
     case 'saveVid':{const val=document.getElementById('vid-'+v).value.trim();if(val&&!/^https?:\/\//i.test(val)){toast('Link musi zaczynać się od https://');break}
       if(val)S.videos[v]=val;else delete S.videos[v];save();render();const d=document.querySelector(`details[data-ex="${v}"]`);if(d)d.open=true;toast(val?'Wideo zapisane':'Link usunięty');break}
