@@ -256,6 +256,32 @@ ul.cues{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 @media (min-width:600px){.modalbg{align-items:center}}
 .modal{background:var(--surface);border-radius:18px;padding:22px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow:auto;margin-bottom:env(safe-area-inset-bottom,0px)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px}
+.mcount{font-family:var(--display);font-size:96px;line-height:1;color:var(--accent);min-height:96px}
+.mdots{display:flex;gap:10px;justify-content:center}
+.mdots i{width:14px;height:14px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line)}
+.mdots i.on{background:var(--accent);border-color:var(--accent)}
+.opt{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;text-align:left;font-weight:600;font-size:15px}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opt.wrong{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.opt[disabled]{cursor:default}
+ol.combo{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+ol.combo li{display:flex;gap:12px;align-items:baseline}
+ol.combo .cnt{min-width:44px;font-weight:800;color:var(--accent)}
+.chart{width:100%;height:auto;display:block}
+.cbar:hover path{opacity:.8}
+.ctable{border-collapse:collapse;margin-top:8px}
+.ctable td,.ctable th{padding:4px 12px 4px 0;text-align:left;border-bottom:1px solid var(--line)}
+.srow{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.sbar{display:grid;grid-template-columns:18px 1fr 70px;gap:8px;align-items:center}
+.sbar .num:last-child{text-align:right}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.cmp img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:var(--surface-2)}
+.phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.phgrid button{border:0;padding:0;background:none;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
+.phgrid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--surface-2)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -573,6 +599,78 @@ const STEP_VIDS={
 };
 const LANG={pl:'po polsku',en:'po angielsku',pt:'po portugalsku'};
 
+/* Kroki jazzowe: lv 1–3 to poziomy jazzu (nie klasy baletowe) */
+const JLEVELS=['','Podstawy','Średni','Zaawansowany'];
+const JCATS={jbase:'Podstawy i kroki',jturn:'Obroty',jleap:'Wykopy i skoki'};
+const JSTEPS=[
+ {id:'j_isol',n:'Izolacje',pl:'isolations',lv:1,c:'jbase',d:'Ruch tylko jedną częścią ciała: głową, barkami, klatką albo biodrami, przy nieruchomej reszcie.',how:['Zacznij od małych ruchów przód–tył i bok–bok','Kolana lekko ugięte, brzuch aktywny'],yt:'jazz isolations tutorial',v:[['b7Hx3u9WYhE','Isolations (Jazz Class 1 of 6)','Courtney Chilton',3],['-J2g5smKIcs','How to Isolate Your Hips','YouDance',5]]},
+ {id:'j_contract',n:'Kontrakcja i release',pl:'contraction & release',lv:1,c:'jbase',d:'Zaokrąglenie kręgosłupa od brzucha i powrót do otwartej, wydłużonej pozycji.',how:['Ruch zaczyna się w brzuchu, nie w barkach','Wydech przy kontrakcji'],yt:'jazz contraction release tutorial',v:[['rdOVhoNHrIA','Mastering Contraction and Release','We will do Jazz',4],['hIlEb4gkIs4','How to Do the Contraction','Howcast',2]]},
+ {id:'j_ballchange',n:'Ball change',pl:'zmiana ciężaru na półpalcach',lv:1,c:'jbase',d:'Szybkie przeniesienie ciężaru: krok na półpalce jednej nogi i z powrotem na drugą.',how:['Na „i” półpalce, na „raz” cała stopa','Ciężar nisko, kolana miękkie'],yt:'ball change dance tutorial',v:[['95vDkNZorDQ','How To Do a Ball Change','Mico Dance',2]]},
+ {id:'j_kbc',n:'Kick ball change',pl:'wykop i zmiana ciężaru',lv:1,c:'jbase',d:'Mały wykop nogą, a potem ball change: kick, ball, change.',how:['Wykop nisko i ostro','Ball change pod sobą, nie z przodu'],yt:'kick ball change jazz tutorial',v:[['Aj1ttBcPm14','Kick Ball Change','Barre None Dance Company',2]]},
+ {id:'j_square',n:'Jazz square',pl:'kwadrat jazzowy',lv:1,c:'jbase',d:'Cztery kroki w kształcie kwadratu: krzyż w przód, krok w tył, krok w bok, krok w przód.',how:['Pierwszy krok krzyżuje się przed drugą nogą','Biodra i ramiona mogą prowadzić styl'],yt:'jazz square tutorial',v:[['IVo7Rvpf8Wg','The Jazz Square','Barre None Dance Company',5],['-KXxInW3RbU','How to Do a Jazz Square','YouDance',2]]},
+ {id:'j_pdb',n:'Pas de bourrée jazzowe',pl:'jazz pas de bourrée',lv:1,c:'jbase',d:'Trzy kroki jak w balecie, ale z ugiętymi kolanami, często z krzyżowaniem i akcentem w dół.',how:['Niżej i bardziej „w podłodze” niż w balecie','Akcent na ostatnim kroku'],yt:'jazz pas de bourree tutorial',v:[['d5-TKHTOTdU','Learn the Pas de Bourrée (Jazz Style)','Tino Nozaki',7],['yfw_CtVSIFg','How to Do a Jazz Pas de Bourrée','Edge Dance Center',1]]},
+ {id:'j_walk',n:'Jazz walk',pl:'chód jazzowy',lv:1,c:'jbase',d:'Chód na ugiętych kolanach z ciężarem nisko, płynnie i z charakterem.',how:['Krok z pięty albo z palców, ale zawsze miękko','Ramiona i klatka dodają stylu'],yt:'jazz walk tutorial',v:[['pMhw5NXfAdM','Jazz Dance Basics for Absolute Beginners','Maria Escamilla',15]]},
+ {id:'j_pencil',n:'Pencil turn',pl:'obrót „ołówek”',lv:2,c:'jturn',d:'Obrót z nogami złączonymi i prostymi, jak ołówek, na półpalcach jednej nogi.',how:['Nogi mocno razem przez cały obrót','Ręce blisko ciała'],yt:'pencil turn jazz tutorial',v:[['VUtLKFCy694','How To Do a Pencil Turn','BodyKinect by Kendall',4]]},
+ {id:'j_pir',n:'Pirouette jazzowa',pl:'pirouette w pozycji równoległej',lv:2,c:'jturn',d:'Obrót z passé równoległym (kolano w przód), z przygotowania w równoległej 4. pozycji.',how:['Kolano w przód, nie w bok','Spotting jak w balecie'],yt:'jazz pirouette tutorial',v:[['6YfqrebP99o','Jazz Pirouette Tutorial: 5 Easy Steps','BodyKinect by Kendall',8],['2jb0Irqj4Is','Parallel Jazz Pirouette Progression','Olivia Bauso',2]]},
+ {id:'j_fan',n:'Fan kick',pl:'wykop wachlarzowy',lv:2,c:'jleap',d:'Prosta noga zatacza łuk w powietrzu od jednej strony do drugiej, jak wachlarz.',how:['Najwyższy punkt łuku przed tobą','Noga podporowa stabilna'],yt:'fan kick tutorial',v:[['0Csgdu5N1zo','Fan Kick Tutorial for Dancers','BodyKinect by Kendall',3],['uv4rtUf1CRA','How to Do the Fan Kick','Howcast',2]]},
+ {id:'j_hitch',n:'Hitch kick',pl:'wykop z przeskokiem',lv:2,c:'jleap',d:'Skok, w którym nogi wykopują w przód jedna po drugiej, jak nożyce.',how:['Pierwsza noga ugięta lub prosta, druga wykopuje wyżej','Lądowanie na pierwszej nodze'],yt:'hitch kick jazz tutorial',v:[['YvmV51CUKkI','How to Hitch Kick','Howcast',1],['F3qRWSJKL2w','How to Teach Hitch Kicks','DanceTeacherWeb',4]]},
+ {id:'j_stag',n:'Stag leap',pl:'skok jelenia',lv:2,c:'jleap',d:'Duży skok jak grand jeté, ale z przednią nogą zgiętą w kolanie.',how:['Przednie kolano wysoko','Tylna noga prosta i długa'],yt:'stag leap tutorial',v:[['lYiFmbqBhFU','How to Do a Double Stag Leap','BodyKinect by Kendall',3],['u_MFTpx-Vw4','How to Do the Stag Leap','Howcast',1]]},
+ {id:'j_leap',n:'Jazz leap (split leap)',pl:'skok w szpagacie',lv:2,c:'jleap',d:'Duży skok z rozbiegu, z nogami w szpagacie w najwyższym punkcie.',how:['Przednia noga wyrzucona jak grand battement','Klatka w górę, nie patrz w dół'],yt:'split leap tutorial',v:[['qkihwqYWKKE','How to Do and Improve a Split Leap','HannahMartinRG',4],['AkCYy5nTBJY','Grand Jeté: Split Leap','Courtney Cheyne',6]]},
+ {id:'j_seconde',n:'Obroty à la seconde',pl:'à la seconde turns',lv:3,c:'jturn',d:'Seria obrotów z nogą wyprostowaną w bok, z plié na każdy obrót.',how:['Noga w bok na wysokości biodra przez cały czas','Plié i relevé rytmicznie'],yt:'a la seconde turns tutorial',v:[['Ltt4dkRkSG0','How To Do A La Seconde Turns','BodyKinect by Kendall',8],['CSwRzMiOnaE','How to Improve À la Seconde Turns','Ballet For All',5]]},
+ {id:'j_axel',n:'Axel',pl:'obrót z wyskokiem',lv:3,c:'jturn',d:'Obrót w powietrzu z jednej nogi, z kolanem prowadzącym w górę.',how:['Kolano wysoko i szybko','Głowa prowadzi obrót'],yt:'axel turn jazz tutorial',v:[['vFoRnnmejJc','How to Do an Axel Turn in Jazz','YouDance',6],['A0FXlfD6BHU','How to Do the Axel Turn','Howcast',2]]},
+ {id:'j_barrel',n:'Barrel turn',pl:'obrót beczka',lv:3,c:'jturn',d:'Obrót w powietrzu z tułowiem pochylonym w bok i rękami szeroko.',how:['Tułów nisko i szeroko','Nogi pchają mocno z plié'],yt:'barrel turn jazz tutorial',v:[['yg_B90GFE8w','How to Barrel Turn in Jazz','LIVESTRONG',2],['gLYwPvDHSQ8','Direction Changes and Barrel Turns','TracieStanfieldNYC',2]]},
+ {id:'j_switch',n:'Switch leap',pl:'skok ze zmianą nóg',lv:3,c:'jleap',d:'Skok, w którym nogi zmieniają się w powietrzu: przednia przechodzi w tył do szpagatu.',how:['Najpierw przednia noga wysoko, potem zamiana','Szpagat w najwyższym punkcie'],yt:'switch leap tutorial',v:[['YsuSuK2Mguw','How to Do a Switch Leap','Seja Lynne Anderson',2],['Qd2-Rk5cSA4','How to Do a Switch Leap','GymnasticsHQ',2]]},
+ {id:'j_calypso',n:'Calypso',pl:'skok calypso',lv:3,c:'jleap',d:'Skok z obrotem, z przednią nogą zgiętą i tylną prostą, z wygiętym tułowiem.',how:['Najpierw opanuj stag leap','Tułów odchyla się w tył w powietrzu'],yt:'calypso leap tutorial',v:[['1kmaZWOorMY','How to Do a Calypso: Easy Tutorial','BodyKinect by Kendall',8]]},
+ {id:'j_layout',n:'Layout',pl:'wychylenie w tył z nogą w górze',lv:3,c:'jleap',d:'Wykop w przód z odchyleniem tułowia w tył, ciało tworzy długą linię.',how:['Wymaga silnego brzucha','Zacznij od niskiej nogi i małego wychylenia'],yt:'layout jazz tutorial',v:[['WHMV8bUTHxo','How to Do the Jazz Layout','Howcast',2],['qBqvsd5AjsU','How to Do a Jazz Dance Layout','LIVESTRONG',2]]}
+];
+JSTEPS.forEach(s=>{STEP_BY[s.id]=s;STEP_VIDS[s.id]=s.v});
+const ALLSTEPS=STEPS.concat(JSTEPS);
+
+/* wymowa: tekst dla syntezatora mowy, gdy nazwa kroku nie jest francuska */
+const SAY={positions:'positions des pieds et des bras',pointe_rel:'relevé sur les pointes',pir_double:'double pirouette en dehors',pir_dehors:'pirouette en dehors',pir_dedans:'pirouette en dedans',fouette_prep:'fouetté rond de jambe en tournant',pir_att:'grande pirouette en attitude',pique_pointe:'piqué en dedans sur les pointes',fouettes:'fouettés en tournant',echappe_pointe:'échappé sur les pointes',italian:'fouetté italien',passe:'retiré, passé',chaines:'chaînés, déboulés',jete_b:'battement jeté, dégagé',sissonne:'sissonne fermée',grandjete:'grand jeté',tourjete:'grand jeté en tournant',manege:'manège',pdb:'pas de bourrée',tombe_pdb:'tombé pas de bourrée',bourree:'pas de bourrée suivi'};
+
+/* szybkie sesje */
+const QUICK={
+ q15:{n:'Szybkie 15 minut',d:'Krótka rozgrzewka i najważniejsza część dzisiejszego planu.',kind:'quick'},
+ pre:{n:'Rozgrzewka przed zajęciami',d:'10 minut ruchu, który przygotuje ciało do drążka. Bez długiego rozciągania.',kind:'warmup',items:[{e:'w_march',t:90},{e:'w_ankle',t:45},{e:'w_spine',t:60},{e:'w_plie',t:60},{e:'ft_rel2',r:16},{e:'w_swing',t:30},{e:'t_tendu',t:45},{e:'t_bal',t:30}]},
+ post:{n:'Rozciąganie po zajęciach',d:'10 minut spokojnego rozciągania, gdy mięśnie są rozgrzane.',kind:'warmup',items:[{e:'f_lunge',t:60},{e:'f_half',t:60},{e:'f_pigeon',t:60},{e:'f_butterfly',t:60},{e:'c_calf',t:30},{e:'c_child',t:60}]}
+};
+
+/* etapy pracy na pointach: kryteria orientacyjne, decyzję zawsze podejmuje nauczyciel */
+const POINTE_STAGES=[
+ {n:'Pointy przy drążku',d:'Pierwsze relevés i échappés twarzą do drążka.',checks:[{t:'calf',min:20},{t:'balance',min:8},{t:'plank',min:45},{m:'teacher_barre',n:'Nauczyciel dopuścił mnie do pointów'}]},
+ {n:'Pointy na środku',d:'Relevés, échappés i bourrées bez drążka.',checks:[{t:'calf',min:25},{t:'balance',min:12},{t:'bal_eyes',min:15},{t:'pointe',min:16},{t:'plank',min:60},{m:'knees',n:'Na pointach mam proste kolana i stopy bez sierpowania (potwierdzone przez nauczyciela)'},{m:'teacher_centre',n:'Nauczyciel pozwala mi ćwiczyć na pointach na środku'}]},
+ {n:'Obroty na pointach',d:'Piqué turns i pirouette na pointach.',checks:[{t:'calf',min:30},{t:'balance',min:15},{t:'bal_arab',min:5},{t:'pointe',min:30},{t:'pir1',min:8},{m:'teacher_turns',n:'Nauczyciel pozwala mi kręcić się na pointach'}]}
+];
+
+/* metronom: typowe tempa lekcji, do dopasowania suwakiem */
+const METRO=[
+ {id:'plie',n:'Plié',m:3,bpm:66,d:'wolne 3/4, płynnie'},
+ {id:'tendu',n:'Battement tendu',m:2,bpm:104,d:'2/4, równo i wyraźnie'},
+ {id:'jete',n:'Jeté / dégagé',m:2,bpm:120,d:'2/4, szybciej i ostrzej'},
+ {id:'rond',n:'Rond de jambe',m:3,bpm:96,d:'3/4, okrągło'},
+ {id:'fondu',n:'Fondu',m:4,bpm:72,d:'4/4, miękko'},
+ {id:'frappe',n:'Frappé',m:2,bpm:126,d:'2/4, z akcentem'},
+ {id:'adagio',n:'Adagio',m:3,bpm:58,d:'bardzo wolno, z oddechem'},
+ {id:'gb',n:'Grand battement',m:4,bpm:108,d:'4/4, energicznie'},
+ {id:'waltz',n:'Walc (balancé, pirouette)',m:3,bpm:150,d:'3/4, z rozmachem'},
+ {id:'petit',n:'Petit allegro',m:2,bpm:132,d:'2/4, lekko i szybko'},
+ {id:'grand',n:'Grand allegro',m:3,bpm:84,d:'szeroko, z lotem'}
+];
+
+/* liczba taktów („liczb”) na krok w kombinacjach */
+const COUNTS={glissade:1,pdb:2,chasse:1,tombe_pdb:2,pasdebasque:3,balance:3,saute:1,changement:1,echappe:2,assemble:1,sissonne:1,petitjete:1,pasdechat:1,tempsleve:1,entrechat4:1,royale:1,brise:1,entrechat6:1,
+ pir_dehors:2,pir_dedans:2,soutenu:2,chaines:2,pique_turn:2,pir_double:2,pique_dehors:2,fouette_prep:2,pir_att:2,fouettes:4,manege:4,
+ developpe:4,arabesque:2,attitude:2,passe:2,portdebras:4,releve:2,renverse:4,italian:4,grandbatt:2,
+ grandjete:2,sautdechat:2,sissonne_ouv:2,cabriole:2,tourjete:2};
+const COMBO_TYPES={
+ petit:{n:'Petit allegro',main:['saute','changement','echappe','assemble','sissonne','petitjete','pasdechat','tempsleve','entrechat4','royale','brise'],link:['glissade','pdb','chasse'],metro:'petit'},
+ turn:{n:'Obroty',main:['pir_dehors','pir_dedans','soutenu','chaines','pique_turn','pir_double','pique_dehors','pir_att','fouette_prep'],link:['tombe_pdb','pdb','glissade','balance'],metro:'waltz'},
+ adagio:{n:'Adagio',main:['developpe','arabesque','attitude','passe','portdebras','releve','renverse','italian','grandbatt'],link:['portdebras'],metro:'adagio'},
+ grand:{n:'Grand allegro',main:['grandjete','sautdechat','sissonne_ouv','cabriole','tourjete'],link:['chasse','glissade','tombe_pdb','pasdebasque'],metro:'grand'}
+};
+const CORR_AREAS=['Obroty','Développé i adagio','Skoki','Pointy','Drążek i stopy','Ręce i port de bras','Postawa i tułów','Inne'];
+
 /* Treningi z YouTube (sprawdzone filmy). m = minuty, pl = film po polsku */
 const VIDEOS={
  split:[{id:'m_XEo-iecCs',t:'20 Minute Front Splits Routine',ch:'Tom Merrick',m:22},{id:'S8MP_CPl-i8',t:'Jak zrobić szpagat? 10 minutowe rozciąganie',ch:'Patrycja Kołowska',m:11,pl:1},{id:'SdltgVDEPmM',t:'15 Min Stretch for Splits',ch:'MadFit',m:17},{id:'Uhk363mRXok',t:'Zrób szpagat | wyzwanie 14 dni',ch:'Trening Fitness',m:21,pl:1},{id:'GFuhJQloXu8',t:'15 Minute Deep Stretch for Splits',ch:'blogilates',m:22},{id:'GVZZi-Gth_M',t:'8 Min Stretch for Splits',ch:'Pamela Reif',m:10},{id:'cOiO6_E6CDI',t:'30 Min Unlock Your Splits: Hip Flexor & Hamstring',ch:'FLEXFORM by Shan',m:38}],
@@ -611,9 +709,9 @@ function defaults(){
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
     pointe:true,tests,log:[],videos:{},flags:{},
-    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{}};
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{}};
 }
-function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick'])o[k]=Object.assign({},o[k]);o.log=Array.isArray(o.log)?o.log.slice():[];return o}
+function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
 const LS='arabeska.v1';
 function loadLocal(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -659,7 +757,7 @@ async function attachCloud(ref){
 }
 
 /* ============ LOGIKA PLANU ============ */
-const TRAIN_KINDS=['session','class'];
+const TRAIN_KINDS=['session','class','quick'];
 function trainingIndex(date){let n=0,d=S.planStart;if(date<=d)return 0;let guard=0;while(d<date&&guard++<4000){if(S.days.includes(dow(d)))n++;d=addDays(d,1)}return n}
 function progBlock(p,date){
   const P0=PROG[p];const st=S.progStart[p]||S.planStart;
@@ -680,12 +778,30 @@ function planFor(date){
   const st=focusStep();
   const learn=st?[{n:'Nauka kroku: '+st.n,step:st.id,items:[{e:'step:'+st.id,t:180}]}]:[];
   const vids=progs.map((p,k)=>{const L=VIDEOS[p];if(!L)return null;const key=date+':'+p;const n=S.ytPick[key]!=null?S.ytPick[key]:Math.floor((i*2+k)/act.length);return {p,v:L[n%L.length],key}}).filter(Boolean);
-  return {date,kind:'session',title:progs.map(p=>PROG[p].n).join(' + '),progs,vids,i,
-    blocks:[{n:'Rozgrzewka',items:WARM},...learn,...progs.map(p=>progBlock(p,date)),{n:'Wyciszenie',items:COOL}]};
+  const light=fatigue()&&date>=today();
+  const lighten=b=>light?Object.assign({},b,{items:b.items.map(it=>Object.assign({},it,{t:it.t?Math.round(it.t*.7/5)*5:it.t,r:it.r?Math.ceil(it.r*.7):it.r,s:undefined}))}):b;
+  return {date,kind:'session',title:progs.map(p=>PROG[p].n).join(' + '),progs,vids,i,light,
+    blocks:[{n:'Rozgrzewka',items:WARM},...learn,...progs.map(p=>lighten(progBlock(p,date))),{n:'Wyciszenie',items:COOL}]};
+}
+/* zmęczenie: średnia ocena RPE trzech ostatnich treningów z ostatnich 14 dni wynosi 8 lub więcej */
+function fatigue(){
+  if(S.flags.noDeload===today())return false;
+  const r=S.log.filter(l=>l.rpe&&TRAIN_KINDS.includes(l.kind)&&between(l.d,today())<=14).sort((a,b)=>a.d<b.d?1:-1).slice(0,3);
+  return r.length===3&&r.reduce((a,l)=>a+l.rpe,0)/3>=8;
+}
+/* słabsza strona dla kategorii ćwiczenia, na podstawie pomiarów prawej i lewej */
+const SIDE_TESTS={flex:['split_r','split_l',1],turn:['pir1_r','pir1_l',0],feet:['calf_r','calf_l',0],str:['side_r','side_l',0]};
+function weakerSide(cat){
+  const p=SIDE_TESTS[cat];if(!p)return null;
+  const r=latest(p[0]),l=latest(p[1]);if(!r||!l)return null;
+  const lower=p[2];const diff=Math.abs(r.v-l.v);const base=Math.max(Math.abs(r.v),Math.abs(l.v),1);
+  if(lower?diff<3:(diff<1||diff/base<.15))return null;
+  const rightWeak=lower?r.v>l.v:r.v<l.v;
+  return {side:rightWeak?'Prawa strona':'Lewa strona',word:rightWeak?'prawą':'lewą',test:T_BY[p[0]].n.split(':')[0]};
 }
 /* krok do nauki: najpierw ten oznaczony „uczę się”, potem pierwszy nieznany z bieżącej klasy */
 function focusStep(){
-  const learning=STEPS.find(s=>S.steps[s.id]===1);if(learning)return learning;
+  const learning=ALLSTEPS.find(s=>S.steps[s.id]===1);if(learning)return learning;
   return STEPS.find(s=>s.lv===S.level&&!S.steps[s.id])||STEPS.find(s=>s.lv>S.level&&!S.steps[s.id])||null;
 }
 function exGet(id){
@@ -697,6 +813,8 @@ function stepsOf(plan){
   for(const b of plan.blocks)for(const it of b.items){
     const ex=exGet(it.e);const sides=ex.sd?['Prawa strona','Lewa strona']:[null];const sets=it.s||1;
     for(let s=1;s<=sets;s++)for(const side of sides)out.push({block:b.n,e:it.e,t:it.t,r:it.r,rt:it.rt||4,side,set:s,sets});
+    const w=ex.sd&&plan.kind==='session'?weakerSide(ex.c):null;
+    if(w)out.push({block:b.n,e:it.e,t:it.t,r:it.r,rt:it.rt||4,side:w.side,set:1,sets:1,extra:1});
   }
   return out;
 }
@@ -765,7 +883,7 @@ const ICON={
 const TABS=[['dzis','Dziś'],['plan','Plan'],['klasa','Klasa'],['postepy','Postępy'],['cwiczenia','Nauka']];
 let tab=(location.hash||'').slice(1);if(!TABS.some(t=>t[0]===tab)){try{tab=localStorage.getItem('arabeska.tab')||'dzis'}catch(e){tab='dzis'}}
 if(!TABS.some(t=>t[0]===tab))tab='dzis';
-let calMonth=today().slice(0,7),calSel=today(),libCat='all',libQ='',openTest=null,learnSeg='kroki',stepLv=null;
+let calMonth=today().slice(0,7),calSel=today(),libCat='all',libQ='',openTest=null,learnSeg='kroki',stepLv=null,jazzLv=null,comboType='petit',combo=null,quizQ=null,quizStreak=0,photoPose='split_r',photoCmp=null;
 
 function go(t){tab=t;try{localStorage.setItem('arabeska.tab',t)}catch(e){}try{history.replaceState(null,'','#'+t)}catch(e){}render();window.scrollTo(0,0)}
 function renderNav(){
@@ -786,7 +904,7 @@ function accountCard(){
   if(A.user)return `<section class="card flat stack"><h3>Konto</h3><p class="small"><span class="pill ${cloud.status==='cloud'?'good':cloud.status==='error'?'warn':''}">${cloud.status==='cloud'?'Synchronizacja włączona':cloud.status==='error'?'Błąd synchronizacji':'Łączenie…'}</span></p><p class="small muted">Zalogowana jako <b>${esc(A.user.email||A.user.name||'')}</b>. Treningi i pomiary zapisują się na koncie i są takie same na telefonie i komputerze.</p><div><button class="btn sm" data-act="signOut">Wyloguj</button></div></section>`;
   return `<section class="card flat stack"><h3>Konto</h3><p class="small muted">Zaloguj się kontem Google, żeby treningi i pomiary zapisywały się na koncie i były takie same na telefonie i komputerze.</p><div><button class="btn primary sm" data-act="signIn">Zaloguj przez Google</button></div></section>`;
 }
-function render(){renderNav();const v=document.getElementById('view');v.innerHTML=({dzis:vToday,plan:vPlan,klasa:vLevel,postepy:vProgress,cwiczenia:vLibrary}[tab])()}
+function render(){metroGuard();renderNav();const v=document.getElementById('view');v.innerHTML=({dzis:vToday,plan:vPlan,klasa:vLevel,postepy:vProgress,cwiczenia:vLibrary}[tab])()}
 
 function levelStrip(){
   const st=levelStatus();
@@ -795,7 +913,7 @@ function levelStrip(){
     <span class="row between"><span><b>Klasa ${RN[S.level]}</b> · ${esc(LEVELS[S.level-1].n)}</span><span class="num small muted">${Math.round(st.pct*100)}% do Klasy ${RN[S.level+1]}</span></span>
     <span class="bar"><span style="width:${Math.round(st.pct*100)}%"></span></span></span></button>`;
 }
-function dose(it){const ex=exGet(it.e);return (it.t?(it.t>=60&&it.t%60===0?it.t/60+' min':it.t+' s'):it.r+' powt.')+(it.s?' × '+it.s:'')+(ex.sd?' / na stronę':'')}
+function dose(it){const ex=exGet(it.e);return (it.t?(it.t>=60&&it.t%60===0?it.t/60+' min':it.t+' s'):it.r+' powt.')+(it.s?' × '+it.s:'')+(ex.sd?' / na stronę':'')+(ex.sd&&weakerSide(ex.c)?' + 1 na '+weakerSide(ex.c).word:'')}
 function blocksList(plan,open){
   return '<div class="blocks">'+plan.blocks.map(b=>`<details ${open?'open':''}><summary><span><b>${esc(b.n)}</b>${b.prog?` <span class="muted small">· tydz. ${Math.min(b.wk,PROG[b.prog].weeks)}/${PROG[b.prog].weeks}, faza ${b.ph+1}</span>`:''}</span><span class="muted num small">${blockMin(b)} min ▾</span></summary>
     <ol class="exprev">${b.items.map(it=>{const ex=exGet(it.e);return `<li><span>${esc(ex.n)}${ex.fr?` <span class="fr small">${esc(ex.fr)}</span>`:''}</span><span class="muted num small">${dose(it)}</span></li>`}).join('')}</ol></details>`).join('')+'</div>';
@@ -803,7 +921,7 @@ function blocksList(plan,open){
 function weekStrip(){
   const m=mondayOf(today());let h='';
   for(let i=0;i<7;i++){const d=addDays(m,i);const L=logsOn(d);const train=S.days.includes(dow(d));
-    let cls='dot';if(L.some(l=>l.kind==='session'))cls+=' done';else if(L.some(l=>l.kind==='class'))cls+=' class';else if(L.some(l=>l.kind==='recovery'))cls+=' rec';else if(train)cls+=' plan';
+    let cls='dot';if(L.some(l=>l.kind==='session'||l.kind==='quick'))cls+=' done';else if(L.some(l=>l.kind==='class'))cls+=' class';else if(L.some(l=>l.kind==='recovery'))cls+=' rec';else if(train)cls+=' plan';
     h+=`<button class="d ${d===today()?'today':''}" data-day="${d}"><span>${fmt(d,{weekday:'short'}).replace('.','')}</span><span class="${cls}"></span><span class="num">${parse(d).getDate()}</span></button>`}
   return `<div class="week">${h}</div>`;
 }
@@ -823,6 +941,9 @@ function vToday(){
   ${window.ARABESKA_AUTH&&ARABESKA_AUTH.ready&&!ARABESKA_AUTH.failed&&!ARABESKA_AUTH.user&&!S.flags.noLogin?`<div class="card flat row between"><p class="small" style="flex:1;min-width:200px">Zaloguj się kontem Google, żeby postępy zapisywały się na koncie.</p><div class="row"><button class="btn primary sm" data-act="signIn">Zaloguj</button><button class="btn ghost sm" data-act="noLogin">Nie teraz</button></div></div>`:''}
   ${levelStrip()}
   <section class="card hero stack">${sessionCard(plan,done,next)}</section>
+  ${adaptCards()}
+  ${quickRow()}
+  ${corrCard()}
   ${stepCard()}
   <section class="card stack"><div class="row between"><h3>Ten tydzień</h3><span class="small muted">${weekStreak()?'Seria: '+weekStreak()+' '+plTyg(weekStreak())+' z planem':'Cel: '+S.days.length+' treningi w tygodniu'}</span></div>${weekStrip()}</section>
   ${needTest?`<section class="card flat row between"><div class="stack" style="gap:4px;flex:1;min-width:200px"><h3>Pora na pomiar</h3><p class="small muted">${lastReal?'Ostatni pomiar: '+fmt(lastReal,{day:'numeric',month:'long'})+'. Mierz się co 2 tygodnie.':'Nie masz jeszcze żadnego prawdziwego pomiaru.'}</p></div><button class="btn" data-go="postepy">Dodaj wyniki</button></section>`:''}
@@ -851,6 +972,7 @@ function sessionCard(plan,done,next){
     <div class="row between"><span class="eyebrow">${date===today()?'Trening na dziś':'Trening'}</span>
       <div class="seg" role="group" aria-label="Rodzaj treningu"><button data-act="mode" data-v="app" aria-pressed="${!yt}">Z timerem</button><button data-act="mode" data-v="yt" aria-pressed="${!!yt}">Z YouTube</button></div></div>
     <div class="row between"><h2 style="flex:1;min-width:200px">${esc(plan.title)}</h2><span class="pill num">ok. ${min} min</span></div>
+    ${plan.light&&!yt?`<div class="warnbox row between"><span style="flex:1;min-width:200px">Lżejszy trening: ostatnie trzy treningi oceniłaś na 8 lub więcej w skali wysiłku. Krótsze czasy i mniej powtórzeń, żeby ciało odpoczęło.</span><button class="btn sm" data-act="noDeload">Dziś normalnie</button></div>`:''}
     ${yt?`<p class="small muted">Zrób najpierw krótką rozgrzewkę (5 min marszu i pliés), potem oba filmy.${learn?' Na koniec 3 minuty nauki kroku: <b>'+esc(STEP_BY[learn.step].n)+'</b>.':''}</p><div>${plan.vids.map(vidRow).join('')}</div>`:blocksList(plan)}
     <div class="row">${done?`<span class="pill good">Zrobione</span>`:''}
       ${canDo?(yt?`<button class="btn ${done?'':'primary big'}" data-act="ytDone" data-date="${date}">${done?'Zapisz jeszcze raz':'Zrobione, zapisz trening'}</button>`
@@ -862,16 +984,17 @@ function stepVids(s){
   return `<div class="stack" style="gap:0"><b class="small">Filmy z wyjaśnieniem</b>${L.map(([id,t,ch,m,lang])=>`<div class="vid">${window.claude?'':`<a href="${ytWatch(id)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"></a>`}
     <div class="meta" ${window.claude?'style="grid-column:1/-1"':''}><b>${esc(t)}</b><span class="small muted">${esc(ch)} · <span class="num">${m}</span> min · ${LANG[lang||'en']}</span>
     <div><a class="btn primary sm" href="${ytWatch(id)}" target="_blank" rel="noopener">${ICON.play} Oglądaj</a></div></div></div>`).join('')}
-    <a class="small" style="margin-top:8px" href="${yt(s.yt+' ballet')}" target="_blank" rel="noopener">Szukaj innych filmów na YouTube</a></div>`;
+    <a class="small" style="margin-top:8px" href="${yt(s.id.startsWith('j_')?s.yt:s.yt+' ballet')}" target="_blank" rel="noopener">Szukaj innych filmów na YouTube</a></div>`;
 }
 function stepStatus(id){const v=S.steps[id]||0;return `<div class="status" role="group" aria-label="Status kroku">${[['0','Nie znam'],['1','Uczę się'],['2','Opanowane']].map(([k,l])=>`<button class="s${k}" data-act="stepSet" data-v="${id}" data-s="${k}" aria-pressed="${String(v)===k}">${l}</button>`).join('')}</div>`}
 function stepCard(){
   const s=focusStep();if(!s)return '';
-  return `<section class="card stack"><div class="row between"><span class="eyebrow">Krok do nauki</span><span class="pill">Klasa ${RN[s.lv]} · ${SCATS[s.c]}</span></div>
-    <div><h3>${esc(s.n)}</h3><span class="fr">${esc(s.pl)}</span></div><p class="small">${esc(s.d)}</p>
+  const jz=s.id.startsWith('j_');
+  return `<section class="card stack"><div class="row between"><span class="eyebrow">Krok do nauki</span><span class="pill">${jz?'Jazz · '+JLEVELS[s.lv]:'Klasa '+RN[s.lv]+' · '+SCATS[s.c]}</span></div>
+    <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><div><h3>${esc(s.n)}</h3><span class="fr">${esc(s.pl)}</span></div>${sayBtn(s,1)}</div><p class="small">${esc(s.d)}</p>
     <ul class="cues small">${s.how.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
     ${stepStatus(s.id)}
-    ${stepVids(s)}<div class="row"><button class="btn ghost sm" data-act="goSteps">Wszystkie kroki</button></div></section>`;
+    ${stepVids(s)}<div class="row"><button class="btn ghost sm" data-act="goSteps" data-v="${jz?'jazz':'kroki'}">Wszystkie kroki</button></div></section>`;
 }
 function plTyg(n){return n===1?'tydzień':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'tygodnie':'tygodni'}
 
@@ -879,7 +1002,7 @@ function vPlan(){
   const [y,m]=calMonth.split('-').map(Number);const first=new Date(y,m-1,1);const start=addDays(ymd(first),-((first.getDay()+6)%7));
   let cells='';['Pn','Wt','Śr','Cz','Pt','So','Nd'].forEach(h=>cells+=`<div class="h">${h}</div>`);
   for(let i=0;i<42;i++){const d=addDays(start,i);const L=logsOn(d);const train=S.days.includes(dow(d));let dots='';
-    if(L.some(l=>l.kind==='session'))dots+='<span class="dot done"></span>';
+    if(L.some(l=>l.kind==='session'||l.kind==='quick'))dots+='<span class="dot done"></span>';
     if(L.some(l=>l.kind==='class'))dots+='<span class="dot class"></span>';
     if(L.some(l=>l.kind==='recovery'))dots+='<span class="dot rec"></span>';
     if(!dots&&train&&d>=today())dots='<span class="dot plan"></span>';
@@ -929,6 +1052,7 @@ function vLevel(){
   ${st.max?'':`<section class="card"><div class="row between" style="margin-bottom:4px"><h3>Czego brakuje do Klasy ${RN[S.level+1]}</h3><button class="btn ghost sm" data-go="postepy">Dodaj pomiar</button></div>
     ${st.items.map(i=>`<div class="req"><span>${esc(i.name)}${i.est?' <span class="pill warn">szacunek</span>':''}</span><span class="small num ${i.f>=1?'':'muted'}" style="text-align:right">${i.cur==null?'–':nf(i.cur)}${i.unit&&i.unit!=='/10'?' '+i.unit:i.unit}<span class="muted"> / cel ${nf(i.target)}${i.unit&&i.unit!=='/10'?' '+i.unit:i.unit}</span><br><b style="color:${i.f>=1?'var(--good)':'var(--accent)'}">${i.gap}</b></span><div class="bar ${i.f>=1?'good':''}"><span style="width:${Math.round(i.f*100)}%"></span></div></div>`).join('')}
   </section>`}
+  ${pointeSection()}
   <section class="card"><h3 style="margin-bottom:6px">Skala klas</h3><div class="ladder">
     ${LEVELS.map((l,i)=>{const n=i+1;return `<div class="${n===S.level?'cur':n<S.level?'past':''}"><span class="rn">${RN[n]}</span><div><b>${esc(l.n)}</b> ${n===S.level?'<span class="pill accent">tu jesteś</span>':n<S.level?'<span class="pill good">ukończona</span>':''}<p class="small muted">${esc(l.d)}</p></div></div>`}).join('')}
   </div></section>
@@ -962,9 +1086,11 @@ function vProgress(){
   <div class="stats">
     <div class="stat"><b class="num">${month}</b><span class="small muted">treningi w tym miesiącu</span></div>
     <div class="stat"><b class="num">${train.length}</b><span class="small muted">treningi łącznie</span></div>
-    <div class="stat"><b class="num">${Math.round(mins/60*10)/10}</b><span class="small muted">godzin ćwiczeń</span></div>
+    <div class="stat"><b class="num">${nf(Math.round(mins/60*10)/10)}</b><span class="small muted">godzin ćwiczeń</span></div>
     <div class="stat"><b class="num">${weekStreak()}</b><span class="small muted">${plTyg(weekStreak())} z planem z rzędu</span></div>
   </div>
+  ${chartsSection()}
+  ${photosSection()}
   <section class="stack"><div class="row between"><h2>Testy</h2><span class="small muted">Mierz się co 2 tygodnie, zawsze po rozgrzewce.</span></div>
   <div class="card flat stack" style="padding:14px 18px;gap:10px"><p class="small"><b>Twoje wymiary</b> do przeliczania wyników na stopnie. Wysokość biodra (od podłogi do kości biodrowej) służy do développé, długość stopy (od pięty do czubka dużego palca) do turnoutu.</p>
     <div class="row" style="align-items:flex-end"><label class="field">Wysokość biodra (cm)<input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:120px" value="${S.hipCm||''}" placeholder="np. 92"></label>
@@ -985,30 +1111,38 @@ function vProgress(){
   </section>`;
 }
 
-function learnHead(title){return `<header class="stack" style="gap:10px"><p class="eyebrow">Nauka</p><div class="row between"><h1>${title}</h1>
-  <div class="seg" role="group" aria-label="Sekcja"><button data-act="seg" data-v="kroki" aria-pressed="${learnSeg==='kroki'}">Kroki baletowe</button><button data-act="seg" data-v="cw" aria-pressed="${learnSeg!=='kroki'}">Ćwiczenia</button></div></div></header>`}
-function vSteps(){
-  const lv=stepLv||S.level;
-  const list=STEPS.filter(s=>s.lv===lv);
+const LSECT=[['kroki','Kroki baletowe'],['jazz','Kroki jazzowe'],['kombi','Kombinacje'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty'],['cw','Ćwiczenia']];
+function learnHead(title){return `<header class="stack" style="gap:10px"><p class="eyebrow">Nauka</p><h1>${title}</h1>
+  <div class="chips" role="group" aria-label="Sekcja">${LSECT.map(([k,l])=>`<button class="chip" data-act="seg" data-v="${k}" aria-pressed="${learnSeg===k}">${l}${k==='korekty'&&activeCorr().length?' <span class="num" style="opacity:.7">'+activeCorr().length+'</span>':''}</button>`).join('')}</div></header>`}
+function vSteps(jazz){
+  const SRC=jazz?JSTEPS:STEPS;const CATS2=jazz?JCATS:SCATS;
+  const lv=jazz?(jazzLv||1):(stepLv||S.level);
+  const list=SRC.filter(s=>s.lv===lv);
   const cnt=k=>list.filter(s=>(S.steps[s.id]||0)===k).length;
-  const levels=[...new Set(STEPS.map(s=>s.lv))];
-  return `${learnHead('Kroki baletowe')}
-  <p class="muted small">Oznaczaj, które kroki znasz. Krok „uczę się” trafia do każdego treningu jako 3 minuty nauki, a opanowane kroki z twojej klasy liczą się do awansu.</p>
-  <div class="chips">${levels.map(l=>{const L=STEPS.filter(s=>s.lv===l);const m=L.filter(s=>S.steps[s.id]===2).length;return `<button class="chip" data-act="stepLv" data-v="${l}" aria-pressed="${l===lv}">Klasa ${RN[l]} <span class="num" style="opacity:.7">${m}/${L.length}</span></button>`}).join('')}</div>
-  <section class="card stack" style="gap:8px"><div class="row between"><h3>Klasa ${RN[lv]} · ${esc(LEVELS[lv-1].n)}</h3>${lv===S.level?'<span class="pill accent">twoja klasa</span>':''}</div>
+  const levels=[...new Set(SRC.map(s=>s.lv))];
+  const lname=l=>jazz?JLEVELS[l]:'Klasa '+RN[l];
+  return `${learnHead(jazz?'Kroki jazzowe':'Kroki baletowe')}
+  <p class="muted small">${jazz?'Kroki jazzowe nie liczą się do klas baletowych. Krok oznaczony „uczę się” też trafi do twoich treningów.':'Oznaczaj, które kroki znasz. Krok „uczę się” trafia do każdego treningu jako 3 minuty nauki, a opanowane kroki z twojej klasy liczą się do awansu.'}</p>
+  <div class="chips">${levels.map(l=>{const L=SRC.filter(s=>s.lv===l);const m=L.filter(s=>S.steps[s.id]===2).length;return `<button class="chip" data-act="${jazz?'jazzLv':'stepLv'}" data-v="${l}" aria-pressed="${l===lv}">${lname(l)} <span class="num" style="opacity:.7">${m}/${L.length}</span></button>`}).join('')}</div>
+  <section class="card stack" style="gap:8px"><div class="row between"><h3>${jazz?JLEVELS[lv]:'Klasa '+RN[lv]+' · '+esc(LEVELS[lv-1].n)}</h3>${!jazz&&lv===S.level?'<span class="pill accent">twoja klasa</span>':''}</div>
     <div class="row small" style="gap:12px"><span class="pill good num">${cnt(2)} opanowane</span><span class="pill warn num">${cnt(1)} uczę się</span><span class="pill num">${cnt(0)} do nauki</span></div>
     <div class="bar good"><span style="width:${Math.round(cnt(2)/list.length*100)}%"></span></div></section>
   <div class="stack" style="gap:8px">
-  ${Object.keys(SCATS).map(c=>{const L=list.filter(s=>s.c===c);if(!L.length)return '';return `<p class="eyebrow" style="margin-top:6px">${SCATS[c]}</p>`+L.map(s=>{const v=S.steps[s.id]||0;
+  ${Object.keys(CATS2).map(c=>{const L=list.filter(s=>s.c===c);if(!L.length)return '';return `<p class="eyebrow" style="margin-top:6px">${CATS2[c]}</p>`+L.map(s=>{const v=S.steps[s.id]||0;
     return `<details class="ex" data-step="${s.id}"><summary><span style="min-width:0"><b>${esc(s.n)}</b> <span class="fr">${esc(s.pl)}</span></span><span class="pill ${v===2?'good':v===1?'warn':''}">${['do nauki','uczę się','opanowane'][v]}</span></summary>
-    <div class="body"><p>${esc(s.d)}</p><div><b class="small">Jak ćwiczyć</b><ul class="cues">${s.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>
+    <div class="body">${sayBtn(s)}<p>${esc(s.d)}</p><div><b class="small">Jak ćwiczyć</b><ul class="cues">${s.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>
     ${s.c==='pointe'?'<p class="warnbox">Pointy tylko za zgodą nauczyciela.</p>':''}
     ${stepStatus(s.id)}
     ${stepVids(s)}</div></details>`}).join('')}).join('')}
   </div>`;
 }
 function vLibrary(){
-  if(learnSeg==='kroki')return vSteps();
+  if(learnSeg==='kroki')return vSteps(false);
+  if(learnSeg==='jazz')return vSteps(true);
+  if(learnSeg==='kombi')return vCombo();
+  if(learnSeg==='quiz')return vQuiz();
+  if(learnSeg==='metro')return vMetro();
+  if(learnSeg==='korekty')return vCorr();
   const q=libQ.trim().toLowerCase();
   const list=Object.entries(EX).filter(([id,e])=>(libCat==='all'||e.c===libCat)&&(!q||(e.n+' '+(e.fr||'')+' '+e.d).toLowerCase().includes(q)));
   return `
@@ -1028,6 +1162,271 @@ function vLibrary(){
   </div>`;
 }
 
+/* ============ KOREKTY OD NAUCZYCIELA ============ */
+const activeCorr=()=>S.corrections.filter(c=>!c.fixed);
+function corrCard(){
+  const A=activeCorr();if(!A.length)return '';
+  const c=A[Math.floor(parse(today())/864e5/7)%A.length];
+  return `<section class="card stack"><div class="row between"><span class="eyebrow">Korekta tygodnia</span><span class="pill">${esc(c.area)}</span></div>
+    <p style="font-size:17px;font-weight:600">${esc(c.t)}</p><p class="small muted">Zapisana ${fmt(c.d,{day:'numeric',month:'long'})}. Pamiętaj o niej na najbliższych zajęciach.</p>
+    <div class="row"><button class="btn sm" data-act="corrFix" data-v="${c.id}">Poprawione</button><button class="btn ghost sm" data-act="goCorr">Wszystkie korekty (${A.length})</button></div></section>`;
+}
+function vCorr(){
+  const A=activeCorr(),F=S.corrections.filter(c=>c.fixed).sort((a,b)=>a.fixed<b.fixed?1:-1);
+  const row=c=>`<div class="logrow"><div style="min-width:0"><b>${esc(c.t)}</b><p class="small muted">${esc(c.area)} · ${fmt(c.d,{day:'numeric',month:'short'})}${c.fixed?' · poprawione '+fmt(c.fixed,{day:'numeric',month:'short'}):''}</p></div>
+    <div class="row" style="flex-wrap:nowrap;gap:4px">${c.fixed?`<button class="btn ghost sm" data-act="corrUnfix" data-v="${c.id}">Wróciła</button>`:`<button class="btn sm" data-act="corrFix" data-v="${c.id}">Poprawione</button>`}<button class="btn ghost sm" data-act="corrDel" data-v="${c.id}" aria-label="Usuń korektę">Usuń</button></div></div>`;
+  return `${learnHead('Korekty od nauczyciela')}
+  <p class="muted small">Zapisuj uwagi z zajęć. Co tydzień jedna z nich pojawi się na ekranie „Dziś” jako korekta tygodnia. Gdy nauczyciel przestanie ją powtarzać, oznacz ją jako poprawioną.</p>
+  <section class="card stack"><label class="field">Nowa korekta<textarea id="corr-t" rows="2" maxlength="200" placeholder="np. biodro w górę w à la seconde"></textarea></label>
+    <div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:180px">Obszar<select id="corr-area">${CORR_AREAS.map(a=>`<option>${a}</option>`).join('')}</select></label><button class="btn primary" data-act="addCorr">Dodaj</button></div></section>
+  <section class="card"><h3 style="margin-bottom:6px">Do poprawy (${A.length})</h3>${A.length?A.map(row).join(''):'<p class="small muted">Brak aktywnych korekt. Dodaj je tutaj albo przy zapisywaniu zajęć.</p>'}</section>
+  ${F.length?`<details class="card"><summary style="cursor:pointer"><b>Poprawione (${F.length})</b></summary>${F.map(row).join('')}</details>`:''}`;
+}
+
+/* ============ PLAN DOPASOWANY DO POMIARÓW ============ */
+const PROG_TESTS={split:['split_r','split_l'],feet:['calf_r','calf_l'],core:['plank','balance'],turns:['pir1_r','pir1_l'],hips:['split_side','pancake'],ext:['dev_side_r','dev_side_l','dev_front_r','dev_front_l'],jumps:['jump30']};
+const ALT_PROG={split:'hips',hips:'split',feet:'jumps',core:'ext',turns:'barre',ext:'core',jumps:'feet'};
+/* program stoi: trwa co najmniej 4 tygodnie, a żaden z jego pomiarów nie poprawił się względem wyniku sprzed 3+ tygodni */
+function stalled(p){
+  const st=S.progStart[p]||S.planStart;if(between(st,today())<28)return false;
+  let checked=0;
+  for(const id of PROG_TESTS[p]||[]){
+    const h=rawHist(id).filter(m=>!m.est);if(h.length<2)continue;
+    const last=h[h.length-1];const old=h.filter(m=>between(m.d,last.d)>=21);if(!old.length)continue;
+    const ref=old[old.length-1];checked++;
+    if(T_BY[id].lower?last.v<ref.v:last.v>ref.v)return false;
+  }
+  return checked>0;
+}
+function adaptCards(){
+  let h='';
+  for(const p of S.active){
+    if(!PROG[p]||!stalled(p))continue;
+    const f=S.flags['stall_'+p];if(f&&between(f,today())<14)continue;
+    const b=progBlock(p,today());const alt=ALT_PROG[p];
+    h+=`<section class="card flat stack" style="border-color:var(--warn)"><span class="eyebrow">Plan do zmiany</span><h3>Postęp w programie „${esc(PROG[p].n)}” stoi</h3>
+      <p class="small muted">Od ponad 3 tygodni pomiary związane z tym programem się nie poprawiły. Ciało przyzwyczaiło się do bodźca, więc warto go zmienić.</p>
+      <div class="row">${b.ph===0?`<button class="btn primary sm" data-act="stallPhase" data-v="${p}">Przejdź do trudniejszej fazy</button>`:alt&&!S.active.includes(alt)?`<button class="btn primary sm" data-act="stallSwap" data-v="${p}">Zamień na „${esc(PROG[alt].n)}”</button>`:`<button class="btn primary sm" data-act="restart" data-v="${p}">Zacznij program od nowa</button>`}
+      <button class="btn ghost sm" data-act="stallLater" data-v="${p}">Nie teraz</button></div></section>`;
+  }
+  const sides=[['flex','rozciąganiu'],['turn','obrotach'],['feet','ćwiczeniach stóp'],['str','ćwiczeniach siłowych']].map(([c,n])=>{const w=weakerSide(c);return w?`na ${w.word} stronę w ${n}`:null}).filter(Boolean);
+  if(sides.length)h+=`<p class="small muted" style="padding:0 4px">Wyrównywanie stron: trening dodaje jedną serię ${sides.join(', ')}, bo tam pomiary pokazują słabszą stronę.</p>`;
+  return h;
+}
+
+/* ============ SZYBKIE SESJE ============ */
+function quickRow(){
+  return `<section class="card flat stack" style="gap:10px"><span class="eyebrow">Mało czasu albo zajęcia?</span>
+    <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${Object.entries(QUICK).map(([k,q])=>`<button class="btn" data-act="quick" data-v="${k}" style="justify-content:space-between;border-radius:12px;text-align:left"><span>${q.n}</span><span class="muted num small">${planMin(quickPlan(k))} min</span></button>`).join('')}</div></section>`;
+}
+
+/* ============ GOTOWOŚĆ DO POINTÓW ============ */
+function pointeSection(){
+  const ev=c=>{if(c.m)return {ok:!!S.pointeChecks[c.m],label:c.n,manual:c.m};
+    const m=latest(c.t);const T=T_BY[c.t];return {ok:!!m&&!m.est&&m.v>=c.min,label:T.n.replace(' (słabsza strona)','').replace(' (słabsza)',''),cur:m?(m.est?'szacunek '+nf(m.v):nf(m.v)):'brak pomiaru',goal:'min. '+c.min+' '+T.u}};
+  const st=POINTE_STAGES.map(s=>{const r=s.checks.map(ev);return {s,r,pct:r.filter(x=>x.ok).length/r.length}});
+  const cur=st.findIndex(x=>x.pct<1);
+  return `<section class="card stack"><div class="row between"><h3>Gotowość do pointów</h3><span class="pill warn">decyduje nauczyciel</span></div>
+    <p class="small muted">Orientacyjne kryteria siły i kontroli dla kolejnych etapów pracy na pointach. Pomogą ci zobaczyć, nad czym pracować, ale zgodę na każdy etap zawsze daje nauczyciel. Liczą się tylko prawdziwe pomiary, nie szacunki.</p>
+    ${st.map((x,i)=>`<details ${i===(cur<0?st.length-1:cur)?'open':''} style="border-top:1px solid var(--line);padding-top:10px"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;list-style:none"><span><b>${i+1}. ${x.s.n}</b> <span class="small muted">${x.s.d}</span></span><span class="pill ${x.pct>=1?'good':''} num">${x.pct>=1?'gotowe':Math.round(x.pct*100)+'%'}</span></summary>
+      <div class="stack" style="gap:6px;margin-top:10px">${x.r.map(c=>c.manual?`<button class="btn ghost sm" data-act="pcheck" data-v="${c.manual}" style="justify-content:flex-start;text-align:left;padding:6px 0;color:var(--ink)"><span class="pill ${c.ok?'good':''}">${c.ok?'tak':'nie'}</span> ${esc(c.label)}</button>`
+        :`<div class="row between small"><span><span class="pill ${c.ok?'good':''}">${c.ok?'tak':'nie'}</span> ${esc(c.label)}</span><span class="muted num">${c.cur} · ${c.goal}</span></div>`).join('')}</div></details>`).join('')}
+  </section>`;
+}
+
+/* ============ WYMOWA ============ */
+const canSpeak=()=>'speechSynthesis' in window;
+function speak(text,lang){
+  if(!canSpeak()){toast('Ten telefon nie obsługuje czytania na głos');return}
+  try{const u=new SpeechSynthesisUtterance(text);u.lang=lang||'fr-FR';u.rate=.85;
+    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith((lang||'fr').slice(0,2)));if(v)u.voice=v;
+    speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast('Nie udało się odtworzyć wymowy')}
+}
+const sayOf=s=>s.id.startsWith('j_')?[s.n,'en-US']:[SAY[s.id]||s.n,'fr-FR'];
+function sayBtn(s,icon){if(!canSpeak())return '';return icon?`<button class="iconbtn" data-act="say" data-v="${s.id}" aria-label="Wymów nazwę">${ICON.sound}</button>`:`<div><button class="btn ghost sm" data-act="say" data-v="${s.id}" style="padding-left:0">${ICON.sound} Posłuchaj wymowy</button></div>`}
+
+/* ============ KOMBINACJE ============ */
+function genCombo(type){
+  const T=COMBO_TYPES[type];const known=id=>(S.steps[id]||0)>=1;
+  let main=T.main.filter(known);let link=T.link.filter(known);let added=false;
+  if(main.length<2){const extra=T.main.filter(id=>!known(id)).sort((a,b)=>STEP_BY[a].lv-STEP_BY[b].lv).slice(0,2-main.length);main=main.concat(extra);added=extra.length>0}
+  if(!link.length)link=[T.link[0]];
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const seq=[];let total=0,g=0,last=null;
+  while(total<16&&g++<60){
+    let id;
+    if(type==='turn'||type==='grand')id=seq.length%2===0?pick(link):pick(main);
+    else if(type==='adagio')id=pick(main);
+    else id=Math.random()<.3?pick(link):pick(main);
+    if(id===last&&main.length+link.length>2)continue;
+    let c=COUNTS[id]||2;if(total+c>16)c=16-total;
+    seq.push({id,c,from:total,isNew:!known(id)});total+=c;last=id;
+  }
+  return {type,seq,added};
+}
+const cntLabel=x=>{const a=x.from%8+1,b=(x.from+x.c-1)%8+1;return a===b?String(a):a+'–'+b};
+function vCombo(){
+  if(!combo||combo.type!==comboType)combo=genCombo(comboType);
+  const T=COMBO_TYPES[comboType];const mp=METRO.find(m=>m.id===T.metro);
+  return `${learnHead('Kombinacje')}
+  <p class="muted small">Kombinacje układane z kroków, które znasz albo których się uczysz. Ćwicz najpierw powoli, potem w tempie z metronomem. Powtórz na drugą stronę.</p>
+  <div class="chips">${Object.entries(COMBO_TYPES).map(([k,t])=>`<button class="chip" data-act="comboType" data-v="${k}" aria-pressed="${comboType===k}">${t.n}</button>`).join('')}</div>
+  <section class="card stack"><div class="row between"><h3>${T.n}: 2 × 8</h3><span class="pill num">${mp.bpm} BPM · ${mp.m}/4</span></div>
+    ${combo.added?'<p class="warnbox">Masz mało opanowanych kroków w tej kategorii, więc kombinacja zawiera kroki do nauki (oznaczone „nowy”).</p>':''}
+    <ol class="combo">${combo.seq.map((x,i)=>`${i===0||(x.from>=8&&combo.seq[i-1].from<8)?`<li class="eyebrow" style="list-style:none;margin-top:6px">${x.from>=8?'Druga ósemka':'Pierwsza ósemka'}</li>`:''}<li><span class="cnt num">${cntLabel(x)}</span><span><b>${esc(STEP_BY[x.id].n)}</b> <span class="fr small">${esc(STEP_BY[x.id].pl)}</span>${x.isNew?' <span class="pill warn">nowy</span>':''}</span></li>`).join('')}</ol>
+    <p class="small muted">Zacznij w 5. pozycji, prawa noga z przodu. Po drugiej ósemce zamknij i powtórz z lewej.</p>
+    <div class="row"><button class="btn primary sm" data-act="comboNew">Nowa kombinacja</button>${canSpeak()?'<button class="btn sm" data-act="comboSay">'+ICON.sound+' Przeczytaj</button>':''}<button class="btn sm" data-act="comboMetro">Metronom ${mp.bpm}</button><button class="btn ghost sm" data-act="comboSave">Zapisz</button></div></section>
+  ${S.combos.length?`<section class="card"><h3 style="margin-bottom:6px">Zapisane kombinacje</h3>${S.combos.map((c,i)=>`<div class="logrow"><div style="min-width:0"><b>${esc(COMBO_TYPES[c.type].n)}</b><p class="small muted">${c.seq.map(x=>esc(STEP_BY[x.id].n)).join(', ')}</p></div><div class="row" style="flex-wrap:nowrap;gap:4px"><button class="btn sm" data-act="comboLoad" data-v="${i}">Pokaż</button><button class="btn ghost sm" data-act="comboDel" data-v="${i}" aria-label="Usuń kombinację">Usuń</button></div></div>`).join('')}</section>`:''}`;
+}
+
+/* ============ QUIZ ============ */
+function newQuiz(){
+  const pool=ALLSTEPS;const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+  const correct=pool[Math.floor(Math.random()*pool.length)];const type=Math.random()<.5?0:1;
+  const others=shuffle(pool.filter(s=>s.id!==correct.id&&s.pl!==correct.pl)).slice(0,3);
+  return {id:correct.id,type,opts:shuffle([correct,...others].map(s=>s.id)),ans:null};
+}
+function vQuiz(){
+  if(!quizQ)quizQ=newQuiz();
+  const q=quizQ;const s=STEP_BY[q.id];const done=q.ans!=null;
+  const label=id=>q.type===0?esc(STEP_BY[id].pl):esc(STEP_BY[id].n);
+  return `${learnHead('Quiz z terminologii')}
+  <div class="stats"><div class="stat"><b class="num">${S.quiz.n?Math.round(S.quiz.ok/S.quiz.n*100):0}%</b><span class="small muted">poprawnych (${S.quiz.ok}/${S.quiz.n})</span></div><div class="stat"><b class="num">${quizStreak}</b><span class="small muted">dobrze z rzędu</span></div><div class="stat"><b class="num">${S.quiz.best}</b><span class="small muted">rekord serii</span></div></div>
+  <section class="card stack"><span class="eyebrow">${q.type===0?'Co oznacza ten termin?':'Jak nazywa się ten krok?'}</span>
+    ${q.type===0?`<div class="row between" style="flex-wrap:nowrap"><h2>${esc(s.n)}</h2>${sayBtn(s,1)}</div>`:`<p style="font-size:16px">${esc(s.d)}</p>`}
+    <div class="stack" style="gap:8px">${q.opts.map(id=>{const ok=id===q.id,chosen=id===q.ans;return `<button class="opt ${done?(ok?'right':chosen?'wrong':''):''}" data-act="quizAns" data-v="${id}" ${done?'disabled':''}>${label(id)}</button>`}).join('')}</div>
+    ${done?`<div class="stack" style="gap:6px"><p class="small"><b>${q.ans===q.id?'Dobrze!':'Prawidłowa odpowiedź: '+esc(s.n)}</b> ${esc(s.n)} to ${esc(s.pl)}. ${esc(s.d)}</p><div class="row"><button class="btn primary" data-act="quizNext">Następne pytanie</button>${q.type===1?sayBtn(s):''}</div></div>`:''}
+  </section>`;
+}
+
+/* ============ METRONOM ============ */
+const M={on:false,bpm:104,meter:2,preset:'tendu',beat:0,next:0,timer:null};
+function mClick(t,acc){try{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=acc?1600:1000;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(acc?.5:.3,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+.05);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+.06)}catch(e){}}
+function mVis(b){const c=document.getElementById('m-count');if(c)c.textContent=String(b%8+1);document.querySelectorAll('.mdots i').forEach((d,i)=>d.classList.toggle('on',i===b%M.meter))}
+function mSched(){while(M.next<AC.currentTime+.12){mClick(M.next,M.beat%M.meter===0);const b=M.beat;setTimeout(()=>mVis(b),Math.max(0,(M.next-AC.currentTime)*1000));M.next+=60/M.bpm;M.beat++}}
+function metroStart(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume()}catch(e){toast('Dźwięk niedostępny');return}M.on=true;M.beat=0;M.next=AC.currentTime+.1;clearInterval(M.timer);M.timer=setInterval(mSched,25)}
+function metroStop(){M.on=false;clearInterval(M.timer);M.timer=null}
+function metroGuard(){if(M.on&&!(tab==='cwiczenia'&&learnSeg==='metro'))metroStop()}
+function vMetro(){
+  const mp=METRO.find(x=>x.id===M.preset);
+  return `${learnHead('Metronom')}
+  <p class="muted small">Tempa typowe dla lekcji baletu. Duża cyfra liczy ósemki jak nauczyciel (1–8), kropki pokazują takt. Głośniejsze kliknięcie to pierwsza miara taktu.</p>
+  <section class="card stack" style="align-items:center;text-align:center">
+    <span class="eyebrow">${mp?esc(mp.n)+' · '+esc(mp.d):'Własne tempo'}</span>
+    <div class="mcount num" id="m-count">${M.on?'':'1'}</div>
+    <div class="mdots">${Array.from({length:M.meter},()=>'<i></i>').join('')}</div>
+    <div class="row" style="justify-content:center"><b class="num" id="m-bpm-l" style="font-size:22px">${M.bpm}</b><span class="muted">BPM</span></div>
+    <input type="range" id="m-bpm" min="40" max="200" value="${M.bpm}" style="width:min(100%,360px)" aria-label="Tempo">
+    <div class="seg" role="group" aria-label="Metrum">${[2,3,4].map(n=>`<button data-act="metroMeter" data-v="${n}" aria-pressed="${M.meter===n}">${n}/4</button>`).join('')}</div>
+    <button class="btn ${M.on?'':'primary'} big" data-act="metroToggle">${M.on?ICON.pause+' Stop':ICON.play+' Start'}</button>
+  </section>
+  <section class="card"><h3 style="margin-bottom:8px">Tempa ćwiczeń</h3><div class="stack" style="gap:6px">${METRO.map(x=>`<button class="btn ${M.preset===x.id?'primary':''}" data-act="metroPreset" data-v="${x.id}" style="justify-content:space-between;border-radius:12px"><span>${esc(x.n)} <span class="small" style="opacity:.75">${esc(x.d)}</span></span><span class="num small">${x.bpm} · ${x.m}/4</span></button>`).join('')}</div></section>`;
+}
+
+/* ============ WYKRESY ============ */
+function chartsSection(){
+  /* minuty tygodniowo: 12 ostatnich tygodni */
+  const m0=mondayOf(today());const weeks=[];for(let i=11;i>=0;i--){const m=addDays(m0,-7*i);const e=addDays(m,7);weeks.push({m,v:S.log.filter(l=>l.d>=m&&l.d<e).reduce((a,l)=>a+(l.min||0),0)})}
+  const mx=Math.max(60,...weeks.map(w=>w.v));const step=mx>300?120:mx>150?60:30;const top=Math.ceil(mx/step)*step;
+  const W=420,H=180,L=30,B=24,T=12,bw=(W-L-8)/12;const y=v=>T+(H-T-B)*(1-v/top);
+  let grid='';for(let v=0;v<=top;v+=step)grid+=`<line x1="${L}" x2="${W-4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`;
+  const bars=weeks.map((w,i)=>{const x=L+i*bw+2,wd=bw-4,y0=y(0),y1=y(w.v),r=Math.min(4,(y0-y1)/2);
+    const path=w.v?`<path d="M${x},${y0} L${x},${y1+r} Q${x},${y1} ${x+r},${y1} L${x+wd-r},${y1} Q${x+wd},${y1} ${x+wd},${y1+r} L${x+wd},${y0} Z" fill="var(--accent)"/>`:'';
+    const lab=i%3===2||i===11?`<text x="${x+wd/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--muted)">${fmt(w.m,{day:'numeric',month:'numeric'})}</text>`:'';
+    return `<g class="cbar"><title>Tydzień od ${fmt(w.m,{day:'numeric',month:'long'})}: ${w.v} min</title><rect x="${L+i*bw}" y="${T}" width="${bw}" height="${H-T-B}" fill="transparent"/>${path}${i===11&&w.v?`<text x="${x+wd/2}" y="${y1-5}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${w.v}</text>`:''}${lab}</g>`}).join('');
+  const total=weeks.reduce((a,w)=>a+w.v,0);
+  /* prawa vs lewa */
+  const PAIRS=[['Szpagat przedni','split_r','split_l',1],['Rezerwa à la seconde','gap_r','gap_l',1],['Développé w przód','dev_front_r','dev_front_l'],['Développé w bok','dev_side_r','dev_side_l'],['Développé w tył','dev_back_r','dev_back_l'],['Relevé na jednej nodze','calf_r','calf_l'],['Plank bokiem','side_r','side_l'],['Pirouette pojedyncze','pir1_r','pir1_l'],['Pirouette en dedans','pir_dd_r','pir_dd_l']];
+  const rows=PAIRS.map(([n,a,b,lower])=>{const r=latest(a),l=latest(b);if(!r||!l)return '';const m=Math.max(r.v,l.v,1);const u=T_BY[a].u;
+    const weak=r.v===l.v?'równo':(lower?(r.v>l.v?'prawa':'lewa'):(r.v<l.v?'prawa':'lewa'));
+    const bar=(lab,v)=>`<div class="sbar"><span class="small muted">${lab}</span><div class="bar"><span style="width:${Math.max(2,v/m*100)}%"></span></div><span class="small num">${nf(v)} ${u}</span></div>`;
+    return `<div class="srow"><div class="row between small"><b>${n}</b><span class="muted">${weak==='równo'?'równo':'słabsza: '+weak}${lower?' · mniej = lepiej':''}</span></div>${bar('P',r.v)}${bar('L',l.v)}</div>`}).join('');
+  /* mapa umiejętności: postęp do następnej klasy w każdym obszarze */
+  const st=levelStatus();let map='';
+  if(!st.max){const g={};for(const it of st.items){const k=it.tid==='_s'?'Treningi':it.tid==='_k'?'Kroki':TGROUPS[T_BY[it.tid].g];(g[k]=g[k]||[]).push(it.f)}
+    map=Object.entries(g).map(([k,a])=>{const p=Math.round(a.reduce((x,y)=>x+y,0)/a.length*100);return `<div class="sbar" style="grid-template-columns:130px 1fr 44px"><span class="small">${k}</span><div class="bar ${p>=100?'good':''}"><span style="width:${Math.max(2,p)}%"></span></div><span class="small num" style="text-align:right">${p}%</span></div>`}).join('')}
+  return `<section class="stack"><h2>Wykresy</h2>
+  <div class="card stack"><div class="row between"><h3>Minuty ćwiczeń w tygodniu</h3><span class="small muted num">${total} min w 12 tygodni</span></div>
+    <div><svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Minuty ćwiczeń w ostatnich 12 tygodniach">${grid}${bars}</svg></div>
+    <details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Pokaż jako tabelę</summary><table class="ctable small num"><tr><th>Tydzień od</th><th>Minuty</th></tr>${weeks.map(w=>`<tr><td>${fmt(w.m,{day:'numeric',month:'short'})}</td><td>${w.v}</td></tr>`).join('')}</table></details></div>
+  <div class="grid2">
+    <div class="card stack"><h3>Prawa i lewa strona</h3>${rows||'<p class="small muted">Wpisz pomiary prawej i lewej strony (szpagaty, développé, pirouette), a zobaczysz tu porównanie.</p>'}</div>
+    ${map?`<div class="card stack"><h3>Mapa umiejętności</h3><p class="small muted">Ile drogi do Klasy ${RN[S.level+1]} masz w każdym obszarze.</p>${map}</div>`:''}
+  </div></section>`;
+}
+
+/* ============ ZDJĘCIA POSTĘPU (tylko na tym urządzeniu, IndexedDB) ============ */
+const POSES={split_r:'Szpagat prawy',split_l:'Szpagat lewy',split_side:'Szpagat poprzeczny',arabesque:'Arabeska',dev_side:'Développé w bok',dev_front:'Développé w przód',bridge:'Mostek',other:'Inne'};
+let PDB=null,PH=null;
+function pdb(){if(!PDB)PDB=new Promise((res,rej)=>{try{const r=indexedDB.open('arabeska-photos',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return PDB}
+async function ptx(mode,fn){const db=await pdb();return new Promise((res,rej)=>{const t=db.transaction('photos',mode);const st=t.objectStore('photos');const r=fn(st);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})}
+async function loadPhotos(){
+  try{const all=await ptx('readonly',st=>st.getAll());(PH||[]).forEach(p=>URL.revokeObjectURL(p.url));
+    PH=(all||[]).sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.id<b.id?-1:1).map(p=>({id:p.id,d:p.d,pose:p.pose,url:URL.createObjectURL(p.blob)}))}
+  catch(e){PH=[];PH.failed=true}
+  if(tab==='postepy'&&!P)render();
+}
+async function compressImg(file){
+  const src=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file)});
+  const sc=Math.min(1,1280/Math.max(src.naturalWidth,src.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(src.naturalWidth*sc);c.height=Math.round(src.naturalHeight*sc);
+  c.getContext('2d').drawImage(src,0,0,c.width,c.height);URL.revokeObjectURL(src.src);
+  return new Promise(res=>c.toBlob(b=>res(b||file),'image/jpeg',.85));
+}
+async function addPhoto(file){
+  try{const blob=await compressImg(file);await ptx('readwrite',st=>st.put({id:uid()+Date.now(),d:today(),pose:photoPose,blob}));toast('Zdjęcie zapisane');await loadPhotos()}
+  catch(e){toast('Nie udało się zapisać zdjęcia')}
+}
+function photosSection(){
+  if(!window.indexedDB)return '';
+  if(PH===null){loadPhotos();return '<section class="card"><h3>Zdjęcia postępu</h3><p class="small muted">Wczytywanie…</p></section>'}
+  const list=PH.filter(p=>p.pose===photoPose);const first=list[0],last=list[list.length-1];
+  return `<section class="card stack"><div class="row between"><h3>Zdjęcia postępu</h3><label class="btn primary sm" style="cursor:pointer">+ Dodaj zdjęcie<input id="ph-file" type="file" accept="image/*" hidden></label></div>
+    <p class="small muted">Rób zdjęcie tej samej pozycji raz w miesiącu, z tego samego miejsca. Zdjęcia zostają tylko na tym urządzeniu i nie trafiają do kopii zapasowej ani na konto.</p>
+    <div class="chips">${Object.entries(POSES).map(([k,n])=>{const c=PH.filter(p=>p.pose===k).length;return `<button class="chip" data-act="photoPose" data-v="${k}" aria-pressed="${photoPose===k}">${n}${c?' <span class="num" style="opacity:.7">'+c+'</span>':''}</button>`}).join('')}</div>
+    ${list.length>=2?`<div class="cmp"><figure><img src="${first.url}" alt="${esc(POSES[photoPose])}, ${first.d}"><figcaption class="small">Przed · ${fmt(first.d,{day:'numeric',month:'short',year:'numeric'})}</figcaption></figure><figure><img src="${last.url}" alt="${esc(POSES[photoPose])}, ${last.d}"><figcaption class="small">Teraz · ${fmt(last.d,{day:'numeric',month:'short',year:'numeric'})}</figcaption></figure></div><p class="small muted">Różnica: ${between(first.d,last.d)} dni.</p>`:''}
+    ${list.length?`<div class="phgrid">${list.map(p=>`<button data-act="photoOpen" data-v="${p.id}" aria-label="Zdjęcie z ${p.d}"><img src="${p.url}" alt="" loading="lazy"><span class="small num">${fmt(p.d,{day:'numeric',month:'short'})}</span></button>`).join('')}</div>`:`<p class="small muted">Nie masz jeszcze zdjęć w kategorii „${POSES[photoPose]}”. Dodaj pierwsze, a za miesiąc porównasz je z nowym.</p>`}
+  </section>`;
+}
+
+/* ============ ZDARZENIA NOWYCH SEKCJI ============ */
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;const v=a.dataset.v;
+  const find=id=>S.corrections.find(c=>c.id===id);
+  switch(a.dataset.act){
+    case 'addCorr':{const t=document.getElementById('corr-t').value.trim();if(!t){toast('Wpisz treść korekty');break}
+      S.corrections.push({id:uid(),t:t.slice(0,200),area:document.getElementById('corr-area').value,d:today(),fixed:null});save();render();toast('Korekta dodana');break}
+    case 'corrFix':{const c=find(v);if(c){c.fixed=today();save();render();toast('Brawo! Korekta poprawiona')}break}
+    case 'corrUnfix':{const c=find(v);if(c){c.fixed=null;save();render()}break}
+    case 'corrDel':S.corrections=S.corrections.filter(c=>c.id!==v);save();render();break;
+    case 'goCorr':learnSeg='korekty';go('cwiczenia');break;
+    case 'stallPhase':{const p=PROG[v];S.progStart[v]=addDays(today(),-(p.weeks/2)*7);save();render();toast('Program przeszedł do trudniejszej fazy');break}
+    case 'stallSwap':{const alt=ALT_PROG[v];S.active=S.active.map(x=>x===v?alt:x);S.progStart[alt]=today();save();render();toast('Nowy program: '+PROG[alt].n);break}
+    case 'stallLater':S.flags['stall_'+v]=today();save();render();break;
+    case 'noDeload':S.flags.noDeload=today();save();render();break;
+    case 'quick':startPlan(quickPlan(v));break;
+    case 'pcheck':S.pointeChecks[v]=!S.pointeChecks[v];save();render();break;
+    case 'say':{const s=STEP_BY[v];if(s){const [t,l]=sayOf(s);speak(t,l)}break}
+    case 'jazzLv':jazzLv=Number(v);render();break;
+    case 'comboType':comboType=v;combo=null;render();break;
+    case 'comboNew':combo=genCombo(comboType);render();break;
+    case 'comboSay':speak(combo.seq.map(x=>sayOf(STEP_BY[x.id])[0]).join(', '),'fr-FR');break;
+    case 'comboSave':S.combos.unshift({type:combo.type,seq:combo.seq,d:today()});S.combos=S.combos.slice(0,20);save();render();toast('Kombinacja zapisana');break;
+    case 'comboLoad':{const c=S.combos[Number(v)];if(c){comboType=c.type;combo={type:c.type,seq:c.seq,added:false};render();window.scrollTo(0,0)}break}
+    case 'comboDel':S.combos.splice(Number(v),1);save();render();break;
+    case 'comboMetro':{const mp=METRO.find(m=>m.id===COMBO_TYPES[comboType].metro);M.preset=mp.id;M.bpm=mp.bpm;M.meter=mp.m;learnSeg='metro';render();metroStart();render();window.scrollTo(0,0);break}
+    case 'quizAns':{if(!quizQ||quizQ.ans!=null)break;quizQ.ans=v;S.quiz.n++;if(v===quizQ.id){S.quiz.ok++;quizStreak++;S.quiz.best=Math.max(S.quiz.best,quizStreak)}else quizStreak=0;save();render();break}
+    case 'quizNext':quizQ=newQuiz();render();break;
+    case 'metroToggle':if(M.on)metroStop();else metroStart();render();break;
+    case 'metroPreset':{const mp=METRO.find(m=>m.id===v);M.preset=v;M.bpm=mp.bpm;M.meter=mp.m;if(M.on){metroStop();metroStart()}render();break}
+    case 'metroMeter':M.meter=Number(v);M.preset=null;render();break;
+    case 'photoPose':photoPose=v;render();break;
+    case 'photoOpen':{const p=(PH||[]).find(x=>x.id===v);if(p)modal(`<img src="${p.url}" alt="" style="border-radius:12px;width:100%"><p class="small muted">${esc(POSES[p.pose])} · ${fmt(p.d,{day:'numeric',month:'long',year:'numeric'})}</p><div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="photoDelete" data-v="${p.id}">Usuń zdjęcie</button><button class="btn primary" data-act="closeModal">Zamknij</button></div>`);break}
+    case 'photoDelete':ptx('readwrite',st=>st.delete(v)).then(()=>{closeModal();loadPhotos();toast('Zdjęcie usunięte')}).catch(()=>toast('Nie udało się usunąć'));break;
+  }
+});
+document.addEventListener('change',e=>{if(e.target.id==='ph-file'&&e.target.files[0])addPhoto(e.target.files[0])});
+document.addEventListener('input',e=>{if(e.target.id==='m-bpm'){M.bpm=Number(e.target.value);M.preset=null;const l=document.getElementById('m-bpm-l');if(l)l.textContent=M.bpm}});
+
 /* ============ MODALE ============ */
 function modal(html){const l=document.getElementById('layer');l.innerHTML=`<div class="modalbg" data-act="closeModal"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`}
 function closeModal(){document.getElementById('layer').innerHTML=''}
@@ -1036,6 +1435,7 @@ function classModal(){
   modal(`<h3>Zapisz zajęcia</h3><p class="small muted">Zajęcia w szkole liczą się do treningów potrzebnych do następnej klasy.</p>
   <label class="field">Rodzaj<select id="c-type"><option>Balet</option><option>Pointy</option><option>Jazz</option><option>Stretching</option><option>Inne</option></select></label>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px"><label class="field">Czas (min)<input id="c-min" type="number" value="90" min="10" max="300"></label><label class="field">Data<input id="c-date" type="date" value="${today()}" max="${today()}"></label></div>
+  <label class="field">Korekty od nauczyciela (każda w osobnej linii)<textarea id="c-corr" rows="3" placeholder="np. za wcześnie otwieram rękę w pirouette"></textarea></label>
   <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="saveClass">Zapisz</button></div>`);
 }
 function confirmModal(title,text,okLabel,act){modal(`<h3>${title}</h3><p class="small muted">${text}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="${act}">${okLabel}</button></div>`)}
@@ -1044,8 +1444,19 @@ function confirmModal(title,text,okLabel,act){modal(`<h3>${title}</h3><p class="
 let P=null,AC=null,wake=null,pendingDel=null;
 function beep(f=880,d=.12){if(!AC||!P||!P.sound)return;try{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;const n=AC.currentTime;g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.3,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g).connect(AC.destination);o.start(n);o.stop(n+d+.03)}catch(e){}}
 async function lockScreen(){try{if(navigator.wakeLock)wake=await navigator.wakeLock.request('screen')}catch(e){wake=null}}
-function startSession(date){
-  const plan=planFor(date);const steps=stepsOf(plan);
+function startSession(date){startPlan(planFor(date))}
+/* szybkie sesje: 15 minut z dzisiejszego planu albo stałe zestawy przed i po zajęciach */
+function quickPlan(k){
+  const Q=QUICK[k];
+  if(k==='q15'){
+    const base=planFor(today());let act=S.active.filter(id=>PROG[id]);const p=(base.progs&&base.progs[0])||act[0]||'split';
+    const b=progBlock(p,today());
+    return {date:today(),kind:'quick',title:'15 minut: '+PROG[p].n,blocks:[{n:'Krótka rozgrzewka',items:[{e:'w_march',t:60},{e:'w_ankle',t:45},{e:'w_plie',t:60}]},Object.assign({},b,{items:b.items.slice(0,5).map(it=>Object.assign({},it,{s:undefined}))}),{n:'Wyciszenie',items:[{e:'c_breath',t:45}]}]};
+  }
+  return {date:today(),kind:Q.kind,title:Q.n,blocks:[{n:Q.n,items:Q.items}]};
+}
+function startPlan(plan){
+  const steps=stepsOf(plan);
   try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume()}catch(e){}
   P={plan,steps,i:0,phase:'prep',rem:0,running:true,sound:true,startedAt:Date.now(),last:performance.now(),timer:null,rpe:6};
   lockScreen();
@@ -1095,7 +1506,7 @@ function drawPlayer(){
       <button class="iconbtn" data-act="pSound" aria-label="Dźwięk">${P.sound?ICON.sound:ICON.mute}</button></div>
     <div class="pl-prog"><span style="width:${prog}%"></span></div>
     <div class="pl-ex"><h2>${esc(ex.n)}</h2>${ex.fr?`<span class="fr">${esc(ex.fr)}</span>`:''}
-      <div class="row" style="justify-content:center;gap:6px">${st.side?`<span class="pill accent">${st.side}</span>`:''}${st.sets>1?`<span class="pill num">seria ${st.set}/${st.sets}</span>`:''}${ex.pointe?'<span class="pill warn">pointy: za zgodą nauczyciela</span>':''}</div></div>
+      <div class="row" style="justify-content:center;gap:6px">${st.side?`<span class="pill accent">${st.side}</span>`:''}${st.extra?'<span class="pill warn">dodatkowa seria: słabsza strona</span>':''}${st.sets>1?`<span class="pill num">seria ${st.set}/${st.sets}</span>`:''}${ex.pointe?'<span class="pill warn">pointy: za zgodą nauczyciela</span>':''}</div></div>
     ${center}
     <div class="pl-controls"><button class="iconbtn" data-act="pPrev" aria-label="Poprzednie">${ICON.prev}</button>
       ${P.phase==='reps'?'':`<button class="iconbtn main" data-act="pToggle" aria-label="${P.running?'Pauza':'Wznów'}">${P.running?ICON.pause:ICON.play}</button>`}
@@ -1109,7 +1520,7 @@ function finishSession(){
   P.phase='done';P.running=false;
   const min=Math.max(1,Math.round((Date.now()-P.startedAt)/60000));P.min=min;
   document.getElementById('layer').innerHTML=`<div class="overlay"><div class="pl" style="justify-content:center">
-    <div class="stack" style="text-align:center;align-items:center"><p class="eyebrow">Brawo</p><h1>Trening zrobiony</h1><p class="muted">${esc(P.plan.kind==='session'?P.plan.title:'Regeneracja')} · <span class="num">${min}</span> min</p></div>
+    <div class="stack" style="text-align:center;align-items:center"><p class="eyebrow">Brawo</p><h1>Trening zrobiony</h1><p class="muted">${esc(P.plan.title)} · <span class="num">${min}</span> min</p></div>
     <div class="card stack"><b>Jak ciężko było? (RPE)</b><p class="small muted">1 = bardzo lekko, 10 = maksymalny wysiłek</p>
       <div class="rpe">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-act="rpe" data-v="${n}" aria-pressed="${n===P.rpe}">${n}</button>`).join('')}</div>
       <label class="field">Notatka (opcjonalnie)<textarea id="p-note" rows="2" placeholder="np. lewa noga w szpagacie bliżej podłogi"></textarea></label>
@@ -1119,7 +1530,7 @@ function endPlayer(){if(P&&P.timer)clearInterval(P.timer);P=null;try{wake&&wake.
 function saveSession(partial){
   const note=(document.getElementById('p-note')||{}).value||'';
   const min=partial?Math.max(1,Math.round((Date.now()-P.startedAt)/60000)):P.min;
-  S.log.push({id:uid(),d:today(),kind:P.plan.kind,title:P.plan.kind==='session'?P.plan.title+(partial?' (częściowo)':''):'Regeneracja',progs:P.plan.progs||[],min,rpe:partial?null:P.rpe,note:note.slice(0,200)});
+  S.log.push({id:uid(),d:today(),kind:P.plan.kind,title:P.plan.title+(partial&&P.plan.kind==='session'?' (częściowo)':''),progs:P.plan.progs||[],min,rpe:partial?null:P.rpe,note:note.slice(0,200)});
   save();endPlayer();toast('Trening zapisany');
 }
 
@@ -1135,7 +1546,10 @@ document.addEventListener('click',e=>{
     case 'start':startSession(a.dataset.date);break;
     case 'logClass':classModal();break;
     case 'saveClass':{const type=document.getElementById('c-type').value;const min=Math.max(10,Math.min(300,parseInt(document.getElementById('c-min').value)||90));const d=document.getElementById('c-date').value||today();
-      S.log.push({id:uid(),d:d>today()?today():d,kind:'class',title:type,min});save();closeModal();render();toast('Zajęcia zapisane');break}
+      S.log.push({id:uid(),d:d>today()?today():d,kind:'class',title:type,min});
+      const cs=(document.getElementById('c-corr').value||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,10);
+      cs.forEach(t=>S.corrections.push({id:uid(),t:t.slice(0,200),area:type==='Pointy'?'Pointy':'Inne',d:d>today()?today():d,fixed:null}));
+      save();closeModal();render();toast(cs.length?'Zajęcia i '+cs.length+' '+(cs.length===1?'korekta zapisane':'korekty zapisane'):'Zajęcia zapisane');break}
     case 'mon':{const [y,m]=calMonth.split('-').map(Number);const n=new Date(y,m-1+Number(a.dataset.d),1);calMonth=ymd(n).slice(0,7);render();break}
     case 'day':{const d=Number(v);if(S.days.includes(d)){if(S.days.length<=1){toast('Zostaw przynajmniej jeden dzień');break}S.days=S.days.filter(x=>x!==d)}else S.days=[...S.days,d].sort();save();render();break}
     case 'pointe':S.pointe=!S.pointe;save();render();break;
@@ -1177,7 +1591,7 @@ document.addEventListener('click',e=>{
       S.log.push({id:uid(),d:a.dataset.date,kind:'session',title:p.title+' (YouTube)',progs:p.progs,min,rpe:null,note:p.vids.map(x=>x.v.t).join(' + ').slice(0,200)});save();render();toast('Trening zapisany');break}
     case 'stepSet':{const s=Number(a.dataset.s);if(s)S.steps[v]=s;else delete S.steps[v];save();render();
       const d=document.querySelector(`details[data-step="${v}"]`);if(d)d.open=true;if(s===2)toast('Brawo! '+STEP_BY[v].n+' opanowane');break}
-    case 'goSteps':learnSeg='kroki';stepLv=null;go('cwiczenia');break;
+    case 'goSteps':learnSeg=v||'kroki';stepLv=null;go('cwiczenia');break;
     case 'seg':learnSeg=v;render();break;
     case 'stepLv':stepLv=Number(v);render();break;
     case 'saveHip':{const rd=id=>{const x=document.getElementById(id).value.trim().replace(',','.');return x===''?null:parseFloat(x)};
