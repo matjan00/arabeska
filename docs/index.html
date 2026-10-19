@@ -214,7 +214,13 @@ textarea{resize:vertical}
 .test .val small{font-family:var(--body);font-size:14px;color:var(--muted);margin-left:4px}
 .spark{width:100%;height:44px;display:block}
 .addform{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+.addform.pairform{grid-template-columns:1fr 1fr}
+.addform.pairform .field:nth-child(3),.addform.pairform .btn{grid-column:1/-1}
 @media (max-width:420px){.addform{grid-template-columns:1fr 1fr}.addform .btn{grid-column:1/-1}}
+.addform input{width:100%;min-width:0;box-sizing:border-box}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pside{min-width:0}.pside .val{font-size:28px}
+.thist summary{cursor:pointer;color:var(--accent);font-weight:700}
 .logrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
 .logrow:last-child{border-bottom:0}
 
@@ -423,10 +429,18 @@ const TESTS=[
  {id:'dev_front',g:'dev',n:'Développé w przód (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
  {id:'dev_side',g:'dev',n:'Développé w bok (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
  {id:'dev_back',g:'dev',n:'Développé w tył (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
- {id:'second',g:'dev',n:'Noga à la seconde na 90°',u:'s',floor:0,how:'Développé w bok bez trzymania ręką, słabsza strona. Ile sekund utrzymasz nogę na wysokości bioder.'},
- {id:'balance',g:'str',n:'Balans w passé na relevé',u:'s',floor:0,how:'Bez drążka, słabsza noga. Wpisz najlepszy wynik z 3 prób.'},
- {id:'bal_arab',g:'str',n:'Balans w arabesce na relevé',u:'s',floor:0,how:'Bez drążka, słabsza noga, noga w tył co najmniej na 45°. Najlepszy wynik z 3 prób.'},
- {id:'bal_eyes',g:'str',n:'Balans z zamkniętymi oczami',u:'s',floor:0,how:'Na płaskiej stopie, na słabszej nodze, druga w cou-de-pied. Zamknij oczy i licz, aż stracisz równowagę.'},
+ {id:'second',g:'dev',n:'Noga à la seconde na 90° (słabsza)',u:'s',floor:0,of:['second_r','second_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
+ {id:'second_r',g:'dev',n:'Noga à la seconde na 90°: prawa',u:'s',floor:0,how:'Développé w bok bez trzymania ręką. Ile sekund utrzymasz nogę na wysokości bioder.'},
+ {id:'second_l',g:'dev',n:'Noga à la seconde na 90°: lewa',u:'s',floor:0,how:'Jak wyżej, lewa noga.'},
+ {id:'balance',g:'str',n:'Balans w passé na relevé (słabsza)',u:'s',floor:0,of:['balance_r','balance_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
+ {id:'balance_r',g:'str',n:'Balans w passé: na prawej',u:'s',floor:0,how:'Bez drążka, stoisz na prawej nodze. Wpisz najlepszy wynik z 3 prób.'},
+ {id:'balance_l',g:'str',n:'Balans w passé: na lewej',u:'s',floor:0,how:'Jak wyżej, na lewej nodze.'},
+ {id:'bal_arab',g:'str',n:'Balans w arabesce na relevé (słabsza)',u:'s',floor:0,of:['bal_arab_r','bal_arab_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
+ {id:'bal_arab_r',g:'str',n:'Balans w arabesce: na prawej',u:'s',floor:0,how:'Bez drążka, stoisz na prawej nodze, lewa w tył co najmniej na 45°. Najlepszy wynik z 3 prób.'},
+ {id:'bal_arab_l',g:'str',n:'Balans w arabesce: na lewej',u:'s',floor:0,how:'Jak wyżej, na lewej nodze.'},
+ {id:'bal_eyes',g:'str',n:'Balans z zamkniętymi oczami (słabsza)',u:'s',floor:0,of:['bal_eyes_r','bal_eyes_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
+ {id:'bal_eyes_r',g:'str',n:'Balans z zamkniętymi oczami: na prawej',u:'s',floor:0,how:'Na płaskiej prawej stopie, lewa w cou-de-pied. Zamknij oczy i licz, aż stracisz równowagę.'},
+ {id:'bal_eyes_l',g:'str',n:'Balans z zamkniętymi oczami: na lewej',u:'s',floor:0,how:'Jak wyżej, na lewej nodze.'},
  {id:'calf',g:'str',n:'Relevé na jednej nodze (słabsza)',u:'powt.',floor:0,of:['calf_r','calf_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej nogi.'},
  {id:'calf_r',g:'str',n:'Relevé na jednej nodze: prawa',u:'powt.',floor:0,how:'Przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
  {id:'calf_l',g:'str',n:'Relevé na jednej nodze: lewa',u:'powt.',floor:0,how:'Jak wyżej, na lewej nodze.'},
@@ -446,10 +460,32 @@ const TESTS=[
  {id:'pir_dd',g:'tech',n:'Pirouette en dedans (słabsza strona)',u:'/10',max:10,floor:0,of:['pir_dd_r','pir_dd_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
  {id:'pir_dd_r',g:'tech',n:'Pojedyncze en dedans: na prawą',u:'/10',max:10,floor:0,how:'10 prób en dedans, obrót na prawej nodze w prawo. Licz tylko czyste.'},
  {id:'pir_dd_l',g:'tech',n:'Pojedyncze en dedans: na lewą',u:'/10',max:10,floor:0,how:'10 prób en dedans, obrót na lewej nodze w lewo. Licz tylko czyste.'},
- {id:'fouette',g:'tech',n:'Fouettés w serii',u:'obr.',floor:0,how:'Ile fouettés zrobisz w jednej serii bez przerwania i z kontrolą.'},
+ {id:'fouette',g:'tech',n:'Fouettés w serii (słabsza strona)',u:'obr.',floor:0,of:['fouette_r','fouette_l'],how:'Liczone automatycznie jako słabszy wynik z prawej i lewej strony.'},
+ {id:'fouette_r',g:'tech',n:'Fouettés w serii: na prawą',u:'obr.',floor:0,how:'Obrót na lewej nodze w prawo. Ile fouettés zrobisz w jednej serii bez przerwania i z kontrolą.'},
+ {id:'fouette_l',g:'tech',n:'Fouettés w serii: na lewą',u:'obr.',floor:0,how:'Obrót na prawej nodze w lewo.'},
  {id:'jump30',g:'tech',n:'Changements w 30 sekund',u:'skoki',floor:0,how:'Licz czyste changements w 30 s: pełny point w powietrzu, lądowanie w 5. pozycji przez plié.'}
 ];
 const T_BY=Object.fromEntries(TESTS.map(t=>[t.id,t]));
+/* pomiary na dwie strony: jedna karta z prawą i lewą; of = pomiar „słabsza strona” liczony z obu */
+const SIDE_PAIRS=[
+ {n:'Szpagat przedni',r:'split_r',l:'split_l',sl:['Prawa z przodu','Lewa z przodu'],how:'Po rozgrzewce zsuń się do szpagatu z blokami, raz z prawą, raz z lewą nogą z przodu. Zmierz odległość od podłogi do kości kulszowej. 0 cm oznacza, że siedzisz na podłodze.'},
+ {n:'Rezerwa à la seconde',r:'gap_r',l:'gap_l',how:'Podnieś nogę w bok ręką najwyżej, jak się da, i zmierz wysokość pięty. Potem puść rękę i zmierz, na jakiej wysokości noga zostaje przez 2 s. Wpisz różnicę. Im mniejsza, tym silniej trzymasz nogę w pełnym zakresie.'},
+ {n:'Développé w przód',r:'dev_front_r',l:'dev_front_l',how:'Noga pracuje bez trzymania ręką, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
+ {n:'Développé w bok',r:'dev_side_r',l:'dev_side_l',how:'Noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść. Mierz od podłogi do pięty.'},
+ {n:'Développé w tył',r:'dev_back_r',l:'dev_back_l',how:'Noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
+ {n:'Noga à la seconde na 90°',of:'second',r:'second_r',l:'second_l',how:'Développé w bok bez trzymania ręką. Ile sekund utrzymasz nogę na wysokości bioder.'},
+ {n:'Balans w passé na relevé',of:'balance',r:'balance_r',l:'balance_l',sl:['Na prawej','Na lewej'],how:'Bez drążka, na jednej nodze, druga w passé. Wpisz najlepszy wynik z 3 prób.'},
+ {n:'Balans w arabesce na relevé',of:'bal_arab',r:'bal_arab_r',l:'bal_arab_l',sl:['Na prawej','Na lewej'],how:'Bez drążka, noga w tył co najmniej na 45°. Najlepszy wynik z 3 prób.'},
+ {n:'Balans z zamkniętymi oczami',of:'bal_eyes',r:'bal_eyes_r',l:'bal_eyes_l',sl:['Na prawej','Na lewej'],how:'Na płaskiej stopie, druga noga w cou-de-pied. Zamknij oczy i licz, aż stracisz równowagę.'},
+ {n:'Relevé na jednej nodze',of:'calf',r:'calf_r',l:'calf_l',how:'Przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
+ {n:'Plank bokiem',r:'side_r',l:'side_l',how:'Na przedramieniu (prawym albo lewym), nogi proste, biodra wysoko. Kończysz, gdy biodra opadają.'},
+ {n:'Pojedyncze pirouette en dehors',of:'pir1',r:'pir1_r',l:'pir1_l',sl:['Na prawą','Na lewą'],how:'10 prób en dehors z 4. pozycji. Na prawą: obrót na lewej nodze, prawa w passé. Licz tylko czyste: stabilne zakończenie, bez podskoku.'},
+ {n:'Podwójne pirouette en dehors',of:'pir2',r:'pir2_r',l:'pir2_l',sl:['Na prawą','Na lewą'],how:'10 prób, liczysz czyste podwójne w każdą stronę.'},
+ {n:'Potrójne pirouette en dehors',of:'pir3',r:'pir3_r',l:'pir3_l',sl:['Na prawą','Na lewą'],how:'10 prób, liczysz czyste potrójne w każdą stronę.'},
+ {n:'Pirouette en dedans',of:'pir_dd',r:'pir_dd_r',l:'pir_dd_l',sl:['Na prawą','Na lewą'],how:'10 prób en dedans. Na prawą: obrót na prawej nodze w prawo. Licz tylko czyste.'},
+ {n:'Fouettés w serii',of:'fouette',r:'fouette_r',l:'fouette_l',sl:['Na prawą','Na lewą'],how:'Ile fouettés zrobisz w jednej serii bez przerwania i z kontrolą. Na prawą: obrót na lewej nodze.'}
+];
+const PAIR_OF=Object.fromEntries(SIDE_PAIRS.flatMap(p=>[p.r,p.l,p.of].filter(Boolean).map(id=>[id,p])));
 
 const LEVELS=[
  {n:'Pierwsze kroki',d:'Pozycje stóp i rąk, podstawy pracy przy drążku: plié, tendu, relevé. Budowanie nawyku trenowania.',req:{plank:30,calf:8,balance:2},sessions:12},
@@ -907,7 +943,12 @@ function accountCard(){
   if(A.user)return `<section class="card flat stack"><h3>Konto</h3><p class="small"><span class="pill ${cloud.status==='cloud'?'good':cloud.status==='error'?'warn':''}">${cloud.status==='cloud'?'Synchronizacja włączona':cloud.status==='error'?'Błąd synchronizacji':'Łączenie…'}</span></p><p class="small muted">Zalogowana jako <b>${esc(A.user.email||A.user.name||'')}</b>. Treningi i pomiary zapisują się na koncie i są takie same na telefonie i komputerze.</p><div><button class="btn sm" data-act="signOut">Wyloguj</button></div></section>`;
   return `<section class="card flat stack"><h3>Konto</h3><p class="small muted">Zaloguj się kontem Google, żeby treningi i pomiary zapisywały się na koncie i były takie same na telefonie i komputerze.</p><div><button class="btn primary sm" data-act="signIn">Zaloguj przez Google</button></div></section>`;
 }
-function render(){metroGuard();renderNav();const v=document.getElementById('view');v.innerHTML=({dzis:vToday,plan:vPlan,klasa:vLevel,postepy:vProgress,cwiczenia:vLibrary}[tab])()}
+function render(){metroGuard();renderNav();const v=document.getElementById('view');
+  /* synchronizacja z chmurą może przerysować ekran w trakcie wpisywania: zachowaj otwarty formularz pomiaru */
+  const keep=openTest?[...v.querySelectorAll('.addform input')].map(i=>[i.id,i.value]):[];const foc=document.activeElement&&document.activeElement.id;
+  v.innerHTML=({dzis:vToday,plan:vPlan,klasa:vLevel,postepy:vProgress,cwiczenia:vLibrary}[tab])();
+  for(const [id,val] of keep){const i=document.getElementById(id);if(i)i.value=val}
+  if(foc&&keep.some(k=>k[0]===foc)){const i=document.getElementById(foc);i&&i.focus()}}
 
 function levelStrip(){
   const st=levelStatus();
@@ -1099,19 +1140,56 @@ function vProgress(){
     <div class="row" style="align-items:flex-end"><label class="field">Wysokość biodra (cm)<input class="input" id="hip-cm" type="number" inputmode="decimal" min="40" max="130" style="width:120px" value="${S.hipCm||''}" placeholder="np. 92"></label>
     <label class="field">Długość stopy (cm)<input class="input" id="foot-cm" type="number" inputmode="decimal" min="12" max="35" step="0.5" style="width:120px" value="${S.footCm||''}" placeholder="np. 24"></label>
     <button class="btn sm" data-act="saveHip">Zapisz</button></div></div>
-  ${Object.entries(TGROUPS).map(([g,gn])=>`<h3 style="margin-top:10px">${gn}</h3><div class="grid2">${visible.filter(T=>T.g===g).map(T=>{const h=hist(T.id);const m=h[h.length-1];const first=h[0];const inReq=req[T.id]!=null;
-    let diff='';if(m&&first&&h.length>1){const dv=m.v-first.v;const good=T.lower?dv<0:dv>0;diff=`<span class="pill ${dv===0?'':good?'good':'warn'} num">${dv>0?'+':''}${nf(dv)} od ${fmt(first.d,{day:'numeric',month:'short'})}</span>`}
-    return `<div class="card test stack" style="gap:8px">
-      <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(T.n)}</b>${inReq?`<span class="pill accent">cel ${nf(req[T.id])}</span>`:''}</div>
-      <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}${T.foot&&m?(S.footCm?' · ok. '+turnoutDeg(m.v)+'°':' · podaj długość stopy, żeby zobaczyć kąt'):''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
-      ${spark(h,T.lower)}
-      ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform"><label class="field">Wynik (${T.u})<input id="tv-${T.id}" type="number" inputmode="decimal" min="0" ${T.max?'max="'+T.max+'"':''} step="0.5"></label><label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
-        :T.legacy||T.of?`<p class="small muted">${esc(T.of?T.how+' Wpisuj wyniki w kartach obu stron.':T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
-    </div>`}).join('')}</div>`).join('')}</section>
+  ${Object.entries(TGROUPS).map(([g,gn])=>`<h3 style="margin-top:10px">${gn}</h3><div class="grid2">${testCards(visible.filter(T=>T.g===g),req,t)}</div>`).join('')}</section>
   <section class="card"><div class="row between" style="margin-bottom:6px"><h3>Ostatnie wpisy</h3><button class="btn ghost sm" data-act="logClass">+ Zajęcia</button></div>
     ${recent.length?recent.map(l=>`<div class="logrow"><div style="min-width:0"><b>${logLabel(l)}</b><p class="small muted">${fmt(l.d,{weekday:'short',day:'numeric',month:'long'})} · ${l.min} min${l.rpe?' · RPE '+l.rpe:''}${l.note?' · '+esc(l.note):''}</p></div><button class="btn ghost sm" data-act="delLog" data-v="${l.id}" aria-label="Usuń wpis">Usuń</button></div>`).join('')
       :'<p class="muted small">Tu pojawią się zrobione treningi i zajęcia. Zacznij pierwszy trening na ekranie „Dziś”.</p>'}
   </section>`;
+}
+
+/* karty pomiarów: pojedyncze albo para prawa/lewa z jednym formularzem na obie strony */
+function testCards(list,req,t){
+  const seen=new Set();let out='';
+  for(const T of list){const P=PAIR_OF[T.id];
+    if(!P){out+=testCard(T,req,t);continue}
+    if(seen.has(P))continue;seen.add(P);out+=pairCard(P,req,t)}
+  return out;
+}
+function valTxt(T,m){return `${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}${T.foot&&m?(S.footCm?' · ok. '+turnoutDeg(m.v)+'°':' · podaj długość stopy, żeby zobaczyć kąt'):''}</small>`}
+function diffPill(T,h){const m=h[h.length-1],first=h[0];if(!m||h.length<2)return '';const dv=m.v-first.v;const good=T.lower?dv<0:dv>0;
+  return `<span class="pill ${dv===0?'':good?'good':'warn'} num">${dv>0?'+':''}${nf(dv)} od ${fmt(first.d,{day:'numeric',month:'short'})}</span>`}
+const numInput=(id,label,T)=>`<label class="field">${label}<input class="input" id="${id}" type="text" inputmode="decimal" autocomplete="off" placeholder="${T.u}"></label>`;
+/* lista wpisów z możliwością usunięcia pomyłki */
+function testHistory(ids,labels){
+  const rows=ids.flatMap((id,k)=>(S.tests[id]||[]).map((m,i)=>({id,i,m,lab:labels[k]}))).filter(x=>!x.m.est).sort((a,b)=>a.m.d<b.m.d?1:a.m.d>b.m.d?-1:0);
+  if(!rows.length)return '';
+  return `<details class="thist"><summary class="small">Historia wpisów (${rows.length})</summary>${rows.map(x=>`<div class="logrow"><span class="small">${fmt(x.m.d,{day:'numeric',month:'short',year:'numeric'})}${x.lab?' · '+x.lab:''} · <b class="num">${nf(x.m.v)} ${T_BY[x.id].u}</b></span><button class="btn ghost sm" data-act="delTest" data-v="${x.id}" data-i="${x.i}" aria-label="Usuń wpis">Usuń</button></div>`).join('')}</details>`;
+}
+function testCard(T,req,t){
+  const h=hist(T.id);const m=h[h.length-1];const inReq=req[T.id]!=null;
+  return `<div class="card test stack" style="gap:8px">
+    <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(T.n)}</b>${inReq?`<span class="pill accent">cel ${nf(req[T.id])}</span>`:''}</div>
+    <div class="row between"><span class="val num">${valTxt(T,m)}</span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diffPill(T,h)}</div>
+    ${spark(h,T.lower)}
+    ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform">${numInput('tv-'+T.id,'Wynik ('+T.u+')',T)}<label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
+      :T.legacy?`<p class="small muted">${esc(T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
+    ${testHistory([T.id],[''])}
+  </div>`;
+}
+function pairCard(P,req,t){
+  const R=T_BY[P.r],L=T_BY[P.l],key=P.of||P.r;const sl=P.sl||['Prawa','Lewa'];
+  const goal=P.of&&req[P.of]!=null?'cel '+nf(req[P.of])+' (słabsza)':req[P.r]!=null&&req[P.r]===req[P.l]?'cel '+nf(req[P.r])+' na stronę':req[P.r]!=null||req[P.l]!=null?'cel P '+(req[P.r]!=null?nf(req[P.r]):'–')+' · L '+(req[P.l]!=null?nf(req[P.l]):'–'):'';
+  const side=(T,lab)=>{const h=hist(T.id);const m=h[h.length-1];return `<div class="pside stack" style="gap:4px"><span class="eyebrow">${lab}</span><span class="val num">${valTxt(T,m)}</span>${diffPill(T,h)}${spark(h,T.lower)}</div>`};
+  /* dawny wynik bez strony albo szacunek z ankiety, dopóki nie ma obu stron */
+  const old=P.of&&!(hist(P.r).length&&hist(P.l).length)?latest(P.of):null;
+  return `<div class="card test stack" style="gap:8px">
+    <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><b style="min-width:0">${esc(P.n)}</b>${goal?`<span class="pill accent">${goal}</span>`:''}</div>
+    <div class="pair">${side(R,sl[0])}${side(L,sl[1])}</div>
+    ${old?`<p class="small muted">${old.est?'Szacunek z ankiety':'Dawny wynik bez strony'}: <b class="num">${nf(old.v)} ${R.u}</b>. Wpisz obie strony, żeby liczyć słabszą.</p>`:''}
+    ${openTest===key?`<p class="small muted">${esc(P.how)}${R.lower?' Mniej = lepiej.':''}</p><div class="addform pairform">${numInput('tv-'+P.r,sl[0]+' ('+R.u+')',R)}${numInput('tv-'+P.l,sl[1]+' ('+L.u+')',L)}<label class="field">Data<input id="td-${key}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addPair" data-v="${key}">Zapisz</button></div><p class="small muted">Możesz wpisać tylko jedną stronę, drugą dodasz później.</p>`
+      :`<div><button class="btn sm" data-act="openTest" data-v="${key}">+ Dodaj pomiar (obie strony)</button></div>`}
+    ${testHistory([P.r,P.l],sl)}
+  </div>`;
 }
 
 const LSECT=[['kroki','Kroki baletowe'],['wariacje','Wariacje'],['jazz','Kroki jazzowe'],['kombi','Kombinacje'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty'],['cw','Ćwiczenia']];
@@ -1340,7 +1418,7 @@ function chartsSection(){
     return `<g class="cbar"><title>Tydzień od ${fmt(w.m,{day:'numeric',month:'long'})}: ${w.v} min</title><rect x="${L+i*bw}" y="${T}" width="${bw}" height="${H-T-B}" fill="transparent"/>${path}${i===11&&w.v?`<text x="${x+wd/2}" y="${y1-5}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${w.v}</text>`:''}${lab}</g>`}).join('');
   const total=weeks.reduce((a,w)=>a+w.v,0);
   /* prawa vs lewa */
-  const PAIRS=[['Szpagat przedni','split_r','split_l',1],['Rezerwa à la seconde','gap_r','gap_l',1],['Développé w przód','dev_front_r','dev_front_l'],['Développé w bok','dev_side_r','dev_side_l'],['Développé w tył','dev_back_r','dev_back_l'],['Relevé na jednej nodze','calf_r','calf_l'],['Plank bokiem','side_r','side_l'],['Pirouette pojedyncze','pir1_r','pir1_l'],['Pirouette en dedans','pir_dd_r','pir_dd_l']];
+  const PAIRS=SIDE_PAIRS.map(p=>[p.n,p.r,p.l,T_BY[p.r].lower]);
   const rows=PAIRS.map(([n,a,b,lower])=>{const r=latest(a),l=latest(b);if(!r||!l)return '';const m=Math.max(r.v,l.v,1);const u=T_BY[a].u;
     const weak=r.v===l.v?'równo':(lower?(r.v>l.v?'prawa':'lewa'):(r.v<l.v?'prawa':'lewa'));
     const bar=(lab,v)=>`<div class="sbar"><span class="small muted">${lab}</span><div class="bar"><span style="width:${Math.max(2,v/m*100)}%"></span></div><span class="small num">${nf(v)} ${u}</span></div>`;
@@ -1583,7 +1661,14 @@ function classModal(){
 function confirmModal(title,text,okLabel,act){modal(`<h3>${title}</h3><p class="small muted">${text}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="${act}">${okLabel}</button></div>`)}
 
 /* ============ ODTWARZACZ ============ */
-let P=null,AC=null,wake=null,pendingDel=null;
+let P=null,AC=null,wake=null,pendingDel=null,pendingTest=null;
+/* wynik z pola: null = puste, false = błąd (komunikat już pokazany). Pole tekstowe, bo type=number na telefonie z polską klawiaturą gubi przecinek. */
+function readTest(id){const el=document.getElementById('tv-'+id);const raw=(el?el.value:'').trim().replace(/\s/g,'').replace(',','.');if(raw==='')return null;
+  const T=T_BY[id];const val=Number(raw);
+  if(!isFinite(val)||val<0){toast('Wpisz wynik jako liczbę, np. 12,5');el&&el.focus();return false}
+  if(T.max&&val>T.max){toast('Maksymalnie '+T.max+' '+T.u);el&&el.focus();return false}
+  return Math.round(val*10)/10}
+function addMeasure(id,val,d){d=d&&d<=today()?d:today();S.tests[id]=(S.tests[id]||[]).filter(m=>!m.est).concat([{d,v:val}])}
 function beep(f=880,d=.12){if(!AC||!P||!P.sound)return;try{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;const n=AC.currentTime;g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.3,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g).connect(AC.destination);o.start(n);o.stop(n+d+.03)}catch(e){}}
 async function lockScreen(){try{if(navigator.wakeLock)wake=await navigator.wakeLock.request('screen')}catch(e){wake=null}}
 function startSession(date){startPlan(planFor(date))}
@@ -1702,11 +1787,18 @@ document.addEventListener('click',e=>{
     case 'saveSettings':{S.name=document.getElementById('set-name').value.trim().slice(0,30);const lv=Number(document.getElementById('set-level').value);if(lv!==S.level){S.level=lv;S.levelSince=today()}save();render();toast('Zapisano');break}
     case 'reset':confirmModal('Wyczyścić wszystkie dane?','Usuniesz historię treningów, pomiary i ustawienia. Tego nie da się cofnąć.','Wyczyść','doReset');break;
     case 'doReset':S=defaults();S.updatedAt=Date.now();S.flags.welcome=1;save();closeModal();render();toast('Dane wyczyszczone');break;
-    case 'openTest':openTest=v;render();setTimeout(()=>{const i=document.getElementById('tv-'+v);i&&i.focus()},30);break;
-    case 'addTest':{const T=T_BY[v];const raw=document.getElementById('tv-'+v).value.replace(',','.');const val=parseFloat(raw);
-      if(isNaN(val)||val<0){toast('Wpisz wynik jako liczbę');break}if(T.max&&val>T.max){toast('Maksymalnie '+T.max);break}
-      const d=document.getElementById('td-'+v).value||today();
-      S.tests[v]=(S.tests[v]||[]).filter(m=>!m.est).concat([{d:d>today()?today():d,v:val}]);openTest=null;save();render();toast('Pomiar zapisany');break}
+    case 'openTest':{openTest=v;render();const P=PAIR_OF[v];const i=document.getElementById('tv-'+(P?P.r:v));if(i){i.focus();i.scrollIntoView({block:'center',behavior:'smooth'})}break}
+    case 'addTest':{const r=readTest(v);if(r===false)break;if(r==null){toast('Wpisz wynik');break}
+      addMeasure(v,r,document.getElementById('td-'+v).value);openTest=null;save();render();toast('Pomiar zapisany');break}
+    case 'addPair':{const P=PAIR_OF[v];const r=readTest(P.r);if(r===false)break;const l=readTest(P.l);if(l===false)break;
+      if(r==null&&l==null){toast('Wpisz wynik przynajmniej dla jednej strony');break}
+      const d=document.getElementById('td-'+v).value;if(r!=null)addMeasure(P.r,r,d);if(l!=null)addMeasure(P.l,l,d);
+      if(P.of)S.tests[P.of]=(S.tests[P.of]||[]).filter(m=>!m.est);
+      openTest=null;save();render();toast(r!=null&&l!=null?'Zapisano obie strony':'Pomiar zapisany');break}
+    case 'delTest':{const i=Number(a.dataset.i);const m=(S.tests[v]||[])[i];if(!m)break;pendingTest={id:v,i,d:m.d,v:m.v};
+      confirmModal('Usunąć pomiar?',`${T_BY[v].n}: ${nf(m.v)} ${T_BY[v].u}, ${fmt(m.d,{day:'numeric',month:'long',year:'numeric'})}.`,'Usuń','doDelTest');break}
+    case 'doDelTest':{const q=pendingTest;pendingTest=null;if(!q){closeModal();break}const L=S.tests[q.id]||[];const i=L[q.i]&&L[q.i].d===q.d&&L[q.i].v===q.v?q.i:L.findIndex(m=>m.d===q.d&&m.v===q.v);
+      if(i>=0){L.splice(i,1);S.tests[q.id]=L;save()}closeModal();render();toast('Pomiar usunięty');break}
     case 'delLog':pendingDel=v;confirmModal('Usunąć wpis?','Wpis zniknie z historii i z licznika treningów.','Usuń','doDel');break;
     case 'doDel':S.log=S.log.filter(l=>l.id!==pendingDel);pendingDel=null;save();closeModal();render();break;
     case 'export':{const json=JSON.stringify(S);
@@ -1764,6 +1856,10 @@ document.addEventListener('keydown',e=>{
   if(!P||P.phase==='done')return;
   if(e.key===' '&&P.phase!=='reps'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();P.running=!P.running;P.last=performance.now();drawPlayer()}
   if(e.key==='ArrowRight')nextStep();if(e.key==='ArrowLeft')prevStep();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;const f=e.target.closest&&e.target.closest('.addform');if(!f)return;
+  e.preventDefault();const b=f.querySelector('.btn.primary');b&&b.click();
 });
 document.addEventListener('visibilitychange',()=>{if(P&&document.visibilityState==='visible'&&!wake)lockScreen()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h)&&h!==tab){tab=h;render()}});
