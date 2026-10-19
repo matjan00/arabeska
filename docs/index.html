@@ -279,6 +279,9 @@ ol.combo .cnt{min-width:44px;font-weight:800;color:var(--accent)}
 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .cmp figure{margin:0;display:flex;flex-direction:column;gap:4px}
 .cmp img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:var(--surface-2)}
+.vmeta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+.vmeta dt{color:var(--muted);font-weight:600}
+.vmeta dd{margin:0}
 .phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
 .phgrid button{border:0;padding:0;background:none;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
 .phgrid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--surface-2)}
@@ -709,9 +712,9 @@ function defaults(){
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
     pointe:true,tests,log:[],videos:{},flags:{},
-    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{}};
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{},vars:{}};
 }
-function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
+function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks','vars'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
 const LS='arabeska.v1';
 function loadLocal(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -1111,7 +1114,7 @@ function vProgress(){
   </section>`;
 }
 
-const LSECT=[['kroki','Kroki baletowe'],['jazz','Kroki jazzowe'],['kombi','Kombinacje'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty'],['cw','Ćwiczenia']];
+const LSECT=[['kroki','Kroki baletowe'],['wariacje','Wariacje'],['jazz','Kroki jazzowe'],['kombi','Kombinacje'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty'],['cw','Ćwiczenia']];
 function learnHead(title){return `<header class="stack" style="gap:10px"><p class="eyebrow">Nauka</p><h1>${title}</h1>
   <div class="chips" role="group" aria-label="Sekcja">${LSECT.map(([k,l])=>`<button class="chip" data-act="seg" data-v="${k}" aria-pressed="${learnSeg===k}">${l}${k==='korekty'&&activeCorr().length?' <span class="num" style="opacity:.7">'+activeCorr().length+'</span>':''}</button>`).join('')}</div></header>`}
 function vSteps(jazz){
@@ -1139,6 +1142,7 @@ function vSteps(jazz){
 function vLibrary(){
   if(learnSeg==='kroki')return vSteps(false);
   if(learnSeg==='jazz')return vSteps(true);
+  if(learnSeg==='wariacje')return vVars();
   if(learnSeg==='kombi')return vCombo();
   if(learnSeg==='quiz')return vQuiz();
   if(learnSeg==='metro')return vMetro();
@@ -1426,6 +1430,144 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{if(e.target.id==='ph-file'&&e.target.files[0])addPhoto(e.target.files[0])});
 document.addEventListener('input',e=>{if(e.target.id==='m-bpm'){M.bpm=Number(e.target.value);M.preset=null;const l=document.getElementById('m-bpm-l');if(l)l.textContent=M.bpm}});
+
+
+/* Wariacje baletowe: lv 1–4 (od najłatwiejszych), cls = klasa, od której warto zacząć naukę. Występy sprawdzone na YouTube. */
+const VLEVELS=['','Pierwsze wariacje','Średnio trudne','Trudne','Najtrudniejsze'];
+const VARS=[
+ {id:'candide',lv:1,cls:4,n:'Wróżka Candide (Szczerości)',ballet:'Śpiąca królewna',act:'Prolog',choreo:'Marius Petipa (1890)',composer:'Piotr Czajkowski',music:'„Pas de six”, wariacja I (Candide), op. 66',
+  story:'Pierwsza z wróżek, które przynoszą dary małej Aurorze. Daje jej szczerość i czystość serca, więc taniec jest spokojny, łagodny i bardzo melodyjny.',
+  tech:['Płynne legato bez ostrych akcentów','Miękki port de bras z charakterystycznymi „opadającymi” dłońmi','Kontrolowane développés i spokojne relevés na pointach','Czyste épaulement i długie linie'],
+  steps:['developpe','arabesque','portdebras','pointe_rel','bourree'],
+  watch:['Jak ręce oddychają razem z muzyką','Brak pośpiechu: każda pozycja jest skończona','Spokojna twarz i szyja, bez napięcia w barkach'],
+  v:['I8jQJKp1D0Q','Bolszoj: wariacja Wróżki Candide','Notas de Ballet',1]},
+ {id:'swanilda',lv:1,cls:4,n:'Swanilda, akt 1 (walc)',ballet:'Coppélia',act:'Akt 1',choreo:'według Arthura Saint-Léona i Mariusa Petipy',composer:'Léo Delibes',music:'Walc Swanildy (Valse lente) z 1. aktu',
+  story:'Swanilda to wesoła, trochę zalotna dziewczyna z miasteczka. Wariacja jest lekka i zabawna, pełna walcowego kołysania.',
+  tech:['Frazowanie na 3, walcowy rozmach','Balancés i pas de basque z wyraźnym épaulement','Piqués i proste obroty','Charakter: uśmiech, kokieteria, zabawa ruchem głowy'],
+  steps:['balance','pasdebasque','pique_turn','passe','chaines'],
+  watch:['Jak ciało kołysze się w walcu, a nie tylko nogi','Ruchy głowy i spojrzenie, które budują postać','Lekkość: kroki są małe i szybkie, ale nie spieszą się'],
+  v:['-c1htjAp5nY','Natalia Osipowa: walc Swanildy','fhebbert',2]},
+ {id:'miettes',lv:1,cls:4,n:'Wróżka Okruszków (Miettes qui tombent)',ballet:'Śpiąca królewna',act:'Prolog',choreo:'Marius Petipa (1890)',composer:'Piotr Czajkowski',music:'„Pas de six”, wariacja III (Miettes qui tombent), op. 66',
+  story:'Wróżka, która daje Aurorze hojność. Ruchy dłoni naśladują spadające okruszki chleba, dlatego wariacja jest drobna, szybka i błyskotliwa.',
+  tech:['Szybka, drobna praca stóp na pointach','Ostre, precyzyjne ruchy nadgarstków i palców','Piqués i małe skoki w szybkim tempie','Czystość pozycji mimo tempa'],
+  steps:['bourree','pique_turn','petitjete','changement','soutenu'],
+  watch:['Ruch dłoni: „strzepywanie” okruszków','Szybkie stopy przy spokojnym tułowiu','Muzykalność: akcenty dokładnie na nutach'],
+  v:['ry8p9FfQIRw','Bolszoj: wariacja Wróżki Okruszków','Notas de Ballet',1]},
+ {id:'columbine',lv:2,cls:5,n:'Kolombina',ballet:'Harlekinada (Les Millions d’Arlequin)',act:'Akt 1',choreo:'Marius Petipa (1900)',composer:'Riccardo Drigo',music:'Wariacja Kolombiny z baletu „Harlekinada”',
+  story:'Kolombina to zalotna ukochana Arlekina z komedii dell’arte. Wariacja jest figlarna, szybka i pełna uroku, bardzo lubiana na konkursach.',
+  tech:['Szybkie sissonnes i pas de chat','Piqués i obroty en dehors','Wyraźne, zabawne akcenty w rękach i głowie','Lekkie skoki z miękkim lądowaniem'],
+  steps:['sissonne','pasdechat','pique_turn','chaines','pir_dehors'],
+  watch:['Charakter: psotny uśmiech i gra z publicznością','Zmiany kierunku bez utraty tempa','Lekkość skoków'],
+  v:['SxInbjVtWb4','Iana Salenko: Kolombina','Ballet Ukraine Collection',1]},
+ {id:'genzano',lv:2,cls:5,n:'Festiwal kwiatów w Genzano',ballet:'Festiwal kwiatów w Genzano',act:'Pas de deux',choreo:'August Bournonville (1858)',composer:'Edvard Helsted',music:'Wariacja kobieca z pas de deux',
+  story:'Duński styl Bournonville’a: radosny, wiejski festyn we Włoszech. Ta technika uczy lekkości i szybkich nóg bardziej niż wysokich nóg.',
+  tech:['Styl Bournonville’a: ręce nisko, bogate épaulement','Szybka praca nóg i małe skoki z biciem','Ballon: lekkie odbicie i ciche lądowanie','Zmiany kierunku na jednym oddechu'],
+  steps:['assemble','sissonne','entrechat4','petitjete','glissade'],
+  watch:['Ręce prawie nie unoszą się wysoko: to cecha stylu','Lot w skokach, a nie ich wysokość','Twarz i radość: to taniec z charakterem'],
+  v:['n3syz0SEVXk','Gudrun Bojesen, Królewski Balet Duński','Roseta Mauri Dance Competition',1]},
+ {id:'sugarplum',lv:2,cls:5,n:'Wieszczka Cukrowa',ballet:'Dziadek do orzechów',act:'Akt 2',choreo:'Lew Iwanow (1892)',composer:'Piotr Czajkowski',music:'„Taniec Wieszczki Cukrowej” (Danse de la Fée Dragée), z celestą',
+  story:'Władczyni Krainy Słodyczy wita Klarę. Muzyka z dzwoneczkami celesty wymaga tańca delikatnego, precyzyjnego i bardzo czystego.',
+  tech:['Precyzyjna praca na pointach: relevés, piqués, pas de bourrée','Kontrolowane développés','Delikatne, „kryształowe” akcenty','W wielu wersjach na końcu manège obrotów'],
+  steps:['bourree','pique_turn','developpe','chaines','passe'],
+  watch:['Jak każdy dźwięk celesty ma swój ruch','Spokojny górny korpus przy drobnych stopach','Elegancja bez wysiłku widocznego na twarzy'],
+  v:['zV1qLYukTH8','Royal Ballet: Taniec Wieszczki Cukrowej','Royal Ballet and Opera',3]},
+ {id:'shade2',lv:2,cls:5,n:'Drugi Cień',ballet:'Bajadera',act:'Akt 3, Królestwo Cieni',choreo:'Marius Petipa (1877)',composer:'Ludwig Minkus',music:'Wariacja II Cienia ze sceny „Królestwo Cieni”',
+  story:'W śnie Solora pojawiają się duchy, Cienie. Trzy solistki tańczą krótkie wariacje. Wszystkie wymagają czystej klasyki i lekkości.',
+  tech:['Czysta klasyka: dokładne pozycje i zakończenia','Duże, lekkie skoki','Stabilne obroty','Płynność: Cień nie ma ciężaru'],
+  steps:['sautdechat','developpe','pir_dehors','arabesque','glissade'],
+  watch:['Miękkie lądowania: Cień „unosi się”','Długie linie rąk i nóg','Spokój i chłód w wyrazie, to duch, nie dziewczyna z wioski'],
+  v:['Urw_AKsmkb0','Akane Takada, Royal Ballet: II Cień','Notas de Ballet',1]},
+ {id:'giselle1',lv:3,cls:6,n:'Giselle, akt 1',ballet:'Giselle',act:'Akt 1',choreo:'Jean Coralli i Jules Perrot (1841), wersja Petipy',composer:'Adolphe Adam',music:'Wariacja Giselle z 1. aktu (w wielu wersjach do muzyki dopisanej przez Ludwiga Minkusa)',
+  story:'Giselle to radosna wiejska dziewczyna zakochana w Albrechcie. Wariacja pokazuje jej beztroskę i miłość do tańca, zanim dowie się o zdradzie.',
+  tech:['Słynna diagonala podskoków na pointach na jednej nodze','Kontrolowane développé w przód na pointach','Szybkie piqués lub chaînés na koniec','Lekkość i niewinny charakter'],
+  steps:['tempsleve','developpe','pique_turn','chaines','pir_dehors'],
+  watch:['Podskoki na pointach: noga podporowa jest silna, a ruch wygląda lekko','Radość i nieśmiałość w wyrazie','Utrzymanie tempa do samego końca'],
+  v:['GoG5izkLe-Y','Yasmine Naghdi, Royal Ballet: Giselle akt 1','Royal Ballet and Opera',2]},
+ {id:'odette',lv:3,cls:6,n:'Odetta, akt 2',ballet:'Jezioro łabędzie',act:'Akt 2',choreo:'Lew Iwanow (1895)',composer:'Piotr Czajkowski',music:'Wariacja Odetty z 2. aktu',
+  story:'Odetta to zaczarowana królowa łabędzi. Wariacja łączy kruchość i dumę. Ręce muszą wyglądać jak skrzydła.',
+  tech:['„Łabędzie” ręce: ruch od pleców aż po końce palców','Szybkie relevés i zmiany kierunku','Elastyczne plecy i cambré','Kontrast między szybkimi nogami a płynnymi rękami'],
+  steps:['passe','releve','portdebras','arabesque','pir_dehors'],
+  watch:['Praca rąk: falują jak skrzydła, a łokcie nie zapadają się','Głowa i szyja łabędzia','Dramatyzm bez przesady'],
+  v:['Lhb1vrdjQxE','Swietłana Zacharowa: wariacja Odetty','Notas de Ballet',2]},
+ {id:'paquita',lv:3,cls:6,n:'Paquita (wariacja główna)',ballet:'Paquita',act:'Grand pas classique',choreo:'Marius Petipa (1881)',composer:'Ludwig Minkus',music:'Wariacja Paquity z Grand pas classique',
+  story:'Paquita to Cyganka, która okazuje się szlachcianką. Grand pas to pokaz czystej klasyki z hiszpańskim temperamentem.',
+  tech:['Pewna praca na pointach i szybkie piqués','Obroty en dehors i en dedans','Hiszpańskie épaulement i duma w postawie','Wyraźne, energiczne zakończenia fraz'],
+  steps:['pique_turn','pir_dehors','pir_dedans','chaines','developpe'],
+  watch:['Postawa: wysoka głowa, otwarta klatka','Czyste zakończenia obrotów','Charakter: pewność siebie, ale z klasą'],
+  v:['SDV1bJXGW6Y','Semperoper Ballett: wariacja Paquity','Semperoper Ballett',3]},
+ {id:'dryads',lv:3,cls:6,n:'Królowa Driad',ballet:'Don Kichot',act:'Akt 2, sen Don Kichota',choreo:'Marius Petipa i Aleksander Gorski',composer:'Ludwig Minkus',music:'Wariacja Królowej Driad ze sceny snu',
+  story:'Don Kichot śni o ogrodzie pełnym driad, leśnych nimf. Ich królowa tańczy wariację, która słynie z wysokich nóg i kontroli.',
+  tech:['Seria italian fouettés: noga przechodzi z przodu do arabeski','Wysokie, kontrolowane développés','Duże skoki','Siła i stabilność na pointach'],
+  steps:['italian','developpe','grandjete','arabesque','pique_turn'],
+  watch:['Italian fouettés: wysoka noga w obu pozycjach','Stabilna noga podporowa przy dużych ruchach','Królewski spokój mimo trudności'],
+  v:['3iTBHVeUDgo','Royal Ballet: Królowa Driad','Royal Ballet and Opera',2]},
+ {id:'aurora3',lv:4,cls:7,n:'Aurora, akt 3 (ślub)',ballet:'Śpiąca królewna',act:'Akt 3',choreo:'Marius Petipa (1890)',composer:'Piotr Czajkowski',music:'Wariacja Aurory z Grand pas de deux 3. aktu, op. 66',
+  story:'Aurora jest już dorosłą księżniczką w dniu ślubu. Wariacja jest królewska, precyzyjna i bardzo „czysta”.',
+  tech:['Drobna, szybka praca na pointach','Doskonałe pozycje i épaulement','Spokojny, królewski górny korpus','Wytrzymałość: precyzja do ostatniej nuty'],
+  steps:['bourree','pique_turn','developpe','pir_dehors','passe'],
+  watch:['Każda pozycja jest „jak z podręcznika”','Brak zbędnych ruchów rąk','Dostojeństwo w twarzy i postawie'],
+  v:['jZFvEtLd3Jg','Marianela Nuñez: Aurora, akt 3','Notas de Ballet',2]},
+ {id:'kitri1',lv:4,cls:7,n:'Kitri, akt 1',ballet:'Don Kichot',act:'Akt 1',choreo:'Marius Petipa i Aleksander Gorski',composer:'Ludwig Minkus',music:'Wariacja Kitri z 1. aktu',
+  story:'Kitri to temperamentna córka karczmarza z Barcelony. Wariacja jest pełna ognia: wysokie skoki, szybkie obroty i hiszpański charakter.',
+  tech:['Duże skoki z wygięciem pleców','Szybki manège chaînés lub piqués','Hiszpańskie épaulement i energia','Siła i wytrzymałość'],
+  steps:['grandjete','sautdechat','chaines','pique_turn','pir_dehors'],
+  watch:['Wygięcie tułowia w skokach','Szybkość obrotów bez utraty kierunku','Temperament: to postać, nie tylko technika'],
+  v:['jQ73d68HQCs','Marianela Nuñez, Royal Ballet: Kitri','Notas de Ballet',1]},
+ {id:'raymonda3',lv:4,cls:7,n:'Rajmonda, akt 3 (z klaśnięciem)',ballet:'Rajmonda',act:'Akt 3, Grand pas hongrois',choreo:'Marius Petipa (1898)',composer:'Aleksander Głazunow',music:'Wariacja Rajmondy z 3. aktu',
+  story:'Wariacja z węgierskim charakterem na weselu Rajmondy. Zaczyna się od klaśnięcia dłońmi. Wolne tempo jest tu trudniejsze niż szybkie.',
+  tech:['Wolne tempo wymaga ogromnej kontroli','Pas de bourrée suivi i relevés na pointach','Balanse w attitude i passé','Dostojny, węgierski charakter rąk'],
+  steps:['bourree','releve','attitude','passe','pique_turn'],
+  watch:['Klaśnięcie i ręce: część choreografii, nie dodatek','Stabilność przy wolnej muzyce','Wyraz: duma i powaga'],
+  v:['ojbsyz5h_0c','Natalia Osipowa, Royal Ballet: Rajmonda akt 3','Royal Ballet and Opera',3]},
+ {id:'odile',lv:4,cls:7,n:'Odylia (Czarny łabędź)',ballet:'Jezioro łabędzie',act:'Akt 3',choreo:'Marius Petipa (1895)',composer:'Piotr Czajkowski',music:'Wariacja Odylii z pas de deux Czarnego łabędzia (często do utworu op. 72 nr 12 w orkiestracji Drigo)',
+  story:'Odylia, córka czarnoksiężnika, udaje Odettę, żeby oszukać księcia. Wariacja jest błyskotliwa, pewna siebie i uwodzicielska. Słynne 32 fouettés są w codzie, nie w samej wariacji.',
+  tech:['Mocne, pewne obroty, także w attitude','Szybkie zmiany kierunku i ostre akcenty','Duże skoki','Zupełnie inny charakter niż Odetta'],
+  steps:['pir_double','pir_att','grandjete','pique_turn','fouettes'],
+  watch:['Spojrzenie i pewność siebie: Odylia zwodzi','Ostre zakończenia fraz','Porównaj ją z Odettą z 2. aktu'],
+  v:['PE7QgQVeeYs','Olga Smirnowa: wariacja Odylii','Ballet',1]},
+ {id:'esmeralda',lv:4,cls:7,n:'Esmeralda (z tamburynem)',ballet:'Esmeralda',act:'Pas de six / pas de deux',choreo:'według Jules’a Perrota i Mariusa Petipy',composer:'Cesare Pugni i Riccardo Drigo',music:'Wariacja Esmeraldy z tamburynem',
+  story:'Esmeralda to cygańska tancerka z „Katedry Marii Panny w Paryżu” Victora Hugo. W wariacji uderza stopą w tamburyn trzymany w ręce.',
+  tech:['Développés na pointach z uderzeniem stopą w tamburyn','Równowaga z rekwizytem w ręce','Szybkie piqués i obroty','Temperament i swoboda'],
+  steps:['developpe','pique_turn','chaines','pir_dehors','arabesque'],
+  watch:['Uderzenie w tamburyn: noga wysoko, pointe stabilna','Rekwizyt nie zaburza linii ciała','Charakter: odwaga i radość'],
+  v:['KRjsdpSL6z4','Yuka Fukuda: Esmeralda','Yuka F',2]}
+];
+let varLv=0;
+const VSTAT=['Do obejrzenia','Uczę się','Umiem'];
+function varStatus(id){const v=(S.vars||{})[id]||0;return `<div class="status" role="group" aria-label="Status wariacji">${VSTAT.map((l,k)=>`<button class="s${k}" data-act="varSet" data-v="${id}" data-s="${k}" aria-pressed="${v===k}">${l}</button>`).join('')}</div>`}
+function vVars(){
+  const list=VARS.filter(x=>!varLv||x.lv===varLv);
+  const st=S.vars||{};const learning=VARS.filter(x=>st[x.id]===1).length,known=VARS.filter(x=>st[x.id]===2).length;
+  return `${learnHead('Wariacje baletowe')}
+  <p class="muted small">Najpopularniejsze wariacje solowe, ułożone od najłatwiejszych do najtrudniejszych. Kolejność jest orientacyjna, bo wersje różnią się między teatrami. Przy każdej jest występ zawodowej tancerki, opis techniki i kroki, które warto najpierw opanować.</p>
+  <div class="chips"><button class="chip" data-act="varLv" data-v="0" aria-pressed="${!varLv}">Wszystkie</button>${[1,2,3,4].map(l=>`<button class="chip" data-act="varLv" data-v="${l}" aria-pressed="${varLv===l}">${VLEVELS[l]}</button>`).join('')}</div>
+  ${learning||known?`<p class="small"><span class="pill warn num">${learning} uczę się</span> <span class="pill good num">${known} umiem</span></p>`:''}
+  <div class="stack" style="gap:8px">${list.map(x=>{const i=VARS.indexOf(x)+1;const s=st[x.id]||0;const early=S.level<x.cls;
+    return `<details class="ex" data-var="${x.id}"><summary><span style="min-width:0;display:flex;gap:12px;align-items:baseline"><span class="num muted" style="font-family:var(--display);font-size:20px;min-width:22px">${i}</span><span><b>${esc(x.n)}</b><br><span class="small muted">${esc(x.ballet)} · ${esc(x.composer)}</span></span></span>
+      <span class="stack" style="gap:4px;align-items:flex-end"><span class="pill ${early?'':'accent'}">od Klasy ${RN[x.cls]}</span>${s?`<span class="pill ${s===2?'good':'warn'}">${VSTAT[s].toLowerCase()}</span>`:''}</span></summary>
+    <div class="body">
+      <dl class="vmeta"><dt>Balet</dt><dd>${esc(x.ballet)}, ${esc(x.act)}</dd><dt>Choreografia</dt><dd>${esc(x.choreo)}</dd><dt>Muzyka</dt><dd>${esc(x.composer)}: ${esc(x.music)}</dd><dt>Poziom</dt><dd>${VLEVELS[x.lv]}${early?` · na później (jesteś w Klasie ${RN[S.level]})`:''}</dd></dl>
+      <p>${esc(x.story)}</p>
+      ${vidRowGeneric(x.v)}
+      <div><b class="small">Technika</b><ul class="cues">${x.tech.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+      <div><b class="small">Kroki, które warto opanować</b><div class="row" style="gap:6px;margin-top:6px">${x.steps.map(id=>{const sp=STEP_BY[id];if(!sp)return '';const ss=S.steps[id]||0;return `<button class="chip" data-act="openStep" data-v="${id}">${esc(sp.n)} <span style="opacity:.7">${['· do nauki','· uczę się','· opanowane'][ss]}</span></button>`}).join('')}</div></div>
+      <div><b class="small">Na co zwrócić uwagę, oglądając</b><ul class="cues">${x.watch.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+      ${x.cls>=4?'<p class="warnbox">Wariacje tańczy się na pointach. Ucz się ich pod okiem nauczyciela.</p>':''}
+      ${varStatus(x.id)}
+      <a class="small" href="${yt(x.ballet+' '+x.n.split(' (')[0]+' variation')}" target="_blank" rel="noopener">Zobacz inne wykonania na YouTube</a>
+    </div></details>`}).join('')}</div>`;
+}
+function vidRowGeneric([id,t,ch,m]){
+  return `<div class="vid" style="border-bottom:0;padding:0">${window.claude?'':`<a href="${ytWatch(id)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"></a>`}
+    <div class="meta" ${window.claude?'style="grid-column:1/-1"':''}><b>${esc(t)}</b><span class="small muted">${esc(ch)} · ok. <span class="num">${m}</span> min</span>
+    <div><a class="btn primary sm" href="${ytWatch(id)}" target="_blank" rel="noopener">${ICON.play} Oglądaj występ</a></div></div></div>`;
+}
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;const v=a.dataset.v;
+  if(a.dataset.act==='varLv'){varLv=Number(v);render()}
+  else if(a.dataset.act==='varSet'){S.vars=Object.assign({},S.vars);const s=Number(a.dataset.s);if(s)S.vars[v]=s;else delete S.vars[v];save();render();const d=document.querySelector(`details[data-var="${v}"]`);if(d)d.open=true}
+  else if(a.dataset.act==='openStep'){const sp=STEP_BY[v];if(!sp)return;const jz=v.startsWith('j_');learnSeg=jz?'jazz':'kroki';if(jz)jazzLv=sp.lv;else stepLv=sp.lv;render();const d=document.querySelector(`details[data-step="${v}"]`);if(d){d.open=true;d.scrollIntoView({block:'start'})}}
+});
 
 /* ============ MODALE ============ */
 function modal(html){const l=document.getElementById('layer');l.innerHTML=`<div class="modalbg" data-act="closeModal"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`}
