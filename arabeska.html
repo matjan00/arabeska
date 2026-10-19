@@ -346,9 +346,15 @@ const TESTS=[
  {id:'calf',n:'Relevé na jednej nodze',u:'powt.',floor:0,how:'Słabsza noga, przy drążku, pełne wysokie relevé: 1 s w górę, 1 s w dół. Licz do momentu, gdy technika się psuje.'},
  {id:'plank',n:'Plank na przedramionach',u:'s',floor:0,how:'Ciało w jednej linii. Kończysz, gdy biodra opadają.'},
  {id:'second',n:'Noga à la seconde na 90°',u:'s',floor:0,how:'Développé w bok bez trzymania ręką, słabsza strona. Ile sekund utrzymasz nogę na wysokości bioder.'},
- {id:'dev_front',n:'Développé w przód',u:'cm',floor:0,dev:1,how:'Bez trzymania ręką, słabsza noga, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
- {id:'dev_side',n:'Développé w bok (à la seconde)',u:'cm',floor:0,dev:1,how:'Jak wyżej, noga w bok. Biodro nie może się podnieść.'},
- {id:'dev_back',n:'Développé w tył (arabeska)',u:'cm',floor:0,dev:1,how:'Jak wyżej, noga w tył, kolano proste. Mierz od podłogi do pięty.'},
+ {id:'dev_front_r',n:'Développé w przód: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Ktoś mierzy od podłogi do pięty (albo nagraj się przy miarce na ścianie).'},
+ {id:'dev_front_l',n:'Développé w przód: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga pracuje, bez trzymania ręką, przytrzymaj 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_side_r',n:'Développé w bok: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
+ {id:'dev_side_l',n:'Développé w bok: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga à la seconde, bez trzymania ręką, 3 s. Biodro nie może się podnieść.'},
+ {id:'dev_back_r',n:'Développé w tył: prawa noga',u:'cm',floor:0,dev:1,how:'Prawa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_back_l',n:'Développé w tył: lewa noga',u:'cm',floor:0,dev:1,how:'Lewa noga w arabesce, kolano proste, 3 s. Mierz od podłogi do pięty.'},
+ {id:'dev_front',n:'Développé w przód (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
+ {id:'dev_side',n:'Développé w bok (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
+ {id:'dev_back',n:'Développé w tył (dawne, bez strony)',u:'cm',floor:0,dev:1,legacy:1,how:'Pomiary sprzed podziału na prawą i lewą nogę. Nowe wpisuj w kartach z wybraną nogą.'},
  {id:'pointe',n:'Relevés na pointach',u:'powt.',floor:0,how:'Przy drążku, obie nogi, czyste przejście przez półpalce. Tylko jeśli nauczyciel dopuścił cię do pointów.'}
 ];
 const T_BY=Object.fromEntries(TESTS.map(t=>[t.id,t]));
@@ -807,7 +813,7 @@ function vProgress(){
   const t=today();const ym=t.slice(0,7);const train=S.log.filter(l=>TRAIN_KINDS.includes(l.kind));
   const month=train.filter(l=>l.d.startsWith(ym)).length;const mins=S.log.reduce((a,l)=>a+(l.min||0),0);
   const req=LEVELS[S.level-1].req||{};
-  const order=TESTS.slice().sort((a,b)=>(req[b.id]!=null)-(req[a.id]!=null));
+  const order=TESTS.filter(T=>!T.legacy||(S.tests[T.id]||[]).length).sort((a,b)=>(req[b.id]!=null)-(req[a.id]!=null));
   const recent=S.log.slice().sort((a,b)=>a.d<b.d?1:-1).slice(0,12);
   return `
   <header class="stack" style="gap:6px"><p class="eyebrow">Pomiary i historia</p><h1>Postępy</h1></header>
@@ -827,7 +833,7 @@ function vProgress(){
       <div class="row between"><span class="val num">${m?nf(m.v):'–'}<small>${T.u}${T.dev&&m&&S.hipCm?' · ok. '+Math.round(Math.acos(clamp(1-m.v/S.hipCm,-1,1))*180/Math.PI)+'°':''}</small></span>${m&&m.est?'<span class="pill warn">szacunek z ankiety</span>':diff}</div>
       ${spark(h,T.lower)}
       ${openTest===T.id?`<p class="small muted">${esc(T.how)}</p><div class="addform"><label class="field">Wynik (${T.u})<input id="tv-${T.id}" type="number" inputmode="decimal" min="0" ${T.max?'max="'+T.max+'"':''} step="0.5"></label><label class="field">Data<input id="td-${T.id}" type="date" value="${t}" max="${t}"></label><button class="btn primary" data-act="addTest" data-v="${T.id}">Zapisz</button></div>`
-        :`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
+        :T.legacy?`<p class="small muted">${esc(T.how)}</p>`:`<div><button class="btn sm" data-act="openTest" data-v="${T.id}">+ Dodaj pomiar</button></div>`}
     </div>`}).join('')}</div></section>
   <section class="card"><div class="row between" style="margin-bottom:6px"><h3>Ostatnie wpisy</h3><button class="btn ghost sm" data-act="logClass">+ Zajęcia</button></div>
     ${recent.length?recent.map(l=>`<div class="logrow"><div style="min-width:0"><b>${logLabel(l)}</b><p class="small muted">${fmt(l.d,{weekday:'short',day:'numeric',month:'long'})} · ${l.min} min${l.rpe?' · RPE '+l.rpe:''}${l.note?' · '+esc(l.note):''}</p></div><button class="btn ghost sm" data-act="delLog" data-v="${l.id}" aria-label="Usuń wpis">Usuń</button></div>`).join('')
