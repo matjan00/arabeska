@@ -816,9 +816,9 @@ function defaults(){
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
     pointe:true,tests,log:[],videos:{},flags:{},
-    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{},vars:{},pron:{}};
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{},vars:{},pron:{},moves:{}};
 }
-function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks','vars','pron'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
+function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks','vars','pron','moves'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
 const LS='arabeska.v1';
 function loadLocal(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -865,7 +865,10 @@ async function attachCloud(ref){
 
 /* ============ LOGIKA PLANU ============ */
 const TRAIN_KINDS=['session','class','quick'];
-function trainingIndex(date){let n=0,d=S.planStart;if(date<=d)return 0;let guard=0;while(d<date&&guard++<4000){if(S.days.includes(dow(d)))n++;d=addDays(d,1)}return n}
+/* przełożone treningi: S.moves[dzień z planu] = dzień, na który trening przełożono */
+const movedFrom=d=>Object.keys(S.moves).find(k=>S.moves[k]===d&&S.days.includes(dow(k)));
+function isTrainDay(d){return S.days.includes(dow(d))?!S.moves[d]:!!movedFrom(d)}
+function trainingIndex(date){let n=0,d=S.planStart;if(date<=d)return 0;let guard=0;while(d<date&&guard++<4000){if(isTrainDay(d))n++;d=addDays(d,1)}return n}
 function progBlock(p,date){
   const P0=PROG[p];const st=S.progStart[p]||S.planStart;
   const wk=Math.max(1,Math.floor(between(st,date)/7)+1);
@@ -875,7 +878,7 @@ function progBlock(p,date){
   return {n:P0.n,prog:p,wk,ph,items};
 }
 function planFor(date){
-  if(!S.days.includes(dow(date))){
+  if(!isTrainDay(date)){
     return {date,kind:'recovery',title:'Regeneracja',blocks:[{n:'Regeneracja',items:RECOVERY}]};
   }
   let act=S.active.filter(id=>PROG[id]);if(!act.length)act=['split'];
@@ -1042,7 +1045,7 @@ function dayInfo(d){const L=logsOn(d);const k=[];
   if(L.some(l=>l.kind==='session'||l.kind==='quick'))k.push(['done','trening zrobiony']);
   if(L.some(l=>l.kind==='class'))k.push(['class','zajęcia']);
   if(L.some(l=>l.kind==='recovery'))k.push(['rec','regeneracja']);
-  if(!k.length&&S.days.includes(dow(d))){if(d>=today())k.push(['plan','trening w planie']);else if(d>=S.planStart)k.push(['miss','trening pominięty'])}
+  if(!k.length&&isTrainDay(d)){if(d>=today())k.push(['plan','trening w planie']);else if(d>=S.planStart)k.push(['miss','trening pominięty'])}
   return k}
 const dayLabel=(d,k)=>esc(fmt(d,{weekday:'long',day:'numeric',month:'long'})+': '+(k.length?k.map(x=>x[1]).join(', '):'dzień wolny'));
 const dotLegend=()=>`<div class="row small muted legend">${[['plan','plan'],['done','trening'],['class','zajęcia'],['rec','regeneracja'],['miss','pominięty']].map(([c,l])=>`<span><span class="dot ${c}" aria-hidden="true"></span>${l}</span>`).join('')}</div>`;
@@ -1057,7 +1060,7 @@ function vToday(){
   const tip=TIPS[Math.floor(parse(t)/864e5)%TIPS.length];
   const real=TESTS.flatMap(x=>(S.tests[x.id]||[]).filter(m=>!m.est));const lastReal=real.map(m=>m.d).sort().pop();
   const needTest=!lastReal||between(lastReal,t)>=14;
-  let next='';if(plan.kind==='recovery'){for(let i=1;i<8;i++){const d=addDays(t,i);if(S.days.includes(dow(d))){next=d;break}}}
+  let next='';if(plan.kind==='recovery'){for(let i=1;i<8;i++){const d=addDays(t,i);if(isTrainDay(d)){next=d;break}}}
   const hello=S.name?'Cześć, '+esc(S.name):'Dzień dobry';
   return `
   <header class="stack" style="gap:4px"><h1>${hello}</h1><div class="row" style="gap:4px 14px"><p class="muted">${cap(fmt(t,{weekday:'long',day:'numeric',month:'long'}))}</p><p class="sync mob" data-sync="m"></p></div></header>
@@ -1086,6 +1089,7 @@ function sessionCard(plan,done,next){
   const date=plan.date;
   if(plan.kind!=='session')return `
     <div class="row between" style="align-items:flex-start"><h2 style="flex:1;min-width:200px">Regeneracja</h2><span class="pill num">ok. ${planMin(plan)} min</span></div>
+    ${S.moves[date]?`<div class="warnbox row between"><span style="flex:1;min-width:200px">Trening z tego dnia przełożony na ${fmt(S.moves[date],{weekday:'long',day:'numeric',month:'long'})}.</span><button class="btn sm" data-act="unmove" data-v="${date}">Cofnij</button></div>`:''}
     <p class="muted small">Dzień bez treningu, regeneracja jest opcjonalna. Lekkie rolowanie i rozciąganie, żeby ciało odpoczęło. ${next?'Następny trening: '+fmt(next,{weekday:'long'})+'.':''}</p>
     ${blocksList(plan)}
     <div class="row">${done?'<span class="pill good">Zrobione</span>':`<button class="btn primary" data-act="start" data-date="${date}">${ICON.play} Zacznij</button>`}<button class="btn ghost" data-act="logClass">Byłam na zajęciach</button></div>`;
@@ -1094,12 +1098,14 @@ function sessionCard(plan,done,next){
   const canDo=date<=today();
   return `
     <div class="row between" style="align-items:flex-start"><h2 style="flex:1;min-width:200px">${esc(plan.title)}</h2><span class="pill num">ok. ${min} min</span></div>
+    ${movedFrom(date)?`<p class="small muted">Przełożony z: ${fmt(movedFrom(date),{weekday:'long',day:'numeric',month:'long'})}.</p>`:''}
     <div class="seg" role="group" aria-label="Rodzaj treningu" style="align-self:flex-start"><button data-act="mode" data-v="app" aria-pressed="${!yt}">Z timerem</button><button data-act="mode" data-v="yt" aria-pressed="${!!yt}">Z YouTube</button></div>
     ${plan.light&&!yt?`<div class="warnbox row between"><span style="flex:1;min-width:200px">Lżejszy trening: ostatnie trzy treningi oceniłaś na 8 lub więcej w skali wysiłku. Krótsze czasy i mniej powtórzeń, żeby ciało odpoczęło.</span><button class="btn sm" data-act="noDeload">Dziś normalnie</button></div>`:''}
     ${yt?`<p class="small muted">Zrób najpierw krótką rozgrzewkę (5 min marszu i pliés), potem oba filmy.${learn?' Na koniec 3 minuty nauki kroku: <b>'+esc(STEP_BY[learn.step].n)+'</b>.':''}</p><div>${plan.vids.map(vidRow).join('')}</div>`:blocksList(plan)}
     <div class="row">${done?`<span class="pill good">Zrobione</span>`:''}
       ${canDo?(yt?`<button class="btn ${done?'':'primary big'}" data-act="ytDone" data-date="${date}">${done?'Zapisz jeszcze raz':'Zrobione, zapisz trening'}</button>`
         :`<button class="btn ${done?'sm':'primary big'}" data-act="start" data-date="${date}">${ICON.play} ${done?'Powtórz':date===today()?'Zacznij':'Zrób ten trening teraz'}</button>`):'<span class="small muted">Trening będzie do zrobienia w tym dniu.</span>'}
+      ${done?'':`<button class="btn ghost" data-act="moveDlg" data-v="${date}">Przełóż</button>`}
       ${date===today()?'<button class="btn ghost" data-act="logClass">Byłam na zajęciach</button>':''}</div>`;
 }
 function stepVids(s){
@@ -1125,7 +1131,7 @@ function plTyg(n){return n===1?'tydzień':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=2
 function vPlan(){
   const [y,m]=calMonth.split('-').map(Number);const first=new Date(y,m-1,1);const start=addDays(ymd(first),-((first.getDay()+6)%7));
   let cells='';['Pn','Wt','Śr','Cz','Pt','So','Nd'].forEach(h=>cells+=`<div class="h">${h}</div>`);
-  for(let i=0;i<42;i++){const d=addDays(start,i);const L=logsOn(d);const train=S.days.includes(dow(d));let dots='';
+  for(let i=0;i<42;i++){const d=addDays(start,i);const L=logsOn(d);const train=isTrainDay(d);let dots='';
     if(L.some(l=>l.kind==='session'||l.kind==='quick'))dots+='<span class="dot done"></span>';
     if(L.some(l=>l.kind==='class'))dots+='<span class="dot class"></span>';
     if(L.some(l=>l.kind==='recovery'))dots+='<span class="dot rec"></span>';
@@ -1884,6 +1890,16 @@ function classModal(){
   <label class="field">Korekty od nauczyciela (każda w osobnej linii)<textarea id="c-corr" rows="3" placeholder="np. za wcześnie otwieram rękę w pirouette"></textarea></label>
   <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="saveClass">Zapisz</button></div>`);
 }
+function moveModal(date){
+  const opts=[];for(let i=0;i<14&&opts.length<7;i++){const d=addDays(today(),i);if(d!==date&&!isTrainDay(d)&&!doneSession(d)&&(!S.moves[d]||d===movedFrom(date)))opts.push(d)}
+  modal(`<h2 class="t3">Przełóż trening</h2><p class="small muted">Trening z dnia ${fmt(date,{weekday:'long',day:'numeric',month:'long'})} zrobisz w inny dzień. Ten dzień zmieni się w regenerację.</p>
+  ${opts.length?`<div class="daychips">${opts.map(d=>`<button class="chip" data-act="moveTo" data-v="${date}" data-to="${d}">${cap(fmt(d,{weekday:'short',day:'numeric',month:'short'}))}</button>`).join('')}</div>`:'<p class="small">W najbliższych dwóch tygodniach nie ma wolnego dnia bez treningu.</p>'}
+  <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button></div>`);
+}
+function moveTraining(from,to){
+  const orig=movedFrom(from)||from;
+  if(orig===to)delete S.moves[orig];else S.moves[orig]=to;
+}
 function confirmModal(title,text,okLabel,act){modal(`<h2 class="t3">${title}</h2><p class="small muted">${text}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="${act}">${okLabel}</button></div>`)}
 
 /* ============ ODTWARZACZ ============ */
@@ -2007,6 +2023,9 @@ document.addEventListener('click',e=>{
     case 'dismissWelcome':S.flags.welcome=1;save();render();break;
     case 'start':startSession(a.dataset.date);break;
     case 'logClass':classModal();break;
+    case 'moveDlg':moveModal(v);break;
+    case 'moveTo':{const to=a.dataset.to;moveTraining(v,to);save();closeModal();calSel=to;calMonth=to.slice(0,7);render();toast('Trening przełożony na '+fmt(to,{weekday:'long',day:'numeric',month:'long'}));break}
+    case 'unmove':delete S.moves[v];save();render();toast('Trening wrócił na swój dzień');break;
     case 'saveClass':{const type=document.getElementById('c-type').value;const min=Math.max(10,Math.min(300,parseInt(document.getElementById('c-min').value)||90));const d=document.getElementById('c-date').value||today();
       S.log.push({id:uid(),d:d>today()?today():d,kind:'class',title:type,min});
       const cs=(document.getElementById('c-corr').value||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,10);
