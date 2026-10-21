@@ -245,6 +245,7 @@ details.ex summary::-webkit-details-marker{display:none}
 details.ex[open] summary{border-bottom:1px solid var(--line)}
 details.ex .body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .fr{font-family:var(--display);font-style:italic;color:var(--muted)}
+.ph{font-weight:700;color:var(--accent);letter-spacing:.03em}
 ul.cues{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .warnbox{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600}
 
@@ -776,9 +777,9 @@ function defaults(){
   return {v:1,updatedAt:0,name:'',level:3,levelSince:t,planStart:start,days:[1,3,5,6],
     active:['split','feet','core','turns'],progStart:{split:start,feet:start,core:start,turns:start},
     pointe:true,tests,log:[],videos:{},flags:{},
-    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{},vars:{}};
+    steps:Object.fromEntries(STEPS.filter(s=>s.lv<3).map(s=>[s.id,2])),mode:'app',hipCm:null,footCm:null,ytPick:{},corrections:[],combos:[],quiz:{n:0,ok:0,best:0},pointeChecks:{},vars:{},pron:{}};
 }
-function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks','vars'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
+function migrate(s){const d=defaults();const o=Object.assign(d,s||{});for(const k of['tests','videos','flags','progStart','steps','ytPick','quiz','pointeChecks','vars','pron'])o[k]=Object.assign({},o[k]);for(const k of['log','corrections','combos'])o[k]=Array.isArray(o[k])?o[k].slice():[];return o}
 const LS='arabeska.v1';
 function loadLocal(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -1245,7 +1246,7 @@ function pairCard(P,req,t){
 }
 
 /* Nauka: dwie grupy po cztery sekcje, wszystkie widoczne naraz */
-const LGROUPS=[['Repertuar',[['kroki','Balet'],['wariacje','Wariacje'],['jazz','Jazz'],['cw','Ćwiczenia']]],['Narzędzia',[['kombi','Kombinacje'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty']]]];
+const LGROUPS=[['Repertuar',[['kroki','Balet'],['wariacje','Wariacje'],['jazz','Jazz'],['cw','Ćwiczenia']]],['Narzędzia',[['kombi','Kombinacje'],['wymowa','Wymowa'],['quiz','Quiz'],['metro','Metronom'],['korekty','Korekty']]]];
 function learnHead(title){return `<header class="stack" style="gap:12px"><h1>${title}</h1>
   <nav class="lnav" aria-label="Sekcje nauki">${LGROUPS.map(([g,L],gi)=>`<div class="lgrp"><span class="lab" id="lg${gi}">${g}</span><div class="chips wrap" role="group" aria-labelledby="lg${gi}">${L.map(([k,l])=>`<button class="chip" data-act="seg" data-v="${k}" aria-pressed="${learnSeg===k}">${l}${k==='korekty'&&activeCorr().length?' <span class="num" style="opacity:.7">'+activeCorr().length+'</span>':''}</button>`).join('')}</div></div>`).join('')}</nav></header>`}
 function vSteps(jazz){
@@ -1276,6 +1277,7 @@ function vLibrary(){
   if(learnSeg==='wariacje')return vVars();
   if(learnSeg==='kombi')return vCombo();
   if(learnSeg==='quiz')return vQuiz();
+  if(learnSeg==='wymowa')return vPron();
   if(learnSeg==='metro')return vMetro();
   if(learnSeg==='korekty')return vCorr();
   return `
@@ -1379,7 +1381,100 @@ function speak(text,lang){
     speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast('Nie udało się odtworzyć wymowy')}
 }
 const sayOf=s=>s.id.startsWith('j_')?[s.n,'en-US']:[SAY[s.id]||s.n,'fr-FR'];
-function sayBtn(s,icon){if(!canSpeak())return '';return icon?`<button class="iconbtn" data-act="say" data-v="${s.id}" aria-label="Wymów nazwę">${ICON.sound}</button>`:`<div><button class="btn ghost sm" data-act="say" data-v="${s.id}" style="padding-left:0">${ICON.sound} Posłuchaj wymowy</button></div>`}
+function sayBtn(s,icon){if(!canSpeak())return '';return icon?`<button class="iconbtn" data-act="say" data-v="${s.id}" aria-label="Wymów nazwę">${ICON.sound}</button>`:`<div><button class="btn ghost sm" data-act="say" data-v="${s.id}" style="padding-left:0">${ICON.sound} Posłuchaj wymowy</button>${PH_BY[s.id]?` <span class="ph">${phTxt(PH_BY[s.id])}</span>`:''}</div>`}
+
+/* ============ KURS WYMOWY ============ */
+/* Zapis wymowy po polsku: WIELKIE litery = akcent, ã/ą/ę = samogłoski nosowe, ü = francuskie u.
+   w: n = nazwa, say = tekst dla syntezatora, ph = poprawny zapis, bad = typowe błędy, k = wskazówka, s = id kroku */
+const PRON=[
+ {id:'akcent',t:'Akcent na ostatnią sylabę',rule:'Po polsku akcentujemy przedostatnią sylabę, po francusku zawsze ostatnią. To najczęstszy błąd: „PLI-je” zamiast „pli-JE”. Wszystkie sylaby wymawiaj równo, a ostatnią lekko wydłuż.',
+  tips:['Końcowe é czytaj jak czyste „e”, bez „j” na końcu','Nie skracaj nazwy, nawet gdy liczysz szybko'],
+  w:[{n:'Plié',say:'plié',ph:'pli-JE',bad:['PLI-je','pli-JEJ'],s:'plie'},
+   {n:'Sauté',say:'sauté',ph:'so-TE',bad:['SAŁ-te','sał-TE'],k:'au czyta się jak „o”',s:'saute'},
+   {n:'Relevé',say:'relevé',ph:'re-le-WE',bad:['re-LE-we','re-le-WEJ'],s:'releve'},
+   {n:'Arabesque',say:'arabesque',ph:'a-ra-BESK',bad:['a-ra-BES-kłe','a-RA-besk'],k:'-que na końcu to samo „k”',s:'arabesque'},
+   {n:'Attitude',say:'attitude',ph:'a-ti-TÜD',bad:['a-ti-TU-de','AT-ti-tjud'],k:'końcowe e jest nieme',s:'attitude'}]},
+ {id:'nieme',t:'Nieme końcówki',rule:'Na końcu francuskiego słowa zwykle nie wymawia się -e, -s, -t, -d, -x ani -nt. Słyszysz je dopiero, gdy po nich jest samogłoska w tym samym słowie.',
+  tips:['-é, -er, -ez na końcu brzmią tak samo: „e”','Końcowe -r i -c zwykle słychać: en dehors → „ã de-OR”','h jest zawsze nieme'],
+  w:[{n:'Pas de chat',say:'pas de chat',ph:'pa de SZA',bad:['pas de CZAT','pa de SZAT'],s:'pasdechat'},
+   {n:'Port de bras',say:'port de bras',ph:'por de BRA',bad:['port de BRAS','por de BRAZ'],s:'portdebras'},
+   {n:'Battement',say:'battement',ph:'bat-MÃ',bad:['bat-te-MENT','BAT-ment'],k:'środkowe e prawie znika'},
+   {n:'Assemblé',say:'assemblé',ph:'a-sã-BLE',bad:['a-sem-BLE','a-SEM-ble'],s:'assemble'},
+   {n:'Temps levé',say:'temps levé',ph:'tã le-WE',bad:['temps le-WE','tęp LE-we'],k:'w temps nie słychać ani p, ani s',s:'tempsleve'},
+   {n:'En dehors',say:'en dehors',ph:'ã de-OR',bad:['en de-HORS','ã de-ORS']}]},
+ {id:'nosowe',t:'Samogłoski nosowe',rule:'an, en, am, em, on, in nie czyta się jak „a+n”. Samogłoska idzie przez nos, a „n” znika. Polskie ą i ę są bardzo blisko, ale nie dodawaj na końcu „ł” ani „m”.',
+  tips:['an / en → ã: jak „ą”, ale z szeroko otwartymi ustami','on → ą: jak w „są”, bez „ł” na końcu','in / ain → ę','Jeśli po n jest samogłoska albo drugie n (sissonne), n słychać normalnie'],
+  w:[{n:'Changement',say:'changement',ph:'szãż-MÃ',bad:['szan-że-MENT','szanż-MENT']},
+   {n:'En dedans',say:'en dedans',ph:'ã de-DÃ',bad:['en de-DANS','ã de-DANS']},
+   {n:'Rond de jambe',say:'rond de jambe',ph:'rą de ŻÃB',bad:['rond de DŻAMB','rą de ŻAMB']},
+   {n:'Fondu',say:'fondu',ph:'fą-DÜ',bad:['FON-du','fon-DU']},
+   {n:'Développé',say:'développé',ph:'de-wlo-PE',bad:['de-we-LOP-pe','de-we-lo-PEJ'],k:'pierwsze é wyraźne, drugie e prawie znika',s:'developpe'}]},
+ {id:'samogloski',t:'u, ou, oi, ai',rule:'Francuskie samogłoski piszą się inaczej, niż brzmią. Te cztery pary pojawiają się w nazwach kroków najczęściej.',
+  tips:['u → ü: powiedz „i” z ustami w dzióbek, jak do „u”','ou → zwykłe „u”','oi → „ła”','ai, è, ê → „e”'],
+  w:[{n:'Pirouette',say:'pirouette',ph:'pi-RŁET',bad:['pi-ro-U-et-te','pi-ru-ET'],k:'ou przed samogłoską skraca się do „ł”'},
+   {n:'Fouetté',say:'fouetté',ph:'fłe-TE',bad:['fo-ue-TE','FU-et-te']},
+   {n:'Croisé',say:'croisé',ph:'krła-ZE',bad:['kroj-ZE','kro-I-ze'],k:'s między samogłoskami brzmi jak „z”'},
+   {n:'Royale',say:'royale',ph:'rła-JAL',bad:['ro-JA-le','roj-AL'],s:'royale'},
+   {n:'Chaînés',say:'chaînés',ph:'sze-NE',bad:['szaj-NES','CZAJ-nes'],s:'chaines'},
+   {n:'Cou-de-pied',say:'cou-de-pied',ph:'ku de PJE',bad:['kou de PIED','ku de PIED']}]},
+ {id:'spolgloski',t:'ch, j, g, qu, ss',rule:'Kilka spółgłosek brzmi zupełnie inaczej niż po polsku. Zapamiętaj je raz, a przeczytasz każdą nową nazwę.',
+  tips:['ch → „sz”, nigdy „cz”','j oraz g przed e, i → „ż”, nigdy „dż”','qu → „k”','s między samogłoskami → „z”, ss → „s”','pp, tt, ll czytaj jak pojedyncze'],
+  w:[{n:'Jeté',say:'jeté',ph:'że-TE',bad:['dże-TE','je-TE']},
+   {n:'Piqué',say:'piqué',ph:'pi-KE',bad:['pi-KŁE','pi-KUE']},
+   {n:'Échappé',say:'échappé',ph:'e-sza-PE',bad:['e-cza-PE','e-SZAP-pe']},
+   {n:'Glissade',say:'glissade',ph:'gli-SAD',bad:['gli-SA-de','gli-ZAD'],s:'glissade'},
+   {n:'Brisé',say:'brisé',ph:'bri-ZE',bad:['bri-SE','BRI-ze'],s:'brise'},
+   {n:'Petit jeté',say:'petit jeté',ph:'pe-ti że-TE',bad:['pe-TIT dże-TE','PE-tit że-TE'],s:'petitjete'}]},
+ {id:'frazy',t:'Całe nazwy kroków',rule:'Długie nazwy czytaj jednym ciągiem, jak jedno słowo, z akcentem dopiero na samym końcu frazy. Nieme spółgłoski ożywają, gdy następne słowo zaczyna się od samogłoski (to tzw. liaison).',
+  tips:['grand écart → „grã-te-KAR”: d z grand łączy się z écart jako „t”','Nie rób pauz między słowami jednej nazwy'],
+  w:[{n:'Pas de bourrée',say:'pas de bourrée',ph:'pa de bu-RE',bad:['pas de BUR-re','pa de bur-REJ'],s:'pdb'},
+   {n:'Grand battement',say:'grand battement',ph:'grã bat-MÃ',bad:['grand bat-te-MENT','GRAN bat-MÃ'],s:'grandbatt'},
+   {n:'Pirouette en dehors',say:'pirouette en dehors',ph:'pi-rłet ã de-OR',bad:['pi-ro-et-te en de-HORS','pi-rłet en DE-hors'],s:'pir_dehors'},
+   {n:'Sissonne fermée',say:'sissonne fermée',ph:'si-son fer-ME',bad:['sis-SON-ne fer-MEJ','si-son FER-me'],s:'sissonne'},
+   {n:'Grand écart',say:'grand écart',ph:'grã-te-KAR',bad:['grand e-KART','grã e-KART'],k:'po polsku: szpagat'},
+   {n:'Fouetté rond de jambe en tournant',say:'fouetté rond de jambe en tournant',ph:'fłe-te rą de żãb ã tur-NÃ',bad:['fu-et-te rond de żamb en tur-NANT','fłe-TE rą de ŻAMB en TUR-nant'],s:'fouette_prep'}]}
+];
+const PH_BY=Object.fromEntries(PRON.flatMap(L=>L.w.filter(w=>w.s).map(w=>[w.s,w.ph])));
+const PRON_KEY=[['WIELKIE','sylaba z akcentem, zawsze ostatnia'],['ã','an, en: jak „ą”, ale usta szeroko otwarte'],['ą','on: jak w „są”, bez „ł” na końcu'],['ę','in, ain: jak polskie „ę”'],['ü','u: „i” wymawiane z ustami w dzióbek'],['e','w sylabie bez akcentu krótkie i słabe, prawie znika'],['r','gardłowe, z tyłu gardła, jak przy płukaniu']];
+let pronLesson=null,pronRun=null;
+const phTxt=x=>esc(x).replace(/-/g,'‑');
+const pronDone=L=>{const r=(S.pron||{})[L.id];return r&&r.best>=.7};
+function pronStart(li){
+  const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+  const items=li==null?shuffle(PRON.flatMap((L,l)=>L.w.map((_,i)=>[l,i]))).slice(0,8):shuffle(PRON[li].w.map((_,i)=>[li,i]));
+  pronRun={li,items:items.map(([l,i])=>({l,i,opts:shuffle([PRON[l].w[i].ph,...PRON[l].w[i].bad]),ans:null})),k:0,ok:0};
+}
+function pronWordRow(w,l,i){return `<div class="logrow"><div style="min-width:0"><b>${esc(w.n)}</b><br><span class="ph">${phTxt(w.ph)}</span>${w.k?`<p class="small muted">${esc(w.k)}</p>`:''}</div>${canSpeak()?`<button class="iconbtn" data-act="pronSay" data-v="${l}:${i}" aria-label="Posłuchaj: ${esc(w.n)}">${ICON.sound}</button>`:''}</div>`}
+function vPron(){
+  const head=learnHead('Kurs wymowy');
+  if(pronRun)return head+pronRunCard();
+  if(pronLesson!=null){const L=PRON[pronLesson];const r=(S.pron||{})[L.id];
+    return `${head}<div><button class="btn ghost sm" data-act="pronBack" style="padding-left:0">← Wszystkie lekcje</button></div>
+    <section class="card stack"><p class="eyebrow">Lekcja ${pronLesson+1} z ${PRON.length}</p><h2 class="t3">${esc(L.t)}</h2><p>${esc(L.rule)}</p><ul class="cues">${L.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></section>
+    <section class="card"><h2 class="t3" style="margin-bottom:6px">Posłuchaj i powtórz na głos</h2>${L.w.map((w,i)=>pronWordRow(w,pronLesson,i)).join('')}</section>
+    <div class="row"><button class="btn primary" data-act="pronGo" data-v="${pronLesson}">Sprawdź się · ${L.w.length} pytań</button>${r?`<span class="pill ${pronDone(L)?'good':'warn'} num">najlepszy wynik ${Math.round(r.best*100)}%</span>`:''}</div>`}
+  const done=PRON.filter(pronDone).length;const next=PRON.findIndex(L=>!pronDone(L));
+  return `${head}
+  <p class="muted small">Sześć krótkich lekcji: zasada, przykłady do odsłuchania i sprawdzian, w którym wybierasz poprawny zapis wymowy. Lekcja jest zaliczona od 70% poprawnych odpowiedzi.${canSpeak()?'':' Ten telefon nie czyta na głos, więc korzystaj z zapisu wymowy.'}</p>
+  <section class="card stack" style="gap:8px"><div class="row between"><h2 class="t3">Twój postęp</h2><span class="pill ${done===PRON.length?'good':'accent'} num">${done}/${PRON.length} lekcji</span></div><div class="bar good"><span style="width:${Math.round(done/PRON.length*100)}%"></span></div></section>
+  <details class="ex"><summary><b>Jak czytać zapis wymowy</b><span class="pill">legenda</span></summary><div class="body">${PRON_KEY.map(([a,b])=>`<p><span class="ph">${a}</span> ${esc(b)}</p>`).join('')}</div></details>
+  <div class="stack" style="gap:8px">${PRON.map((L,l)=>{const r=(S.pron||{})[L.id];return `<button class="opt row between" style="flex-wrap:nowrap" data-act="pronOpen" data-v="${l}"><span style="min-width:0"><span class="small muted num">Lekcja ${l+1}</span><br>${esc(L.t)}</span>${pronDone(L)?'<span class="pill good">zaliczona</span>':r?`<span class="pill warn num">${Math.round(r.best*100)}%</span>`:l===next?'<span class="pill accent">następna</span>':''}</button>`}).join('')}</div>
+  <button class="btn" data-act="pronGo" data-v="mix">Powtórka: 8 losowych nazw</button>`;
+}
+function pronRunCard(){
+  const R=pronRun,n=R.items.length;
+  if(R.k>=n){const pct=R.ok/n;const L=R.li!=null?PRON[R.li]:null;
+    return `<section class="card stack"><h2 class="t3">${pct>=.7?'Brawo!':'Jeszcze raz?'}</h2><p class="qterm num">${R.ok}/${n}</p>
+    <p class="small muted">${L?(pct>=.7?'Lekcja zaliczona.':'Do zaliczenia potrzeba 70%. Posłuchaj jeszcze raz przykładów i spróbuj ponownie.'):'Powtarzaj co kilka dni, aż nazwy będą brzmiały naturalnie.'}</p>
+    <div class="row"><button class="btn primary" data-act="pronGo" data-v="${R.li==null?'mix':R.li}">Powtórz</button>${L&&R.li<PRON.length-1&&pct>=.7?`<button class="btn" data-act="pronOpen" data-v="${R.li+1}">Następna lekcja</button>`:''}<button class="btn ghost" data-act="pronBack">Lista lekcji</button></div></section>`}
+  const it=R.items[R.k],w=PRON[it.l].w[it.i],done=it.ans!=null;
+  return `<section class="card stack"><div class="row between"><p class="eyebrow num">Pytanie ${R.k+1} z ${n}</p><button class="btn ghost sm" data-act="pronBack">Przerwij</button></div>
+    <div class="row between" style="flex-wrap:nowrap"><p class="qterm">${esc(w.n)}</p>${canSpeak()&&done?`<button class="iconbtn" data-act="pronSay" data-v="${it.l}:${it.i}" aria-label="Posłuchaj wymowy">${ICON.sound}</button>`:''}</div>
+    <h2 class="t3">Jak to wymówić?</h2>
+    <div class="stack" style="gap:8px">${it.opts.map((o,j)=>{const ok=o===w.ph,ch=o===it.ans;return `<button class="opt ${done?(ok?'right':ch?'wrong':''):''}" data-act="pronAns" data-v="${j}" ${done?'disabled':''}>${phTxt(o)}</button>`}).join('')}</div>
+    ${done?`<p class="small"><b>${it.ans===w.ph?'Dobrze!':'Poprawnie: '+phTxt(w.ph)+'.'}</b> ${w.k?esc(w.k):'Zasada z lekcji „'+esc(PRON[it.l].t)+'”.'}</p><div><button class="btn primary" data-act="pronNext">${R.k+1<n?'Dalej':'Zobacz wynik'}</button></div>`:''}
+  </section>`;
+}
 
 /* ============ KOMBINACJE ============ */
 function genCombo(type){
@@ -1556,6 +1651,15 @@ document.addEventListener('click',e=>{
     case 'comboMetro':{const mp=METRO.find(m=>m.id===COMBO_TYPES[comboType].metro);M.preset=mp.id;M.bpm=mp.bpm;M.meter=mp.m;learnSeg='metro';render();metroStart();render();window.scrollTo(0,0);break}
     case 'quizAns':{if(!quizQ||quizQ.ans!=null)break;quizQ.ans=v;S.quiz.n++;if(v===quizQ.id){S.quiz.ok++;quizStreak++;S.quiz.best=Math.max(S.quiz.best,quizStreak)}else quizStreak=0;save();render();break}
     case 'quizNext':quizQ=newQuiz();render();break;
+    case 'pronOpen':pronLesson=Number(v);pronRun=null;render();window.scrollTo(0,0);break;
+    case 'pronBack':pronLesson=pronRun&&pronRun.li!=null&&pronRun.k<pronRun.items.length?pronRun.li:null;pronRun=null;render();window.scrollTo(0,0);break;
+    case 'pronGo':pronStart(v==='mix'?null:Number(v));render();window.scrollTo(0,0);break;
+    case 'pronSay':{const [l,i]=v.split(':').map(Number);const w=PRON[l]&&PRON[l].w[i];if(w)speak(w.say,'fr-FR');break}
+    case 'pronAns':{const R=pronRun;const it=R&&R.items[R.k];if(!it||it.ans!=null)break;const w=PRON[it.l].w[it.i];it.ans=it.opts[Number(v)];if(it.ans===w.ph)R.ok++;
+      if(canSpeak())speak(w.say,'fr-FR');
+      if(R.k===R.items.length-1&&R.li!=null){const id=PRON[R.li].id,pct=R.ok/R.items.length,old=S.pron[id];S.pron[id]={d:today(),best:Math.max(pct,old?old.best:0)};save()}
+      render();break}
+    case 'pronNext':if(pronRun){pronRun.k++;render()}break;
     case 'metroToggle':if(M.on)metroStop();else metroStart();render();break;
     case 'metroPreset':{const mp=METRO.find(m=>m.id===v);M.preset=v;M.bpm=mp.bpm;M.meter=mp.m;if(M.on){metroStop();metroStart()}render();break}
     case 'metroMeter':M.meter=Number(v);M.preset=null;render();break;
