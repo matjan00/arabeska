@@ -844,21 +844,49 @@ async function initCloud(){
     attachCloud(db.doc('data/users/'+id+'/state'));
   }catch(e){cloud.status='error';renderSync()}
 }
+/* Automatyczne kopie: zanim dane z konta zastąpią dane w urządzeniu (albo odwrotnie), poprzednia wersja trafia tutaj. */
+const BK='arabeska.backups',ACCT='arabeska.acct';
+function loadBackups(){try{const r=JSON.parse(localStorage.getItem(BK)||'[]');return Array.isArray(r)?r:[]}catch(e){return[]}}
+function backup(state,why){
+  if(!state||!(state.log||[]).length&&!state.updatedAt)return;
+  try{const b=loadBackups();const j=JSON.stringify(state);if(b.some(x=>JSON.stringify(x.data)===j))return;
+    b.unshift({at:Date.now(),why,data:JSON.parse(j)});localStorage.setItem(BK,JSON.stringify(b.slice(0,6)))}catch(e){}
+}
+const weight=s=>(s.log||[]).length*10+Object.values(s.tests||{}).reduce((a,v)=>a+(v||[]).filter(x=>!x.est).length,0)+(s.corrections||[]).length+(s.combos||[]).length;
+/* Łączy dwie wersje danych bez gubienia wpisów: bazą jest bogatsza, z drugiej dochodzi to, czego brakuje. */
+function mergeStates(a,b){
+  const [base,other]=weight(a)>=weight(b)?[a,b]:[b,a];
+  const o=migrate(JSON.parse(JSON.stringify(base))),x=migrate(JSON.parse(JSON.stringify(other)));
+  const ids=new Set(o.log.map(l=>l.id));for(const l of x.log)if(!ids.has(l.id))o.log.push(l);
+  o.log.sort((p,q)=>p.d<q.d?-1:p.d>q.d?1:0);
+  for(const k in x.tests){const cur=o.tests[k]||[];
+    const add=x.tests[k].filter(t=>!t.est&&!cur.some(c=>c.d===t.d&&c.v===t.v));
+    o.tests[k]=cur.concat(add).sort((p,q)=>p.d<q.d?-1:p.d>q.d?1:0)}
+  for(const k of['corrections','combos']){const seen=new Set(o[k].map(v=>JSON.stringify(v)));for(const v of x[k])if(!seen.has(JSON.stringify(v)))o[k].push(v)}
+  for(const k of['videos','flags','steps','ytPick','pointeChecks','vars','pron','moves'])for(const kk in x[k])if(!(kk in o[k]))o[k][kk]=x[k][kk];
+  return o;
+}
 async function attachCloud(ref){
   cloud.ref=ref;
+  const acct=String(ref.path||ref.id||'claude');
+  let known;try{known=localStorage.getItem(ACCT)===acct}catch(e){known=false}
   try{
     const snap=await cloud.ref.get();
-    if(snap.exists){
-      const d=snap.data();
-      if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal();if(!P)render()}
-      else if((S.updatedAt||0)>(d.updatedAt||0))pushCloud();
-    } else if(S.updatedAt) pushCloud();
     if(cloud.ref!==ref)return;
+    const d=snap.exists?snap.data():null;
+    if(d&&d.data&&!known){
+      /* To urządzenie nie było jeszcze połączone z tym kontem: nie nadpisujemy niczego, tylko łączymy obie wersje. */
+      backup(S,'Dane z tego urządzenia przed połączeniem z kontem');backup(d.data,'Dane z konta przed połączeniem z tym urządzeniem');
+      S=mergeStates(S,d.data);S.updatedAt=Date.now();saveLocal();pushCloud();
+    } else if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){backup(S,'Dane z tego urządzenia przed pobraniem z konta');S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal()}
+    else if(d&&(S.updatedAt||0)>(d.updatedAt||0)){if(d.data)backup(d.data,'Dane z konta przed zapisem z tego urządzenia');pushCloud()}
+    else if(!d&&S.updatedAt)pushCloud();
+    try{localStorage.setItem(ACCT,acct)}catch(e){}
     cloud.status='cloud';renderSync();if(!P)render();
     cloud.unsub=ref.onSnapshot(sn=>{
       if(!sn.exists||sn.metadata.hasPendingWrites)return;
       const d=sn.data();
-      if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal();if(!P)render()}
+      if(d&&d.data&&(d.updatedAt||0)>(S.updatedAt||0)){backup(S,'Dane z tego urządzenia przed pobraniem z konta');S=migrate(JSON.parse(JSON.stringify(d.data)));saveLocal();if(!P)render()}
     },()=>{});
   }catch(e){if(cloud.ref===ref){cloud.status='error';renderSync()}}
 }
@@ -1194,7 +1222,7 @@ function vLevel(){
   ${accountCard()}
   <section class="card flat stack"><h2 class="t3">Kopia zapasowa</h2>
     <p class="small muted">${window.claude?'Dane zapisują się na Twoim koncie Claude.':cloud.status==='cloud'?'Dane zapisują się na Twoim koncie Google.':'Dane są zapisane w tym telefonie.'} Kopią przeniesiesz je na inne urządzenie albo do drugiej wersji aplikacji.</p>
-    <div class="row"><button class="btn sm" data-act="export">Eksportuj dane</button><button class="btn sm" data-act="import">Importuj dane</button></div>
+    <div class="row"><button class="btn sm" data-act="export">Eksportuj dane</button><button class="btn sm" data-act="import">Importuj dane</button>${loadBackups().length?'<button class="btn sm" data-act="backups">Poprzednie wersje</button>':''}</div>
   </section>
   <section class="card flat stack"><h2 class="t3">Usuwanie danych</h2>
     <p class="small muted">Usuwa historię treningów, pomiary i ustawienia z tej wersji aplikacji. Tego nie da się cofnąć, więc najpierw wyeksportuj kopię.</p>
@@ -2068,6 +2096,10 @@ document.addEventListener('click',e=>{
       <textarea class="input" id="imp-txt" rows="5" placeholder="Wklej tutaj dane"></textarea>
       <label class="field">albo plik<input id="imp-file" type="file" accept=".json,application/json"></label>
       <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Anuluj</button><button class="btn primary" data-act="doImport">Wczytaj</button></div>`);break;
+    case 'backups':{const b=loadBackups();modal(`<h2 class="t3">Poprzednie wersje</h2><p class="small muted">Aplikacja zapamiętuje dane sprzed synchronizacji z kontem. Przywrócenie połączy wybraną wersję z obecnymi danymi, więc nic nie zginie.</p>
+      <div class="stack">${b.map((x,i)=>`<div class="row" style="justify-content:space-between;gap:8px"><div><b>${new Date(x.at).toLocaleString('pl-PL',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}</b><p class="small muted">${esc(x.why)} · treningi: ${(x.data.log||[]).filter(l=>TRAIN_KINDS.includes(l.kind)).length}</p></div><button class="btn sm" data-act="restoreBackup" data-i="${i}">Przywróć</button></div>`).join('')}</div>
+      <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closeModal">Zamknij</button></div>`);break}
+    case 'restoreBackup':{const x=loadBackups()[+a.dataset.i];if(!x)break;backup(S,'Dane przed przywróceniem poprzedniej wersji');S=mergeStates(x.data,S);save();closeModal();render();toast('Przywrócono poprzednią wersję');break}
     case 'doImport':{const f=document.getElementById('imp-file').files[0];
       const apply=txt=>{try{const o=JSON.parse(txt);if(!o||typeof o!=='object'||!o.tests||!Array.isArray(o.log))throw 0;S=migrate(o);save();closeModal();render();toast('Dane wczytane')}catch(_){toast('To nie wygląda na kopię z Arabeski')}};
       if(f){f.text().then(apply)}else apply(document.getElementById('imp-txt').value.trim());break}
