@@ -11,8 +11,8 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = pathlib.Path(__file__).parent
 OUT = ROOT / "docs"
 SRC = (ROOT / "arabeska.html").read_text(encoding="utf-8")
-ACCENT = "#A3305A"
-BG = "#F3F2F7"
+ACCENT = "#9E2B4E"
+BG = "#F7F4EF"
 
 OUT.mkdir(exist_ok=True)
 (OUT / "icons").mkdir(exist_ok=True)
@@ -117,10 +117,10 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
     if(bar)return;
     bar=document.createElement('div');
     bar.setAttribute('role','region');bar.setAttribute('aria-label','Instalacja aplikacji');
-    bar.style.cssText='display:flex;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px));background:#A3305A;color:#fff;font:15px/1.4 system-ui,sans-serif';
+    bar.style.cssText='display:flex;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px));background:#9E2B4E;color:#fff;font:15px/1.4 system-ui,sans-serif';
     var txt=document.createElement('span');txt.style.flex='1';txt.textContent='Zainstaluj Arabeskę: ikona na ekranie i działanie offline.';
     var b=document.createElement('button');b.type='button';b.textContent='Zainstaluj';
-    b.style.cssText='font:inherit;font-weight:600;border:0;border-radius:8px;padding:7px 14px;background:#fff;color:#A3305A;cursor:pointer';
+    b.style.cssText='font:inherit;font-weight:600;border:0;border-radius:8px;padding:7px 14px;background:#fff;color:#9E2B4E;cursor:pointer';
     var x=document.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Zamknij');
     x.style.cssText='font:20px/1 system-ui;border:0;background:none;color:#fff;cursor:pointer;padding:4px 6px';
     b.onclick=function(){if(!evt)return;var e=evt;evt=null;e.prompt();e.userChoice.finally(hide)};
